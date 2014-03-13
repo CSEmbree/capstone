@@ -1,0 +1,5 @@
+REC: ~/sounds/rec/rec_D-13-2-114_T-20-55-6.wav
+CMD: arecord -D plughw:1 -D plughw:1 --duration=2 -f cd -vv ~/sounds/rec/rec_D-13-2-114_T-20-55-6.wav
+LAT: 33° 58' 34.3698"
+LON: -120° 6' 46.2198"
+MAC: 93.184.216.119
