@@ -88,7 +88,7 @@ std::string getMacAddress() {
 }
 
 
-std::string makeCmd(std::string fileName) {
+std::string makeRecCmd(std::string fileName) {
   stringstream cmdStream;
 
   //"arecord -D plughw:1 --duration=2 -f cd -vv ~/sounds/rec/recTest.wav"; 
@@ -130,8 +130,8 @@ std::string makeAudioFileName(std::string dirPath, std::string timeStamp, std::s
 
 int main(int argc, char **argv) {
   string timeStamp = makeTimeStamp();
-  string audioRecName = makeAudioFileName("~/sounds/rec/", timeStamp, ".wav");
-  string recCmd = makeCmd(audioRecName);
+  string audioRecName = makeAudioFileName("~/sounds/rec/audio_raw/", timeStamp, ".wav");
+  string recCmd = makeRecCmd(audioRecName);
   string macAddr = getMacAddress();
 
   //HARDCODED POSITIONS
@@ -148,12 +148,12 @@ int main(int argc, char **argv) {
 
   stringstream outRecFileName;
   outRecFileName << path 
-		 << "/sounds/rec/"
+		 << "/sounds/rec/fv_raw/"
 		 << "rec_info_"
 		 << timeStamp
 		 << ".txt";
   
-  cout << "TEST: Creating file: " << outRecFileName.str().c_str() << "\n";
+  cout << "AUDIO FIL: " << outRecFileName.str().c_str() << "\n";
 
   ofstream recFileData;
   recFileData.open(outRecFileName.str().c_str());
@@ -164,6 +164,22 @@ int main(int argc, char **argv) {
 	      << "MAC: " << macAddr << "\n";
 
   recFileData.close();
+
+
+
+  //perform feature extraction
+  //sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c featureplan -r 44100 rec_D-13-2-114_T-48-54-6.wav
+  
+  stringstream extCmd;
+  extCmd << "sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c"
+	 << " ~/sounds/rec/featureplan -r 44100 "
+	 << audioRecName
+	 << " -b ~/sounds/rec/fv_raw/";
+
+  cout << "FEATURE VEC FILE(s): " << extCmd.str().c_str() << "\n";
+
+  system(extCmd.str().c_str());
+
 
   
   return 0;
