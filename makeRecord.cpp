@@ -88,20 +88,20 @@ std::string getMacAddress() {
 }
 
 
-std::string makeRecCmd(std::string fileName) {
+std::string makeRecCmd(std::string fileName, int dur) {
   stringstream cmdStream;
 
   //"arecord -D plughw:1 --duration=2 -f cd -vv ~/sounds/rec/recTest.wav"; 
 
   string recProg = "arecord -D plughw:1";
   string deviceName= "-D plughw:1";
-  string duration = "--duration=2";
+  string duration = "--duration="; //no duration set by default - will use 2 secs if not overwritten
   string format = "-f cd";
   string extraOptions = "-vv";
   
   cmdStream << recProg
             << " " << deviceName
-            << " " << duration
+            << " " << duration << dur //duration of recording
             << " " << format
             << " " << extraOptions
             << " " << fileName;
@@ -129,9 +129,18 @@ std::string makeAudioFileName(std::string dirPath, std::string timeStamp, std::s
 
 
 int main(int argc, char **argv) {
+
+  int dur = 2; //HARDCODED TEMP RECORD LENGTH IF NONE SELECTED BY USER
+
+  if(argc >= 2) {
+    dur = atoi(argv[1]);
+  }
+
+  printf("Making record of duration: %d\n", dur);
+
   string timeStamp = makeTimeStamp();
   string audioRecName = makeAudioFileName("~/sounds/rec/audio_raw/", timeStamp, ".wav");
-  string recCmd = makeRecCmd(audioRecName);
+  string recCmd = makeRecCmd(audioRecName, dur);
   string macAddr = getMacAddress();
 
   //HARDCODED POSITIONS
