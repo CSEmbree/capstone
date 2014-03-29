@@ -20,6 +20,7 @@
 #include <fstream>
 
 
+
 using namespace std;
 
 std::string makeTimeStamp()
@@ -40,11 +41,12 @@ std::string makeTimeStamp()
 
   std::cout << "timeStamp:: " << timeStmp.str() << "\n";
 
-  return timeStmp.str();
 
+  return timeStmp.str();
 }
 
 
+//TEMP METHOD - TODO - Could be used as an identifier for Meta data file?
 std::string getMacAddress() {
   struct addrinfo *result;
   struct addrinfo *res;
@@ -84,6 +86,7 @@ std::string getMacAddress() {
   
   freeaddrinfo(result);
 
+
   return macAddr;
 }
 
@@ -93,6 +96,7 @@ std::string makeRecCmd(std::string fileName, int dur) {
 
   //"arecord -D plughw:1 --duration=2 -f cd -vv ~/sounds/rec/recTest.wav"; 
 
+  //various necessary parameters to make an ARECORD command line call
   string recProg = "arecord -D plughw:1";
   string deviceName= "-D plughw:1";
   string duration = "--duration="; //no duration set by default - will use 2 secs if not overwrittn
@@ -107,6 +111,7 @@ std::string makeRecCmd(std::string fileName, int dur) {
             << " " << fileName;
 
   string cmd = cmdStream.str();
+
 
   return cmd;
 }
@@ -128,31 +133,41 @@ std::string makeAudioFileName(std::string dirPath, std::string timeStamp, std::s
 }
 
 
+
 int main(int argc, char **argv) {
 
   int dur = 2; //HARDCODED TEMP RECORD LENGTH IF NONE SELECTED BY USER
 
   if(argc >= 2) {
-    dur = atoi(argv[1]);
+    dur = atoi(argv[1]); //user chosen duration for recording (assumed valid)
   }
 
+  //Alert user to starting of recording with desired duration
   printf("Making record of duration: %d\n", dur);
 
+
+
+  //---------AUDIO RECORD----------
+  //various meta data for the record
   string timeStamp = makeTimeStamp();
   string audioRecName = makeAudioFileName("~/sounds/rec/audio_raw/", timeStamp, ".wav");
   string recCmd = makeRecCmd(audioRecName, dur);
   string macAddr = getMacAddress();
 
-  //HARDCODED POSITIONS
+  //HARDCODED Meta data for GPA POSITIONS
   string lat = "33° 58' 34.3698\"";
   string lon = "-120° 6' 46.2198\"";
 
-  
-  //system call to make audio recording
+  //make audio recording
   system(recCmd.c_str());
 
+  //alert user to creation of audio file
+  cout << "AUDIO FILE: " << audioRecName << "\n";
 
-  //create output file of audio recording and Pi info
+
+
+  //---------META DATA----------
+  //create Metadata output file of audio recording and Pi info
   string path(getenv("HOME"));  
 
   stringstream outRecFileName;
@@ -162,8 +177,7 @@ int main(int argc, char **argv) {
 		 << timeStamp
 		 << ".txt";
   
-  cout << "AUDIO FILE: " << outRecFileName.str().c_str() << "\n";
-
+  //create meta data file with approprate info
   ofstream recFileData;
   recFileData.open(outRecFileName.str().c_str());
   recFileData << "REC: " << audioRecName << "\n"
@@ -174,9 +188,12 @@ int main(int argc, char **argv) {
 
   recFileData.close();
 
+  //Alert user to creation of meta data file
+  cout << "META DATA FILE: " << outRecFileName.str().c_str() << "\n";
 
 
-  //perform feature extraction
+
+  //---------FEATURE EXTRACTION----------
   //sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c featureplan -r 44100 rec_D-13-2-114_T-20-55-6.wav -b $(pwd)/test -v -p MetaData=True
   
 
@@ -191,11 +208,13 @@ int main(int argc, char **argv) {
 	 << " ../../featureplan -r 44100 "
 	 << makeAudioFileName("", timeStamp, ".wav")
 	 << " -b ../fv_raw/";
-
-  cout << "FEATURE VEC FILE(s): " << extCmd.str().c_str() << "\n";
-
+  
+  //perform FV element extraction
   system(extCmd.str().c_str());
 
+  //alert user to cration of feature vector elements
+  //cout << "FEATURE VEC FILE(s): " << extCmd.str().c_str() << "\n"; //TODO - make builder for feature vector command line call 
+  cout << "FEATURE VEC FILE(s) LOC: " << "~/sounds/rec/fv_raw/" << "\n";
 
   
   return 0;
