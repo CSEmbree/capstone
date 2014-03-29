@@ -95,7 +95,7 @@ std::string makeRecCmd(std::string fileName, int dur) {
 
   string recProg = "arecord -D plughw:1";
   string deviceName= "-D plughw:1";
-  string duration = "--duration="; //no duration set by default - will use 2 secs if not overwritten
+  string duration = "--duration="; //no duration set by default - will use 2 secs if not overwrittn
   string format = "-f cd";
   string extraOptions = "-vv";
   
