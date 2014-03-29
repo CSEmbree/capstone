@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
 		 << timeStamp
 		 << ".txt";
   
-  cout << "AUDIO FIL: " << outRecFileName.str().c_str() << "\n";
+  cout << "AUDIO FILE: " << outRecFileName.str().c_str() << "\n";
 
   ofstream recFileData;
   recFileData.open(outRecFileName.str().c_str());
@@ -168,13 +168,20 @@ int main(int argc, char **argv) {
 
 
   //perform feature extraction
-  //sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c featureplan -r 44100 rec_D-13-2-114_T-48-54-6.wav
+  //sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c featureplan -r 44100 rec_D-13-2-114_T-20-55-6.wav -b $(pwd)/test -v -p MetaData=True
   
+
+  //BUG?: There is an issue where the output file is based on the ENTIRE input file. To avoid creating directories based on input file location
+  // we are cding to the correct directory and then doing the extraction from there...
+
+  //TEMP WORKING COMMAND
+  //cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c ../../featureplan -r 44100 rec_D-29-2-114_T-43-21-0.wav -b ../fv_raw/
+
   stringstream extCmd;
-  extCmd << "sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c"
-	 << " ~/sounds/rec/featureplan -r 44100 "
-	 << audioRecName
-	 << " -b ~/sounds/rec/fv_raw/";
+  extCmd << "cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c"
+	 << " ../../featureplan -r 44100 "
+	 << makeAudioFileName("", timeStamp, ".wav")
+	 << " -b ../fv_raw/";
 
   cout << "FEATURE VEC FILE(s): " << extCmd.str().c_str() << "\n";
 
