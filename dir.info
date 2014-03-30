@@ -1,0 +1,1 @@
+This directory is the home for the test code of recoding with 'arecord' (implimented), feature extracting with 'yaafe' (implimented but not finalized), then sending those features as a "Feature Vector" to a remote server (not yet implimented).
