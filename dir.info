@@ -1,1 +1,11 @@
 This directory is the home for the test code of recoding with 'arecord' (implimented), feature extracting with 'yaafe' (implimented but not finalized), then sending those features as a "Feature Vector" to a remote server (not yet implimented).
+
+FILES:
+cleanup.sh :: script to cleanup all recordings and features extracted after running executable 'mr'
+featurevector :: steering file used by 'Yaafe' to know what features to extract from the audio
+makeRecord.cpp :: the test code for creating a recording and extracted features from it
+mr :: the executable creaded from running 'sh setup.sh' which compiled 'makeRecord.cpp'
+notes/ :: notes and documentation that I create as I am going along, for reference later
+rec/ :: direcotry that holds all recorded audio and extracted features
+setup.sh :: run this script to prep the executable
+test_scripts :: various testing of recording and extraction of audio. Just for my own references

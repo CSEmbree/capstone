@@ -1,1 +1,6 @@
 This Directory holds all raw audio recordings as well sa the features extracted from recordings.
+
+FILES:
+audio_raw/ :: holds the raw audio recorded (in WAV) for later feature extraction
+fv_raw/ :: holds the raw features extracted from audio in the "audio_raw/" directory
+test/ :: directory for holding random test values to not dirty up the clean space

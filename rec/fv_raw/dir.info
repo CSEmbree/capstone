@@ -1,1 +1,4 @@
 This directory is a holder for all features extracted which will make up a feature vector.
+
+FILES:
+<Before feature extraction is performed from raw audio, nothing should be here>
