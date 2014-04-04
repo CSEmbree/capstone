@@ -170,26 +170,26 @@ int main(int argc, char **argv) {
   //create Metadata output file of audio recording and Pi info
   string path(getenv("HOME"));  
 
-  stringstream outRecFileName;
-  outRecFileName << path 
+  stringstream outRecMetaFileName;
+  outRecMetaFileName << path 
 		 << "/sounds/rec/fv_raw/"
-		 << "rec_info_"
+		 << "rec_Dat_"
 		 << timeStamp
-		 << ".txt";
+		 << ".mdat";
   
   //create meta data file with approprate info
-  ofstream recFileData;
-  recFileData.open(outRecFileName.str().c_str());
-  recFileData << "REC: " << audioRecName << "\n"
+  ofstream recMetaData;
+  recMetaData.open(outRecMetaFileName.str().c_str());
+  recMetaData << "REC: " << audioRecName << "\n"
 	      << "CMD: " << recCmd << "\n"
 	      << "LAT: " << lat << "\n"
 	      << "LON: " << lon << "\n"
 	      << "MAC: " << macAddr << "\n";
 
-  recFileData.close();
+  recMetaData.close();
 
   //Alert user to creation of meta data file
-  cout << "META DATA FILE: " << outRecFileName.str().c_str() << "\n";
+  cout << "META DATA FILE: " << outRecMetaFileName.str().c_str() << "\n";
 
 
 
@@ -216,6 +216,21 @@ int main(int argc, char **argv) {
   //cout << "FEATURE VEC FILE(s): " << extCmd.str().c_str() << "\n"; //TODO - make builder for feature vector command line call 
   cout << "FEATURE VEC FILE(s) LOC: " << "~/sounds/rec/fv_raw/" << "\n";
 
+
+
+  //---------CHECK FOR NOISE----------
+  //check if FV contains information we are interested in sending to the server
+
   
+  //open feature vector element 
+
+
+  //look for something other than just background noise
+
+
+  //If not just background noise, move audio and fv data w/ meta data to './deploy/'
+
+  
+
   return 0;
 }
