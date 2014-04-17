@@ -1,0 +1,2 @@
+intersting noise discriminator:
+psp looks like an options - PerceptualSharpness
