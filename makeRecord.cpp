@@ -246,11 +246,13 @@ int main(int argc, char **argv) {
   //Temporary Check to see when tasks are completed 
   if(childpid == 0) {
     printf("TEST: Child (pid:%ld) finished. \n", (long)getpid());
-    return 1;
+    exit(0); //kill child process
   } else {
     printf("TEST: Parent (pid:%ld) finished. \n", (long)getpid());
-    return 2;
+    return 1;
   }
+
+  printf("test");
 
   return 0;
 }
