@@ -1,0 +1,22 @@
+Run program with format:
+
+         ./mr <# of runs> <# of duration per recording in seconds>
+
+
+
+NOTES:
+Duration of 0 seconds means it will record infinitly
+	 ./mr 0 5 
+//Record infinitly in 5 second chunks 
+
+
+
+EXAMPLES:
+BASIC - make one recording of length 2 seconds
+         ./mr
+
+NORAML - make 5 recordings each of length 6 seconds
+         ./mr 5 6
+
+INFINITE - make infinite recordings each of length 4 seconds
+	 ./mr 0 4

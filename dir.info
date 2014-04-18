@@ -5,7 +5,7 @@ cleanup.sh :: script to cleanup all recordings and features extracted after runn
 featurevector :: steering file used by 'Yaafe' to know what features to extract from the audio
  - CHANGE THIS FILE TO CHANGE WHAT FEATURES ARE EXTRACTED
 makeRecord.cpp :: the test code for creating a recording and extracted features from it
-mr :: the executable creaded from running 'sh setup.sh' which compiled 'makeRecord.cpp'
+mr :: the executable creaded from running 'sh setup.sh' which compiled 'makeRecord.cpp'. Run with '/.mr <#runs> <#duration>'
 notes/ :: notes and documentation that I create as I am going along, for reference later
 rec/ :: direcotry that holds all recorded audio and extracted features
 setup.sh :: run this script to prep the executable

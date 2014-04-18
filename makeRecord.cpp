@@ -139,110 +139,133 @@ std::string makeAudioFileName(std::string dirPath, std::string timeStamp, std::s
 int main(int argc, char **argv) {
 
   int dur = 2; //HARDCODED TEMP RECORD LENGTH IF NONE SELECTED BY USER
+  int numRuns = 1; //HARDCODED TEMP NUMBER OF RUNS
 
-  if(argc >= 2) {
-    dur = atoi(argv[1]); //user chosen duration for recording (assumed valid)
+
+  //EXAMPLE RUN: ./mr 2 5
+  //Make two recordings of length 5
+
+  if(argc >= 3) {
+    numRuns = atoi(argv[1]); //user chosen number of runs (assumed valid) //Value of '0' means infinity (arecord(1)).
+    dur = atoi(argv[2]); //user chosen duration for recording (assumed valid)
   }
 
   //Alert user to starting of recording with desired duration
-  printf("Making record of duration: %d\n", dur);
+  printf("Making '%d' records of duration '%d'\n", numRuns, dur);
 
 
+  pid_t childpid; //pid for keeping track of children
+  string timeStamp = "null";
+  string audioRecName = "null";
+  string recCmd = "null";
+  string macAddr = "null";
+  string lat = "null";
+  string lon = "null";
 
-  //---------AUDIO RECORD----------
-  //various meta data for the record
-  string timeStamp = makeTimeStamp();
-  string audioRecName = makeAudioFileName("~/sounds/rec/audio_raw/", timeStamp, ".wav");
-  string recCmd = makeRecCmd(audioRecName, dur);
-  string macAddr = getMacAddress();
+  //Make as many recordings as requested
+  for(int runCount=0; runCount<numRuns; runCount++) {
 
-  //HARDCODED Meta data for GPA POSITIONS
-  string lat = "33° 58' 34.3698\"";
-  string lon = "-120° 6' 46.2198\"";
-
-  //make audio recording
-  system(recCmd.c_str());
-
-  //alert user to creation of audio file
-  cout << "AUDIO FILE: " << audioRecName << "\n";
-
-
-  //spawn a child to extract features from audio
-  pid_t childpid = fork();
-  
-  if(childpid == -1) {
-    perror("Failed to Fork");
-    return 1; //ERROR - fork failed!!
+    //---------AUDIO RECORD----------
+    //various meta data for the record
+    timeStamp = makeTimeStamp();
+    audioRecName = makeAudioFileName("~/sounds/rec/audio_raw/", timeStamp, ".wav");
+    recCmd = makeRecCmd(audioRecName, dur);
+    macAddr = getMacAddress();
+    
+    //HARDCODED Meta data for GPA POSITIONS
+    lat = "33° 58' 34.3698\"";
+    lon = "-120° 6' 46.2198\"";
+    
+    //make audio recording
+    system(recCmd.c_str());
+    
+    //alert user to creation of audio file
+    cout << "AUDIO FILE: " << audioRecName << "\n";
+    
+    
+    //spawn a child to extract features from audio for each recording
+    childpid = fork();
+    
+    if(childpid == -1) {
+      perror("Failed to Fork");
+      return 1; //ERROR - fork failed!!
+    }
+    
+    if(childpid ==0) {
+      break;
+    }
   }
+  
 
+  //Child process takes care of feature extraction
   if(childpid == 0) {
-	printf("Child process (%ld) analyzing audio... \n", (long)getpid());
-
-	//---------META DATA----------
-	//create Metadata output file of audio recording and Pi info
-	string path(getenv("HOME"));  
-	
-	stringstream outRecMetaFileName;
-	outRecMetaFileName << path 
-			   << "/sounds/rec/fv_raw/"
-			   << "rec_Dat_"
-			   << timeStamp
-			   << ".mdat";
-	
-	//create meta data file with approprate info
-	ofstream recMetaData;
-	recMetaData.open(outRecMetaFileName.str().c_str());
-	recMetaData << "REC: " << audioRecName << "\n"
-		    << "CMD: " << recCmd << "\n"
-		    << "LAT: " << lat << "\n"
-		    << "LON: " << lon << "\n"
-		    << "MAC: " << macAddr << "\n";
-	
-	recMetaData.close();
-	
-	//Alert user to creation of meta data file
-	cout << "META DATA FILE: " << outRecMetaFileName.str().c_str() << "\n";
-	
-	
-	
-	//---------FEATURE EXTRACTION----------
-	//sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c featureplan -r 44100 rec_D-13-2-114_T-20-55-6.wav -b $(pwd)/test -v -p MetaData=True
-	
-	
-	//BUG?: There is an issue where the output file is based on the ENTIRE input file. To avoid creating directories based on input file location
-	// we are cding to the correct directory and then doing the extraction from there...
-	
-	//TEMP WORKING COMMAND
-	//cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c ../../featureplan -r 44100 rec_D-29-2-114_T-43-21-0.wav -b ../fv_raw/
-	
-	stringstream extCmd;
-	extCmd << "cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c"
-	       << " ../../featureplan -r 44100 "
-	       << makeAudioFileName("", timeStamp, ".wav")
-	       << " -b ../fv_raw/";
-	
-	//perform FV element extraction
-	system(extCmd.str().c_str());
-	
-	//alert user to cration of feature vector elements
-	//cout << "FEATURE VEC FILE(s): " << extCmd.str().c_str() << "\n"; //TODO - make builder for feature vector command line call 
-	cout << "FEATURE VEC FILE(s) LOC: " << "~/sounds/rec/fv_raw/" << "\n";
-	
-	
-	
-	//---------CHECK FOR NOISE----------
-	//check if FV contains information we are interested in sending to the server
-	
-	//open feature vector element 
-	
-	
-	//look for something other than just background noise
-	
-	
-	//If not just background noise, move audio and fv data w/ meta data to './deploy/'
-  
+    printf("Child process (%ld) analyzing audio... \n", (long)getpid());
+    
+    //---------META DATA----------
+    //create Metadata output file of audio recording and Pi info
+    string path(getenv("HOME"));  
+    
+    stringstream outRecMetaFileName;
+    outRecMetaFileName << path 
+		       << "/sounds/rec/fv_raw/"
+		       << "rec_"
+		       << timeStamp
+		       << ".mdat";
+    
+    //create meta data file with approprate info
+    ofstream recMetaData;
+    recMetaData.open(outRecMetaFileName.str().c_str());
+    recMetaData << "REC: " << audioRecName << "\n"
+		<< "CMD: " << recCmd << "\n"
+		<< "LAT: " << lat << "\n"
+		<< "LON: " << lon << "\n"
+		<< "MAC: " << macAddr << "\n";
+    
+    recMetaData.close();
+    
+    //Alert user to creation of meta data file
+    cout << "META DATA FILE: " << outRecMetaFileName.str().c_str() << "\n";
+    
+    
+    
+    //---------FEATURE EXTRACTION----------
+    //sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c featureplan -r 44100 rec_D-13-2-114_T-20-55-6.wav -b $(pwd)/test -v -p MetaData=True
+    
+    
+    //BUG?: There is an issue where the output file is based on the ENTIRE input file. To avoid creating directories based on input file location
+    // we are cding to the correct directory and then doing the extraction from there...
+    
+    //TEMP WORKING COMMAND
+    //cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c ../../featureplan -r 44100 rec_D-29-2-114_T-43-21-0.wav -b ../fv_raw/
+    
+    stringstream extCmd;
+    extCmd << "cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c"
+	   << " ../../featureplan -r 44100 "
+	   << makeAudioFileName("", timeStamp, ".wav")
+	   << " -b ../fv_raw/";
+    
+    //perform FV element extraction
+    system(extCmd.str().c_str());
+    
+    //alert user to cration of feature vector elements
+    //cout << "FEATURE VEC FILE(s): " << extCmd.str().c_str() << "\n"; //TODO - make builder for feature vector command line call 
+    cout << "FEATURE VEC FILE(s) LOC: " << "~/sounds/rec/fv_raw/" << "\n";
+    
+    
+    
+    //---------CHECK FOR NOISE----------
+    //check if FV contains information we are interested in sending to the server
+    
+    //open feature vector element 
+    
+    
+    //look for something other than just background noise
+    
+    
+    //If not just background noise, move audio and fv data w/ meta data to './deploy/'
+    
   }
-
+  
   //Temporary Check to see when tasks are completed 
   if(childpid == 0) {
     printf("TEST: Child (pid:%ld) finished. \n", (long)getpid());
@@ -252,7 +275,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  printf("test");
+  printf("test - this should never be seen!");
 
   return 0;
 }
