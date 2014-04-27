@@ -11,3 +11,5 @@ It takes 388.3mins to do one write cycle.
 
 
 
+ANALYZING AUDIO SLOWER THAN RECORDING IT
+Make sure feature vector analysis is FASTER than recording, otherwise we will run out of CPU space
