@@ -1,9 +1,9 @@
 
 CC = gcc
 CXX = g++
-DEBUG = -g -Wall
+DEBUG = -g
 RM = rm -rf
-CPPFLAGS = -pthread 
+CPPFLAGS = -pthread -Wall -O3 -fPIC -fpermissive -std=c++0x $(DEBUG)
 #LDFLAGS=-g $(shell root-config --ldflags)
 LDLIBS = -pthread
 
@@ -19,7 +19,7 @@ depend: .depend
 
 .depend: $(SRCS)
 	rm -f ./.depend
-	$(CXX) $(DEBUG) $(CPPFLAGS) -MM $^>>./.depend;
+	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
 
 clean:
 	$(RM) ./.libs ./.obj *.lo *.o *.la  *~
