@@ -1,3 +1,5 @@
+
+
 #include "config_handler.h"
 
 /******************************************************************
@@ -10,7 +12,7 @@ config_handler::config_handler( string fname )
 {
 
   string mn = "config_handler:";
-  cout<<cn<<mn<<" Constructor started for file: \""<<fname<<"\"."<<endl;
+  cout<<cn<<mn<<" Constructor started for file \""<<fname<<"\"."<<endl;
 
   debug = true;
   init();
@@ -18,7 +20,7 @@ config_handler::config_handler( string fname )
   set_config_file_name( fname );
   read_config( get_config_file_name()+"/config" );
 
-  cout<<cn<<mn<<" Constructor finished for file: \""<<fname<<"\"."<<endl;
+  cout<<cn<<mn<<" Constructor finished for file \""<<fname<<"\"."<<endl;
 }
 
 
@@ -44,7 +46,7 @@ void config_handler::read_config( string fname ) {
   string mn = "read_config:"; //Method name, for printing
 
 
-  cout<<cn<<mn<<" Searing for config file = \""<<fname<<"\"..."<<endl;
+  cout<<cn<<mn<<" Searching for config file \""<<fname<<"\"..."<<endl;
   
   //ensure config provided is found and readable
   ifstream infile(fname.c_str(), ios::in);
@@ -54,7 +56,7 @@ void config_handler::read_config( string fname ) {
     exit(1);
   } else {
     this->set_config_file_name( fname );
-    if (debug) cout<<cn<<mn<<" Reading config file: \""<<fname<<"\""<<endl;
+    if (debug) cout<<cn<<mn<<" Reading config file \""<<fname<<"\""<<endl;
   }
 
   
@@ -96,13 +98,13 @@ void config_handler::read_config( string fname ) {
 	debug=true;
 	cout<<cn<<mn<<" Debug turned on!"<<endl;
       } else if ( optionName == "REC_DUR" ) {
-	set_rec_duration( numeric(optionValue) );
+	set_rec_duration( utils::string_to_number<int>( optionValue ) );
       } else if ( optionName == "REC_NUM" ) {
-	set_rec_number( numeric(optionValue) );
+	set_rec_number( utils::string_to_number<int>( optionValue ) );
       } else if ( optionName == "REC_PREFIX" ) {
 	set_rec_file_name_prefix( optionValue );
       } else if ( optionName == "SAMP_RATE" ) {
-	set_samp_rate( numeric(optionValue) );
+	set_samp_rate( utils::string_to_number<int>( optionValue ) );
       } else if ( optionName == "FV_PATH" ) {
 	set_fv_path( optionValue );
       } else if ( optionName == "REC_EXT" ) {
@@ -232,46 +234,50 @@ int config_handler::get_rec_duration() { return rec_dur; }
 //*****************
 bool config_handler::set_config_file_name( string fname ) {
   config_file_name = fname;
+
+  return true; // TODO - impliment
 }
+
 
 bool config_handler::set_fv_path( string fvpath ) {
   fv_path = fvpath;
+  return true; // TODO - impliment
 }
+
 
 bool config_handler::set_rec_file_name_prefix( string prefix ) {
   rec_file_name_prefix = prefix;
+  return true; // TODO - impliment
 }
+
 
 bool config_handler::set_rec_location( string loc ) {
   rec_location = loc;
+  return true; // TODO - impliment
 }
+
 
 bool config_handler::set_rec_extention( string ext ) {
   rec_extention = ext;
+  return true; // TODO - impliment
 }
+
 
 bool config_handler::set_samp_rate( int samprate ) {
   samp_rate = samprate;
+  return true; // TODO - impliment
 }
+
 
 bool config_handler::set_rec_duration( int recdur ) {
   rec_dur = recdur;
+  return true; // TODO - impliment
 }
+
 
 bool config_handler::set_rec_number( int recnum ) {
   rec_num = recnum;
+  return true; // TODO - impliment
 }
 
-
-
-
-int config_handler::numeric( string s )
-{
-  int res = -1;
-  
-  istringstream buffer( s );
-  buffer >> res;
-  
-  return res;
-}
 

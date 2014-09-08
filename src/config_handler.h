@@ -2,7 +2,7 @@
  * Title:    config_handler
  * Author:   C. Embree
  * Contact:  cse@cameronembree.com
- * Created:  4-SEP-2013
+ * Created:  4-SEP-2014
  * Edited:   4-SEP-2014
  * Notes:    Handles storage for config file options
  */
@@ -10,17 +10,7 @@
 #ifndef CONFIG_HANDLER_H
 #define CONFIG_HANDLER_H
 
-using namespace std;
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <iomanip>  // std::setw
-#include <fstream>
-#include <sstream>
+#include "utils.h"
 
 
 class config_handler {
@@ -39,10 +29,7 @@ class config_handler {
   int rec_dur;
   int rec_num;
   
-
   void init();  
-  int numeric( string s );
-  
   
  
  public:
