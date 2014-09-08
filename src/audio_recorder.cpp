@@ -1,21 +1,9 @@
-/*
- * AUTHOR: CAMERON EMBREE
- */
 
-
-#include "utils.h"
 
 #include "audio_recorder.h"
 #include "config_handler.h"
 
  
-#ifndef   NI_MAXHOST
-#define   NI_MAXHOST 1025
-#endif
- 
-
-
-//using namespace std;
 
 audio_recorder::audio_recorder( config_handler ch ) {
 
@@ -31,6 +19,7 @@ audio_recorder::audio_recorder( config_handler ch ) {
   cout<<cn<<mn<<" Constructor finished. "<<endl;
 }
 
+
 void audio_recorder::init() {
 
   cn = " audio_recorder::";
@@ -40,6 +29,7 @@ void audio_recorder::init() {
 
   return;
 }
+
 
 void audio_recorder::apply_config_settings( config_handler ch ) {
 
@@ -55,7 +45,6 @@ void audio_recorder::apply_config_settings( config_handler ch ) {
 }
 
 
-
 void audio_recorder::record( string ts, int dur) {
 
   string mn = "record:";
@@ -65,12 +54,16 @@ void audio_recorder::record( string ts, int dur) {
   // collect recording details for recording name and system call
   string timeStamp = ts;
   int duration = dur;
-  if( timeStamp == "" )  timeStamp = make_time_stamp();
+  if( timeStamp == "" )  timeStamp = utils::make_time_stamp();
   if( duration == -1 )   duration = get_rec_duration();
 
 
-  // create recording name and system command from rec details
+  // create recording file name from config and env details
   string audioRecName = make_audio_file_name( timeStamp );
+  set_rec_file_name( audioRecName );
+
+
+  // create a system command to make the recording
   string recCmd = make_rec_cmd( audioRecName, duration );
 
       
@@ -81,82 +74,9 @@ void audio_recorder::record( string ts, int dur) {
   cout<<cn<<mn<<" Finished a recording called \""<<audioRecName<<"\"."<<endl;
 }
 
-std::string audio_recorder::make_time_stamp() {
-
-  string mn = "make_time_stamp:";
-  cout<<cn<<mn<<" Making time stamp ... "<<endl;
-
-  time_t ltime;
-  struct tm *Tm;
- 
-  ltime=time(NULL);
-  Tm=localtime(&ltime);
- 
-  stringstream timeStmp;
-  timeStmp << "D-"  << Tm->tm_mday
-	   << "-"   << Tm->tm_mon
-	   << "-"   << Tm->tm_year
-	   << "_T-" << Tm->tm_sec
-	   << "-"   << Tm->tm_min
-	   << "-"   << Tm->tm_hour;
-
-
-  cout<<cn<<mn<<" Time Stamp is \""<<timeStmp.str()<<"\""<<endl;
-
-  return timeStmp.str();
-}
-
-
-//TEMP METHOD - TODO - Could be used as an identifier for Meta data file?
-std::string audio_recorder::get_mac_address() {
-
-  string mn = "get_mac_address:";
-  cout<<cn<<mn<<" Getting mac address ... "<<endl;
-
-  struct addrinfo *result;
-  struct addrinfo *res;
-  int error;
- 
-  /* resolve the domain name into a list of addresses */
-  error = getaddrinfo("www.example.com", NULL, NULL, &result);
-  if (error != 0) {   
-    if (error == EAI_SYSTEM) {
-      perror("getaddrinfo");
-    }
-    else {
-      fprintf(stderr, "error in getaddrinfo: %s\n", gai_strerror(error));
-    }   
-    exit(EXIT_FAILURE);
-  }   
- 
-  char hostname[NI_MAXHOST] = "";
- 
-  /* loop over all returned results and do inverse lookup */
-  for (res = result; res != NULL; res = res->ai_next) {   
-      error = getnameinfo(res->ai_addr, res->ai_addrlen, hostname, NI_MAXHOST, NULL, 0, 0); 
-      
-      if (error != 0) {
-	fprintf(stderr, "error in getnameinfo: %s\n", gai_strerror(error));
-	continue;
-      }
-  }   
-  
-  
-  
-  stringstream mac;
-  mac << hostname;
-  string macAddr = mac.str();
-  
-  freeaddrinfo(result);
-  
-  cout<<cn<<mn<<" Mac address is \""<<macAddr<<"\""<<endl;
-  
-  return macAddr;
-}
-
 
 std::string audio_recorder::make_rec_cmd( const string fileName, const string dur ) {
-  make_rec_cmd( fileName, (int) utils::string_to_number<int>(dur) );
+  return make_rec_cmd( fileName, (int) utils::string_to_number<int>(dur) );
 }
 
 
@@ -248,40 +168,33 @@ void audio_recorder::print() {
 }
 
 
-
 bool audio_recorder::set_rec_file_name_prefix( string recfilenameprefix ) {
-  
   rec_file_name_prefix = recfilenameprefix;
- 
-  return true;
+  return true; //TODO - impliment
 }
+
 
 bool audio_recorder::set_rec_file_name( string recfilename ) {
-  
   rec_file_name = recfilename;
- 
-  return true;
+  return true; //TODO - impliment
 }
+
 
 bool audio_recorder::set_rec_location( string loc ) {
-  
   rec_location = loc;
- 
-  return true;
+  return true; //TODO - impliment
 }
 
-bool audio_recorder::set_rec_extention( string ext ) {
-  
+
+bool audio_recorder::set_rec_extention( string ext ) { 
   rec_extention = ext;
- 
-  return true;
+  return true; //TODO - impliment
 }
+
 
 bool audio_recorder::set_rec_duration( int dur ) {
-
   rec_duration = dur;
-
-  return true;
+  return true; //TODO - impliment
 }
 
 
@@ -289,13 +202,16 @@ string audio_recorder::get_rec_file_name_prefix() {
   return rec_file_name_prefix;
 }
 
+
 string audio_recorder::get_rec_file_name() {
   return rec_file_name;
 }
 
+
 string audio_recorder::get_rec_location() {
   return rec_location;
 }
+
 
 string audio_recorder::get_rec_extention() {
   return rec_extention;
