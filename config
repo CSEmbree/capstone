@@ -2,6 +2,6 @@ FV_PATH ~/sound_script/featureplan
 REC_EXT .wav
 REC_LOC ~/sounds/rec/audio_raw/
 REC_DUR 2
-REC_NUM 1
+REC_NUM 3
 SAMP_RATE 44100
 REC_PREFIX rec_
