@@ -168,33 +168,91 @@ void audio_recorder::print() {
 }
 
 
-bool audio_recorder::set_rec_file_name_prefix( string recfilenameprefix ) {
-  rec_file_name_prefix = recfilenameprefix;
-  return true; //TODO - impliment
+bool audio_recorder::set_rec_file_name_prefix( string prefix ) {
+
+  string mn = "set_rec_file_name_prefix:";
+  bool res = false;
+
+  if ( prefix != "" ) {
+    rec_file_name_prefix = prefix;
+    res = true;
+  } else {
+    cerr<<cn<<mn<<" WARN: Recordings will not have a file name prefix!"<<endl;
+    res = true;
+  }
+
+  return res;
 }
 
 
-bool audio_recorder::set_rec_file_name( string recfilename ) {
-  rec_file_name = recfilename;
-  return true; //TODO - impliment
+bool audio_recorder::set_rec_file_name( string fname ) {
+
+  string mn = "set_rec_file_name:";
+  bool res = false;
+
+  if( fname != "" ) {
+    rec_file_name = fname;
+    res = true;
+  } else {
+    cerr<<cn<<mn<<" ERROR: A recording must a file name! Using \"filename\"."<<endl;
+    rec_file_name = "filename";
+  }
+
+  return res;
 }
 
 
 bool audio_recorder::set_rec_location( string loc ) {
-  rec_location = loc;
-  return true; //TODO - impliment
+  
+  string mn = "set_rec_location:";
+  bool res = false;
+
+  if( loc != "" ) {
+    rec_location = loc;
+    res = true;
+  } else {
+    string cwd = utils::get_cwd();
+    cerr<<cn<<mn<<" ERROR: A recording file location not specified! "
+	<<"Recordings will be saved to local working directory \""<<cwd<<"\""<<endl;
+    rec_location = cwd;
+  }
+
+  return res;
 }
 
 
 bool audio_recorder::set_rec_extention( string ext ) { 
-  rec_extention = ext;
-  return true; //TODO - impliment
+
+  string mn = "set_rec_extention:";
+  bool res = false;
+
+  if( ext != "" ) {
+    rec_extention = ext;
+    res = true;
+  } else {
+    cerr<<cn<<mn<<" ERROR: A recording must have an extention. Using \".wav\"."<<endl;
+    rec_extention = ".wav";
+  }
+
+  return res;
 }
 
 
 bool audio_recorder::set_rec_duration( int dur ) {
-  rec_duration = dur;
-  return true; //TODO - impliment
+  
+  string mn = "set_rec_duration:";
+  bool res = false;
+  
+  if( dur > 0 ) { 
+    rec_duration = dur;
+    res = true;
+  } else {
+    cerr<<cn<<mn<<" ERROR: A recording cannot have duration '"<<dur<<"'."
+	<<" Duration remains '"<<get_rec_duration()<<"'"<<endl;
+    //utils::error_msg();
+  }
+
+  return res;
 }
 
 
