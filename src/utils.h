@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <iostream>
+#include <unistd.h>
 #include <string>
 #include <vector>
 #include <iomanip>  // std::setw
@@ -25,7 +26,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
+#include <sys/stat.h>
 #include <sys/types.h>
 
 
@@ -47,8 +48,7 @@ class utils {
 
   //CITE: str->num from http://www.cplusplus.com/articles/D9j2Nwbp/
   template <typename T>
-    static T string_to_number ( const std::string &Text )
-    {
+    static T string_to_number ( const std::string &Text ) {
       istringstream ss(Text);
       T result;
       return ss >> result ? result : 0;
@@ -57,8 +57,7 @@ class utils {
 
   //CITE: num->str from http://www.cplusplus.com/articles/D9j2Nwbp/
   template <typename T> 
-    static string number_to_string ( T Number )
-    {
+    static string number_to_string ( T Number ) {
       ostringstream ss;
       ss << Number;
       return ss.str();
@@ -148,6 +147,82 @@ class utils {
     
     
     return macAddr;
+  };
+
+
+
+
+  // CITE: Daemon creation process code borrowed and edited from:
+  // http://www.thegeekstuff.com/2012/02/c-daemon-process/
+  static int daemonize() {
+
+    string mn = "daemonize:";
+    
+    pid_t pid = 0;
+    pid_t sid = 0;
+    
+    // Create child process
+    pid = fork();
+    
+    // Indication of fork() failure
+    if ( pid < 0 ) {
+      cout<<mn<<" fork failed! pid = \""<<pid<<"\""<<endl;
+      
+      // Return failure in exit status
+      exit(1);
+    }
+    
+    // PARENT PROCESS. Need to kill it be become free.
+    if ( pid > 0 ) {
+      cout<<mn<<" pid of child is \""<<pid<<"\""<<endl;
+      
+      // return success in exit status
+      exit(0);
+    }
+    
+    //unmask the file mode
+    umask(0);
+    
+    
+    //set new session
+    sid = setsid();
+    if( sid < 0 ) {
+      // Return failure
+      exit(1);
+    }
+    
+    // Change the current working directory to root.
+    chdir("/"); //TODO - make this the raraa working directory based on config
+    
+    
+    // Close stdin. stdout and stderr
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+    
+    
+    return 0;
+  };
+  
+
+  //Retrieving the current working directory borrowed from
+  // http://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
+  static string get_cwd() {
+    
+    string mn = "get_cwd:";
+    char cCurrentPath[FILENAME_MAX];
+    
+    if ( !getcwd( cCurrentPath, sizeof(cCurrentPath) ) ) {
+      return ""; //TODO - this error can be handled better? 
+    }
+    
+    cCurrentPath[sizeof(cCurrentPath) - 1] = '\0'; /* not really required */
+    string cwd = string(cCurrentPath);
+
+
+    cout<<mn<<" Current working directory is \""<<cwd<<"\""<<endl;
+  
+    return cwd;
   };
   
 };
