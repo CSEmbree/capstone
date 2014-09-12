@@ -84,8 +84,15 @@ echo "preparing new workspace..."
 make
 echo "Done."
 
+echo "ensuring executables..."
+chmod u+x install.sh
+chmod u+x start.sh
+chmod u+x stop.sh
+chmod u+x clean_workspace.sh
+echo "Done."
 
-echo " === (3/3) STOP - Preparing raraa === "
+
+echo " === (3/3) STOP - Prepared raraa === "
 
 
 
