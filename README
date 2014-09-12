@@ -1,0 +1,217 @@
+README for raraa software
+
+===================================================================
+Read the following to understand how the Remote Audio Recording and 
+Analysis software 'raraa' works. Content is broken up as follows:
+
+1. PURPOSE
+
+2. INSTALL
+   2.a PHYSICAL
+   2.b SOFTWARE
+   2.c DEPENDANCIES
+
+3. RUN
+   3.a CONFIG FILES
+      3.a.I CONFIG EXAMPLE
+   3.b FEATURE PLAN (AUDIO ANALYSIS)
+      3.b.I FEATURE PLAN EXAMPLE
+   3.c START RECORDING
+   3.d STOP RECORDING
+
+4. CLEAN UP
+
+5. EXAMPLE
+
+6. REFERENCES
+===================================================================
+
+
+-------------------------------------------------------------------
+1. PURPOSE
+-------------------------------------------------------------------
+The purpose of this software is to remotely record and analyize 
+audio. Is id designed to work on a Rasberry Pi with Rasbian.
+
+ - The recording is done via the UNIX software called "arecord". 
+ - The analysis is done via the UNIX software called "yaafe".
+
+The following installation process is be needed to run.
+
+If there are questions, comments or bugs, report them to:
+cameron.embree748@myci.csuci.edu
+
+
+-------------------------------------------------------------------
+2. INSTALL
+-------------------------------------------------------------------
+First, install the physical sound card (if your RPi does not have 
+one) by (2.a) and then install the software by (2.b)
+
+
+-------------------------------------------------------------------
+2.a PHYSICAL
+-------------------------------------------------------------------
+Two physical installations are needed by the software:
+ 1. A sound card
+ 2. A microphone that the sound card can talk to
+
+Rasberry Pi's older than the B+ version have no on board sound card
+so you will need a USB sound card.
+
+First, install the USB sound card into an available USB slot. Your 
+RPi should recognise the sound card without any more assistance.
+
+Second, install a microphone. If you have an external sound card
+then the microphone will be installed into that. If you have an
+on board sound card then install your microphone into the RPi.
+
+In either case, the microphone will be found immidetly by the sound
+card.
+
+Ensure your installation is correct by performing the following:
+  step1
+  2
+  3
+
+You should see the name of your sound card and an audio file 
+"test.wav" in your home directory. Play the sound file someplace
+with speakers to ensure the recording was successful.
+
+
+-------------------------------------------------------------------
+2.b SOFTWARE
+-------------------------------------------------------------------
+raraa uses the following libraries
+ - arecord
+ - yaafe
+
+To install the raraa code perform the following:
+
+  ./install.sh |& tee install.log
+
+After the install script finishes, a log file "install.log" should
+be in the local directory for reference about the installation.
+
+If code ONLY needs to be recompiled, then perform:
+
+  make
+
+
+-------------------------------------------------------------------
+2.c DEPENDANCIES
+-------------------------------------------------------------------
+raraa uses "arecord" and "yaafe". More information about these 
+libraries can be found in the REFERENCES section.
+
+All dependancies are installed/updated by the "install.sh" script.
+
+
+-------------------------------------------------------------------
+3. RUN
+-------------------------------------------------------------------
+To run raraa after the previous INSTALL steps requires two steps:
+  1. Edit the "config" file (See 3.a).
+  2. Run the code with "start.sh" (See 3.b).
+  3. (OPTIONALLY) Stop recording with "stop.sh" (See 3.c).
+
+
+-------------------------------------------------------------------
+3.a CONFIG FILES
+-------------------------------------------------------------------
+The configuration file, called config, is a file that determines
+how recordings are performed. Config files contain the following
+operating details:
+
+  FV_PATH    - Work space for audio analysis/filtering
+  REC_EXT    - recording extention
+  REC_LOC    - Directory path to where recordings are saved
+  REC_DUR    - The duration of each recoding in seconds
+  REC_NUM    - The number of recordings to make
+  SAMP_RATE  - The sample rate in Hz of each recording
+  REC_PREFIX - An optional prefix for each recoring
+
+
+-------------------------------------------------------------------
+3.a.I CONFIG EXAMPLE
+-------------------------------------------------------------------
+Suppose the following is the contents of the local config file:
+
+  FV_PATH ~/sound_script/featureplan
+  REC_EXT .wav
+  REC_LOC ~/sounds/rec/audio_raw/
+  REC_DUR 3
+  REC_NUM 2
+  SAMP_RATE 44100
+  REC_PREFIX rec_
+
+Two recordings of duration 3 seconds at a sample rate of 44100Hz
+will be made. Each recoring will be saved as a ".wav" file with the
+prefix "rec_" and extention ".wav". These recordings are saved to
+the directory called "~/sounds/rec/audio_raw/". Filtering/Audio
+analysis is saved in the directory "~/sound_script/featureplan".
+
+
+-------------------------------------------------------------------
+3.b FEATURE PLAN (AUDIO ANALYSIS)
+-------------------------------------------------------------------
+The yaafe software used for audio analysis and filtering uses a
+"featureplan" file to determine what to extract from a recording.
+
+Details about the available feature's ina  feature plan are here:
+
+  http://yaafe.sourceforge.net/features.html
+
+A deafult feature plan file is already in the working directory.
+
+
+-------------------------------------------------------------------
+3.b FEATURE PLAN EXAMPLE
+-------------------------------------------------------------------
+The following default feature plan is supported:
+
+ blah
+ blah 
+ blah
+
+-------------------------------------------------------------------
+3.c START RECORDING
+-------------------------------------------------------------------
+Recordings are started after a config file is available with:
+
+  ./start.sh
+
+-------------------------------------------------------------------
+3.d STOP RECORDING
+-------------------------------------------------------------------
+Recordings are halted with:
+
+  ./stop.sh
+
+
+-------------------------------------------------------------------
+4. CLEANING UP
+-------------------------------------------------------------------
+If the recording and analysis direcotrys needs to be cleaned up
+then perform the following:
+
+  ./cleanup.sh
+
+
+-------------------------------------------------------------------
+5. EXAMPLE
+-------------------------------------------------------------------
+Suppose a config file already exists
+
+  ./install.sh
+  ./start.sh
+  ./stop.sh
+
+
+-------------------------------------------------------------------
+6. REFERENCES
+-------------------------------------------------------------------
+Whole document can be found in the raraa "docs" directory.
+
+arecord - 
+yaafe   - 
