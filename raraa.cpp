@@ -22,6 +22,8 @@ string n = "**raraa::";
 
 
 int main(int argc, char **argv) {
+  
+  //utils::daemonize();
 
   string mn = "main:";
   int dur = 5;         //HARDCODED TEMP RECORD LENGTH IF NONE SELECTED BY USER
@@ -71,14 +73,18 @@ int main(int argc, char **argv) {
   string timeStamp = ""; // audio recording time stamp
   int recDur       = 0;  //audio recording durration
   int recRunCount  = 0;  // run counter
+  bool forever = false;
+
+  if( ch.get_rec_number() == 0 ) forever = true;
 
   //Make as many recordings as requested
-  for( recRunCount=0; recRunCount < ch.get_rec_number(); recRunCount++ ) {
+  for( recRunCount=0; recRunCount < ch.get_rec_number() || forever ; recRunCount++ ) {
 
     // collect local info for recording
     timeStamp = utils::make_time_stamp();
     recDur = ch.get_rec_duration();
-    
+    if( recDur <=0 ) recDur = 1; //TODO - make more generic
+
 
     // make a recording
     ar.record( timeStamp, recDur );
