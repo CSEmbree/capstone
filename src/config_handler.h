@@ -29,6 +29,8 @@ class config_handler {
   int rec_dur;
   int rec_num;
   
+  bool background;
+
   void init();  
   
  
@@ -50,7 +52,7 @@ class config_handler {
   bool set_samp_rate( int samprate );
   bool set_rec_duration( int recdur );  
   bool set_rec_number( int recnum );  
-  
+  bool set_background( bool status );
   
   string get_config_file_name();
   string get_fv_path();
@@ -60,6 +62,7 @@ class config_handler {
   int get_samp_rate();
   int get_rec_duration();
   int get_rec_number();
+  bool get_background();
   
  };
 

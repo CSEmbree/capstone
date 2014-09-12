@@ -35,6 +35,7 @@ void config_handler::init() {
   set_rec_number   ( 0 ); 
   set_rec_duration ( 0 ); 
 
+  set_background( true );
   
   return;
 }
@@ -111,6 +112,9 @@ void config_handler::read_config( string fname ) {
 	set_rec_extention( optionValue );
       } else if ( optionName == "REC_LOC" ) {
 	set_rec_location( optionValue );
+      } else if ( optionName == "BACKGROUND" ) {
+	if( optionValue == "ON"  ) set_background( true  );
+	if( optionValue == "OFF" ) set_background( false );
       } else {
 	cerr<<cn<<mn<<" WARN: Invalid config option found '"<<curLine<<"'"<<endl;
 	//exit(0); //stop if an invalid option found, it's probably an error!
@@ -144,6 +148,7 @@ void config_handler::print() {
   
   cout<<cn<<mn<<" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
       <<"\n"<<setw(w1)<<"DEBUG: "                       <<setw(w2)<<(debug? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"RUN IN BACKGROUND: "           <<setw(w2)<<(get_background()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"Config File: "                 <<setw(w2)<<"\""<<get_config_file_name()<<"\""
       <<"\n"<<setw(w1)<<"Feature Vector Path: "         <<setw(w2)<<"\""<<get_fv_path()<<"\""
       <<"\n"<<setw(w1)<<"Recording Location File Path: "<<setw(w2)<<"\""<<get_rec_location()<<"\""
@@ -226,7 +231,7 @@ string config_handler::get_rec_extention() { return rec_extention; };
 int config_handler::get_samp_rate() { return samp_rate; }
 int config_handler::get_rec_number() { return rec_num; }
 int config_handler::get_rec_duration() { return rec_dur; }
-
+bool config_handler::get_background() { return background; };
 
 
 //*****************
@@ -277,6 +282,12 @@ bool config_handler::set_rec_duration( int recdur ) {
 
 bool config_handler::set_rec_number( int recnum ) {
   rec_num = recnum;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_background( bool status ) {
+  background = status;
   return true; // TODO - impliment
 }
 
