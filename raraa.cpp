@@ -22,8 +22,6 @@ string n = "**raraa::";
 
 
 int main(int argc, char **argv) {
-  
-  //utils::daemonize();
 
   string mn = "main:";
   int dur = 5;         //HARDCODED TEMP RECORD LENGTH IF NONE SELECTED BY USER
@@ -38,6 +36,8 @@ int main(int argc, char **argv) {
   config_handler ch( configPath );
   cout<<n<<mn<<" Finished reading config file."<<endl;
 
+
+  if( ch.get_background() == true ) utils::daemonize();
 
 
   cout<<n<<mn<<" Creating audio recorder for '"<<ch.get_rec_number()
