@@ -84,6 +84,19 @@ echo "preparing new workspace..."
 make
 echo "Done."
 
+echo "Creating 'start' script... "
+touch start.sh
+echo "#!/bin/bash"                 > start.sh
+echo "export SOUND_BASE_DIR=`pwd`" >> start.sh
+echo "./raraa"                     >>  start.sh
+echo "Done."
+
+echo "Creating 'stop' script... "
+touch stop.sh
+echo "#!/bin/bash"                     > stop.sh
+echo "echo \" ... impliment me ... \"" >> stop.sh
+echo "Done."
+
 echo "ensuring executables..."
 chmod u+x install.sh
 chmod u+x start.sh
