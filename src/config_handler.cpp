@@ -8,17 +8,26 @@
 
 string cn = " config_handler::";
 
-config_handler::config_handler( string fname )
+config_handler::config_handler( string fpath = "", string fname = "" )
 {
-
-  string mn = "config_handler:";
+  string mn = "config_handler:"; 
   cout<<cn<<mn<<" Constructor started for file \""<<fname<<"\"."<<endl;
 
   debug = true;
   init();
 
+
+  if( fpath == "" ) fpath = utils::get_base_dir();
+  if( fname == "" ) fname = "config";
+
+  set_config_file_path( fpath );
   set_config_file_name( fname );
-  read_config( get_config_file_name()+"/config" );
+
+  string configFile = get_config_file_path() + "/" +get_config_file_name();
+  set_config_file( configFile );
+
+  read_config( configFile );
+
 
   cout<<cn<<mn<<" Constructor finished for file \""<<fname<<"\"."<<endl;
 }
@@ -27,16 +36,31 @@ config_handler::config_handler( string fname )
 void config_handler::init() {
 
   cn = " config_handler::";
-  set_config_file_name    ( "" ); 
-  set_fv_path             ( "" ); 
-  set_rec_file_name_prefix( "" );
+  set_config_file_path ( utils::get_base_dir() );
+  set_config_file_name ( "config" ); 
+  set_config_file      ( get_config_file_path() +"/"+ get_config_file_name() ); 
+
+  set_fv_file_path     ( utils::get_base_dir() ); 
+  set_fv_file_name     ( "featureplan" ); 
+  set_fv_file          ( get_fv_file_path() +"/"+get_fv_file_name() ); 
+
+  set_rec_file_name_prefix( "rec_" );
+  set_rec_location        ( utils::get_base_dir() + "/rec/audio_raw" );
+  set_rec_extention       ( ".wav" );
+  
+  set_analysis_location   ( utils::get_base_dir() + "/rec/fv_raw" );
   
   set_samp_rate    ( 0 ); 
   set_rec_number   ( 0 ); 
   set_rec_duration ( 0 ); 
 
-  set_background( true );
+  set_latitude( "0.0000° N" );
+  set_longitude( "0.0000° W" );
+  set_rpid( "-1" );
+
   
+  set_background( false ); //run in forground by default
+
   return;
 }
 
@@ -56,7 +80,7 @@ void config_handler::read_config( string fname ) {
     infile.close();
     exit(1);
   } else {
-    this->set_config_file_name( fname );
+    this->set_config_file( fname );
     if (debug) cout<<cn<<mn<<" Reading config file \""<<fname<<"\""<<endl;
   }
 
@@ -107,11 +131,21 @@ void config_handler::read_config( string fname ) {
       } else if ( optionName == "SAMP_RATE" ) {
 	set_samp_rate( utils::string_to_number<int>( optionValue ) );
       } else if ( optionName == "FV_PATH" ) {
-	set_fv_path( optionValue );
+	set_fv_file_path( optionValue );
+      } else if ( optionName == "FV_NAME" ) {
+	set_fv_file_name( optionValue );
       } else if ( optionName == "REC_EXT" ) {
 	set_rec_extention( optionValue );
       } else if ( optionName == "REC_LOC" ) {
 	set_rec_location( optionValue );
+      } else if ( optionName == "ANALYSIS_LOC" ) {
+	set_analysis_location( optionValue );
+      } else if ( optionName == "LAT" ) {
+	set_latitude( optionValue );
+      } else if ( optionName == "LON" ) {
+	set_longitude( optionValue );
+      } else if ( optionName == "RPID" ) {
+	set_rpid( optionValue );
       } else if ( optionName == "BACKGROUND" ) {
 	if( optionValue == "ON"  ) set_background( true  );
 	if( optionValue == "OFF" ) set_background( false );
@@ -123,7 +157,28 @@ void config_handler::read_config( string fname ) {
     }
   }  
   
+
   
+  string file = "";
+  
+  if( fv_file_path != "" ) file = get_fv_file_path();
+  else                     file = utils::get_base_dir();
+  if( fv_file_name != "" ) file += "/" + get_fv_file_name();
+  else                     file += "/featureplan";
+  
+  set_fv_file( file );
+  
+  
+  
+  if( config_file_path != "" ) file = get_config_file_path();
+  else                         file = utils::get_base_dir();  
+  if( config_file_name != "" ) file += "/" + get_config_file_name();
+  else                         file += "/rec/fv_raw";
+  
+  set_config_file( file );
+
+
+
   if(debug) { 
     cout<<cn<<mn<<" Finished reading config. REPORT:"<<endl;
     this->print();
@@ -148,10 +203,18 @@ void config_handler::print() {
   
   cout<<cn<<mn<<" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
       <<"\n"<<setw(w1)<<"DEBUG: "                       <<setw(w2)<<(debug? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"RPi Latitude: "                <<setw(w2)<<"\""<<get_latitude()<<"\""
+      <<"\n"<<setw(w1)<<"RPi Longitude: "               <<setw(w2)<<"\""<<get_longitude()<<"\""
+      <<"\n"<<setw(w1)<<"RPi ID: "                      <<setw(w2)<<"\""<<get_rpid()<<"\""
       <<"\n"<<setw(w1)<<"RUN IN BACKGROUND: "           <<setw(w2)<<(get_background()? "ON":"OFF")
-      <<"\n"<<setw(w1)<<"Config File: "                 <<setw(w2)<<"\""<<get_config_file_name()<<"\""
-      <<"\n"<<setw(w1)<<"Feature Vector Path: "         <<setw(w2)<<"\""<<get_fv_path()<<"\""
+      <<"\n"<<setw(w1)<<"Config Path: "                 <<setw(w2)<<"\""<<get_config_file_path()<<"\""
+      <<"\n"<<setw(w1)<<"Config Name: "                 <<setw(w2)<<"\""<<get_config_file_name()<<"\""
+      <<"\n"<<setw(w1)<<"Config File: "                 <<setw(w2)<<"\""<<get_config_file()<<"\""
+      <<"\n"<<setw(w1)<<"Feature Vector Path: "         <<setw(w2)<<"\""<<get_fv_file_path()<<"\""
+      <<"\n"<<setw(w1)<<"Feature Vector Name: "         <<setw(w2)<<"\""<<get_fv_file_name()<<"\""
+      <<"\n"<<setw(w1)<<"Feature Vector File: "         <<setw(w2)<<"\""<<get_fv_file()<<"\""
       <<"\n"<<setw(w1)<<"Recording Location File Path: "<<setw(w2)<<"\""<<get_rec_location()<<"\""
+      <<"\n"<<setw(w1)<<"Analysis FV File Path: "       <<setw(w2)<<"\""<<get_analysis_location()<<"\""
       <<"\n"<<setw(w1)<<"Recording Extention: "         <<setw(w2)<<"\""<<get_rec_extention()<<"\""
       <<"\n"<<setw(w1)<<"Recording File Name Prefix: "  <<setw(w2)<<"\""<<get_rec_file_name_prefix()<<"\""
       <<"\n"<<setw(w1)<<"Recording Rate: "              <<setw(w2)<<"\""<<get_samp_rate()<<"\""
@@ -223,15 +286,45 @@ std::string config_handler::trim(std::string s) {
 //*   ACCESSORS   *
 //*****************
 
+string config_handler::get_config_file_path() { return config_file_path; }
 string config_handler::get_config_file_name() { return config_file_name; }
-string config_handler::get_fv_path() { return fv_path; }
+string config_handler::get_config_file() { 
+
+  if( config_file == "" ) {
+    if( config_file_path != "" ) config_file += config_file_path;
+    else                         config_file += utils::get_base_dir();
+    
+    if( config_file_name != "" ) config_file += "/" + config_file_name;
+    else                         config_file += "/rec/fv_raw";
+  }    
+  
+  return config_file; 
+}
+string config_handler::get_fv_file_path() { return fv_file_path; }
+string config_handler::get_fv_file_name() { return fv_file_name; }
+string config_handler::get_fv_file() { 
+
+  if( fv_file == "" ) {
+    if( fv_file_path != "" ) fv_file += fv_file_path;
+    else                     fv_file += utils::get_base_dir();
+    
+    if( fv_file_name != "" ) fv_file += "/" + fv_file_name;
+    else                     fv_file += "/rec/fv_raw";
+  }
+
+  return fv_file; 
+}
 string config_handler::get_rec_file_name_prefix() { return rec_file_name_prefix; }
 string config_handler::get_rec_location() { return rec_location; };
 string config_handler::get_rec_extention() { return rec_extention; };
+string config_handler::get_analysis_location() { return analysis_location; };
 int config_handler::get_samp_rate() { return samp_rate; }
 int config_handler::get_rec_number() { return rec_num; }
 int config_handler::get_rec_duration() { return rec_dur; }
 bool config_handler::get_background() { return background; };
+string config_handler::get_latitude() { return latitude; };
+string config_handler::get_longitude() { return longitude; };
+string config_handler::get_rpid() { return rpid; };
 
 
 //*****************
@@ -239,13 +332,36 @@ bool config_handler::get_background() { return background; };
 //*****************
 bool config_handler::set_config_file_name( string fname ) {
   config_file_name = fname;
-
   return true; // TODO - impliment
 }
 
 
-bool config_handler::set_fv_path( string fvpath ) {
-  fv_path = fvpath;
+bool config_handler::set_config_file_path( string fpath ) {
+  config_file_path = fpath;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_config_file( string configfile ) {
+  config_file = configfile;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_fv_file_path( string fvpath ) {
+  fv_file_path = fvpath;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_fv_file_name( string fvname ) {
+  fv_file_name = fvname;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_fv_file( string fvfile ) {
+  fv_file = fvfile;
   return true; // TODO - impliment
 }
 
@@ -264,6 +380,12 @@ bool config_handler::set_rec_location( string loc ) {
 
 bool config_handler::set_rec_extention( string ext ) {
   rec_extention = ext;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_analysis_location( string loc ) {
+  analysis_location = loc;
   return true; // TODO - impliment
 }
 
@@ -288,6 +410,23 @@ bool config_handler::set_rec_number( int recnum ) {
 
 bool config_handler::set_background( bool status ) {
   background = status;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_latitude( string lat ) {
+  latitude = lat;
+  return true; // TODO - impliment
+}
+
+bool config_handler::set_longitude( string lon ) {
+  longitude = lon;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_rpid( string id ) {
+  rpid = id;
   return true; // TODO - impliment
 }
 
