@@ -1,7 +1,3 @@
 #!/bin/bash
-
-echo "**STARTING raraa ... **"
-
+export SOUND_BASE_DIR=/home/pi/sounds
 ./raraa
-
-echo "**FINISHED raraa.**"
