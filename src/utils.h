@@ -213,6 +213,7 @@ class utils {
     char cCurrentPath[FILENAME_MAX];
     
     if ( !getcwd( cCurrentPath, sizeof(cCurrentPath) ) ) {
+      cerr<<mn<<" WARN: Current working directory not found! Assuming home directory!"<<endl;
       return ""; //TODO - this error can be handled better? 
     }
     
@@ -220,10 +221,30 @@ class utils {
     string cwd = string(cCurrentPath);
 
 
-    cout<<mn<<" Current working directory is \""<<cwd<<"\""<<endl;
+    //cout<<mn<<" Current working directory is \""<<cwd<<"\""<<endl;
   
     return cwd;
   };
+
+
+  static string get_base_dir() {
+
+    string mn = "get_base_dir:";
+    string bd = "";
+    
+    char* bdChar;
+    bdChar = getenv( "SOUND_BASE_DIR" );
+    if ( bdChar != NULL ) {
+      bd = string(bdChar) + "/";
+      //cout<<mn<<" Base dir env found: \""<<bd<<"\"."<<endl;
+    } else {
+      bd = get_cwd() + "/";
+      cerr<<mn<<" WARN: Base dir env NOT found, assuming cwd: \""<<bd<<"\"."<<endl;
+    }
+
+
+    return bd;
+  }
   
 };
 
