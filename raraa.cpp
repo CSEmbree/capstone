@@ -28,12 +28,14 @@ int main(int argc, char **argv) {
   int numRuns = 1;     //HARDCODED TEMP NUMBER OF RUNS
 
 
+  //******************CONFIG PHASE******************
 
   //read config file for settings
-  string configPath = "/home/pi/sounds";
-  
+  string configPath = utils::get_base_dir();//"/home/pi/sounds";
+  string configFname = "config";
+
   cout<<n<<mn<<" Started reading config file ... "<<endl;
-  config_handler ch( configPath );
+  config_handler ch( configPath, configFname );
   cout<<n<<mn<<" Finished reading config file."<<endl;
 
 
@@ -68,6 +70,9 @@ int main(int argc, char **argv) {
       <<"' sec(s) each."<<endl;
 
 
+  
+
+  //******************RECORDING PHASE******************
 
   pid_t childpid   = -1; //pid for keeping track of children
   string timeStamp = ""; // audio recording time stamp
@@ -77,9 +82,11 @@ int main(int argc, char **argv) {
 
   if( ch.get_rec_number() == 0 ) forever = true;
 
+
   //Make as many recordings as requested
   for( recRunCount=0; recRunCount < ch.get_rec_number() || forever ; recRunCount++ ) {
 
+    
     // collect local info for recording
     timeStamp = utils::make_time_stamp();
     recDur = ch.get_rec_duration();
@@ -110,11 +117,12 @@ int main(int argc, char **argv) {
 
   }
   
-
-
-  string lat          = "33.9657° N";  //hardcoded temporary
-  string lon          = "120.1084° W"; //hardcoded temporary
-  string rpid         = "13";          //hardcoded temporary
+  
+  
+  //******************ANALYSIS PHASE******************
+  string lat          = ch.get_latitude();
+  string lon          = ch.get_longitude();
+  string rpid         = ch.get_rpid();
   string macAddr      = utils::get_mac_address(); 
   string audioRecName = ar.get_rec_file_name();
 
@@ -123,12 +131,12 @@ int main(int argc, char **argv) {
     cout<<n<<mn<<" Generating meta data file (child pid \""<<(long)getpid()<<"\") ..."<<endl; 
     
     // create Metadata output file of audio recording and Pi info
-    string path(getenv("HOME"));  
+    string bd = utils::get_base_dir();
     
     // create appropreate meta data file 
     stringstream outRecMetaFileName;
-    outRecMetaFileName << path 
-		       << "/sounds/rec/fv_raw/"
+    outRecMetaFileName << bd 
+		       << "/rec/fv_raw/"
 		       << "rec_"
 		       << timeStamp
 		       << ".mdat";
@@ -154,7 +162,8 @@ int main(int argc, char **argv) {
     
 
     cout<<n<<mn<<" Performing audio filtering ... "<<endl;
-    /*  
+  
+    /*    
     //---------FEATURE EXTRACTION----------
     //sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c featureplan -r 44100 rec_D-13-2-114_T-20-55-6.wav -b $(pwd)/test -v -p MetaData=True
     
@@ -197,6 +206,7 @@ int main(int argc, char **argv) {
 
   }
   
+  
 
   //Handle child processes based on their job
   if(childpid == 0) {
@@ -211,6 +221,7 @@ int main(int argc, char **argv) {
 
 
   cout<<n<<mn<<" ERROR: This should never be seen! "<<endl;
+
 
   return 0;
 }
