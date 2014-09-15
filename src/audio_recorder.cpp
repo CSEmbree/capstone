@@ -123,7 +123,7 @@ std::string audio_recorder::make_audio_file_name(string timeStamp, string recPre
 
   // Generate file name info if user does not provide
   if(recPrefix == "") recPrefix = get_rec_file_name_prefix();
-  if(dirPath == "")   dirPath = get_rec_location();
+  if(dirPath == "")   dirPath = get_rec_location()+"/";
   if(fExt == "")      fExt = get_rec_extention();
 
 
@@ -194,8 +194,9 @@ bool audio_recorder::set_rec_file_name( string fname ) {
     rec_file_name = fname;
     res = true;
   } else {
-    cerr<<cn<<mn<<" ERROR: A recording must a file name! Using \"filename\"."<<endl;
-    rec_file_name = "filename";
+    string def = "audio";
+    cerr<<cn<<mn<<" ERROR: A recording must havea file name! Using \""<<def<<"\"."<<endl;
+    rec_file_name = def;
   }
 
   return res;
