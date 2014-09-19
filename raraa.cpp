@@ -56,8 +56,7 @@ int main(int argc, char **argv) {
     cout<<n<<mn<<" Overloading audio recording settings...";
 
     numRuns = atoi(argv[1]); // arg1 - user num of runs ('0' is inf runs (arecord(1)).
-    dur = atoi(argv[2]);     // arg2 - user duration for recording 
-
+    dur     = atoi(argv[2]); // arg2 - user duration for recording 
     ch.set_rec_number( numRuns );
     ch.set_rec_duration( dur );
   }
@@ -81,7 +80,7 @@ int main(int argc, char **argv) {
   bool forever = false;
 
   if( ch.get_rec_number() == 0 ) forever = true;
-
+  //if( ch.get_rec_number() < 0 ) exit(0);
 
   //Make as many recordings as requested
   for( recRunCount=0; recRunCount < ch.get_rec_number() || forever ; recRunCount++ ) {
@@ -91,7 +90,7 @@ int main(int argc, char **argv) {
     timeStamp = utils::make_time_stamp();
     recDur = ch.get_rec_duration();
     if( recDur <=0 ) recDur = 1; //TODO - make more generic
-
+    
 
     // make a recording
     ar.record( timeStamp, recDur );
@@ -120,24 +119,24 @@ int main(int argc, char **argv) {
   
   
   //******************ANALYSIS PHASE******************
-  string lat          = ch.get_latitude();
-  string lon          = ch.get_longitude();
-  string rpid         = ch.get_rpid();
-  string macAddr      = utils::get_mac_address(); 
-  string audioRecName = ar.get_rec_file_name();
+  
+  string lat            = ch.get_latitude();
+  string lon            = ch.get_longitude();
+  string rpid           = ch.get_rpid();
+  string analysisPath   = ch.get_analysis_location();
+  string analysisPrefix = ch.get_rec_file_name_prefix(); 
+  string audioRecName   = ar.get_rec_file_name();
+  string macAddr        = utils::get_mac_address(); 
+
 
   // Child takes care of feature extraction
   if(childpid == 0) {
     cout<<n<<mn<<" Generating meta data file (child pid \""<<(long)getpid()<<"\") ..."<<endl; 
     
-    // create Metadata output file of audio recording and Pi info
-    string bd = utils::get_base_dir();
-    
     // create appropreate meta data file 
     stringstream outRecMetaFileName;
-    outRecMetaFileName << bd 
-		       << "/rec/fv_raw/"
-		       << "rec_"
+    outRecMetaFileName << analysisPath
+		       << analysisPrefix
 		       << timeStamp
 		       << ".mdat";
     string metaFileName = outRecMetaFileName.str();
