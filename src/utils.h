@@ -30,9 +30,13 @@
 #include <sys/types.h>
 
 
+//#include "config_handler.h"
+//#include "audio_recorder.h"
+
 #ifndef   NI_MAXHOST
 #define   NI_MAXHOST 1025
 #endif
+
 
 using namespace std; 
 
@@ -151,6 +155,18 @@ class utils {
 
 
 
+  static string pathify( string oldPath ) {
+    
+    string mn = "pathify:";
+    string path = oldPath;
+
+    if( path.back() != '/' ) {
+      path += "/";
+    }
+
+    return path;
+  };
+
 
   // CITE: Daemon creation process code borrowed and edited from:
   // http://www.thegeekstuff.com/2012/02/c-daemon-process/
@@ -223,7 +239,7 @@ class utils {
 
     //cout<<mn<<" Current working directory is \""<<cwd<<"\""<<endl;
   
-    return cwd;
+    return pathify(cwd);
   };
 
 
@@ -235,17 +251,87 @@ class utils {
     char* bdChar;
     bdChar = getenv( "SOUND_BASE_DIR" );
     if ( bdChar != NULL ) {
-      bd = string(bdChar) + "/";
+      bd = string(bdChar);
       //cout<<mn<<" Base dir env found: \""<<bd<<"\"."<<endl;
     } else {
-      bd = get_cwd() + "/";
+      bd = get_cwd();
       cerr<<mn<<" WARN: Base dir env NOT found, assuming cwd: \""<<bd<<"\"."<<endl;
     }
 
 
-    return bd;
+    return pathify(bd);
   }
   
+
+  /*
+  static bool write_meta_data( config_handler ch, audio_recorder ar ) {
+
+    string mn = "write_meta_data:";
+
+    string lat            = ch.get_latitude();
+    string lon            = ch.get_longitude();
+    string rpid           = ch.get_rpid();
+    string analysisPath   = ch.get_analysis_location();
+    string analysisPrefix = ch.get_rec_file_name_prefix(); 
+    string macAddr        = utils::get_mac_address(); 
+    string audioRecName   = ar.get_rec_file_name();
+    
+    
+    cout<<mn<<" Generating meta data file (child pid \""<<(long)getpid()<<"\") ..."<<endl; 
+    
+    // create appropreate meta data file 
+    stringstream outRecMetaFileName;
+    outRecMetaFileName << analysisPath
+		       << analysisPrefix
+		       << timeStamp
+		       << ".mdat";
+    string metaFileName = outRecMetaFileName.str();
+    
+    
+    // Fill with recording data
+    ofstream recMetaData;
+    recMetaData.open( metaFileName.c_str() );
+    
+    if ( recMetaData.is_open() == false ) {
+         cerr<<mn<<" ERROR: Could not open \""<<metaFileName<<"\"!"<<endl;
+         res = false;
+    }
+    if ( recMetaData.bad() ) {
+         cerr<<mn<<" ERROR: Could not save to \""<<metaFileName<<"\"!"<<endl;
+	 res = false;
+    }
+
+    if( res == true ) {
+      recMetaData << "REC:  " << audioRecName << "\n"
+		  << "TIME: " << timeStamp    << "\n"		
+		  << "RPid: " << rpid         << "\n"
+		  << "LAT:  " << lat          << "\n"
+		  << "LON:  " << lon          << "\n"
+		  << "MAC:  " << macAddr      << endl;
+    
+      //Alert user to creation of meta data file
+      cout<<mn<<" Created meta data file \""<<outRecMetaFileName.str().c_str()
+	  <<" (child pid \""<<(long)getpid()<<"\")"<<endl;
+    }
+    
+
+    recMetaData.close();
+        
+    return res;
+  };
+  */
+
+
+
+
+
+
+
+
+
+
+
+
 };
 
 #endif

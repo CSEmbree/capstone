@@ -123,7 +123,7 @@ std::string audio_recorder::make_audio_file_name(string timeStamp, string recPre
 
   // Generate file name info if user does not provide
   if(recPrefix == "") recPrefix = get_rec_file_name_prefix();
-  if(dirPath == "")   dirPath = get_rec_location()+"/";
+  if(dirPath == "")   dirPath = utils::pathify(get_rec_location());
   if(fExt == "")      fExt = get_rec_extention();
 
 
@@ -209,13 +209,12 @@ bool audio_recorder::set_rec_location( string loc ) {
   bool res = false;
 
   if( loc != "" ) {
-    rec_location = loc;
+    rec_location = utils::pathify(loc);
     res = true;
   } else {
-    string cwd = utils::get_cwd();
+    rec_location = utils::get_cwd();
     cerr<<cn<<mn<<" ERROR: A recording file location not specified! "
-	<<"Recordings will be saved to local working directory \""<<cwd<<"\""<<endl;
-    rec_location = cwd;
+	<<"Recordings will be saved to local working directory \""<<rec_location<<"\""<<endl;
   }
 
   return res;
