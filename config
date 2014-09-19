@@ -4,9 +4,7 @@ LON 120.1084° W
 BACKGROUND OFF
 #
 REC_EXT .wav
-REC_DUR 2
+REC_DUR
 REC_NUM 1
 SAMP_RATE 44100
-REC_PREFIX rec_
-#FV_PATH ~/sound_script/featureplan
-#REC_LOC ~/sounds/rec/audio_raw/
+#REC_PREFIX rec_
