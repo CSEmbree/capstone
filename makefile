@@ -1,4 +1,3 @@
-
 CC = gcc
 CXX = g++
 DEBUG = -g
@@ -22,7 +21,6 @@ depend: .depend
 	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
 
 clean:
-	$(RM) ./.libs ./.obj *.lo *.o *.la  *~
 	find . -type f -name '*.o' -delete
-	find . -type f -name '*.~' -delete
+	find . -type f -name '*.*~' -delete
 	find . -type f -name '\#*#' -delete
