@@ -162,8 +162,8 @@ int main(int argc, char **argv) {
 
     cout<<n<<mn<<" Performing audio filtering ... "<<endl;
   
-    /*    
-    //---------FEATURE EXTRACTION----------
+        
+    //---------FILTER FEATUURE EXTRACTION----------
     //sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c featureplan -r 44100 rec_D-13-2-114_T-20-55-6.wav -b $(pwd)/test -v -p MetaData=True
     
     
@@ -172,23 +172,31 @@ int main(int argc, char **argv) {
     
     //TEMP WORKING COMMAND
     //cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c ../../featureplan -r 44100 rec_D-29-2-114_T-43-21-0.wav -b ../fv_raw/
-    
+
+    //old working
+    //stringstream extCmd;
+    //extCmd << "cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c"
+    //	   << " ../../featureplan -r 44100 "
+    //	   << makeAudioFileName("", timeStamp, ".wav")
+    //	   << " -b ../fv_raw/";
+
+
+    //EXAMPLE: yaafe.py -r 44100 -c /home/pi/sounds/featureplan_fin /home/pi/data/rec_D-26-8-114_T-16-41-1.wav
     stringstream extCmd;
-    extCmd << "cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c"
-	   << " ../../featureplan -r 44100 "
-	   << makeAudioFileName("", timeStamp, ".wav")
-	   << " -b ../fv_raw/";
-    
+    extCmd << "yaafe.py "
+	   << " -r " << ch.get_samp_rate()    	   
+	   << " -c " << ch.get_fv_file()
+	   << " "    << audioRecName;
+      //<< " -b " << ch.get_analysis_location();
+
     //perform FV element extraction
-    //system(extCmd.str().c_str());
+    system(extCmd.str().c_str());
     
     //alert user to cration of feature vector elements
-    //cout << "FEATURE VEC FILE(s): " << extCmd.str().c_str() << "\n"; //TODO - make builder for feature vector command line call 
-    cout << "FEATURE VEC FILE(s) LOC: " << "~/sounds/rec/fv_raw/" << "\n";
+    cout<<n<<mn<<" Preliminary filter features here: "<<ch.get_analysis_location()<<endl;    
     
     
-    
-    //---------CHECK FOR NOISE----------
+    //---------ANALYIZE FILTER - MOVE TO DEPLOY IF RELEVANT----------
     //check if FV contains information we are interested in sending to the server
     
     //open feature vector element 
@@ -197,9 +205,9 @@ int main(int argc, char **argv) {
     //look for something other than just background noise
     
     
-    //If not just background noise, move audio and fv data w/ meta data to './deploy/'
+    //If not just background noise, move audio and fv data w/ meta data to 'deploy/'
     
-    */
+    
 
     cout<<n<<mn<<" Audio filtering complete. "<<endl;
 
@@ -209,11 +217,11 @@ int main(int argc, char **argv) {
 
   //Handle child processes based on their job
   if(childpid == 0) {
-    cout<<n<<mn<<" Analyizer & filter ("<<(recRunCount+1)<<"/"<<ch.get_rec_number()<<")"
+    cout<<n<<mn<<" Analyizer & filter ("<<(recRunCount+1)<<" of "<<ch.get_rec_number()<<")"
 	<<" complete (Child, pid \""<<(long)getpid()<<"\")."<<endl;
     return 0; //kill child now that task is complete
   } else {
-    cout<<n<<mn<<" ("<<(recRunCount)<<"/"<<ch.get_rec_number()<<")"
+    cout<<n<<mn<<" ("<<(recRunCount)<<" of "<<ch.get_rec_number()<<")"
 	<<" Recording(s) complete (Parent, pid \""<<(long)getpid()<<"\")."<<endl;
     return 1;
   }
