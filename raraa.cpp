@@ -3,22 +3,137 @@
  * Author:   C. Embree
  * Contact:  cse@cameronembree.com
  * Created:  4-SEP-2014
- * Edited:   7-SEP-2014
+ * Edited:   30-SEP-2014
  * Notes:    main recording and analysis program overseer. Here is 
  *             where worker classe are organised from. 
  */
 
 
 #include "src/utils.h"
+#include "src/filters.h"
 
 #include "src/config_handler.h"
 #include "src/audio_recorder.h"
 
 
-
 //using namespace std;
 
 string n = "**raraa::";
+
+
+bool do_filter_feature_extraction( config_handler *ch, audio_recorder *ar ) {
+
+  string mn = "filter_feature_extraction:";
+  cout<<n<<mn<<" Performing filter feature extraction ... "<<endl;
+  bool res = true; // TODO - only true if succesful extraction
+
+
+  stringstream filterCmd;
+  filterCmd << "yaafe.py "
+	    << " -r " << ch->get_samp_rate()    	   
+	    << " -c " << ch->get_fv_filter()
+	    << " "    << ar->get_rec_file_name();
+  //        << " -b " << ch.get_analysis_location(); // TODO - change output location ?
+  
+  //perform FV element extraction
+  system(filterCmd.str().c_str());
+  
+  //alert user to cration of feature vector elements
+  cout<<n<<mn<<" Preliminary filter features here: "<<ch->get_analysis_location()<<endl;    
+
+
+  cout<<n<<mn<<" Finished filter feature extraction."<<endl;
+
+  return res; // TODO - only true if succesful extraction
+}
+
+
+bool do_feature_extraction( config_handler *ch, audio_recorder *ar ) {
+
+  string mn = "do_feature_extraction:";
+  cout<<n<<mn<<" Performing full feature extraction ... "<<endl;
+  bool res = true; // TODO - only true if succesful extraction
+
+
+
+  stringstream extractCmd;
+  extractCmd << "yaafe.py "
+	    << " -r " << ch->get_samp_rate()    	   
+	    << " -c " << ch->get_fv_file()
+	    << " "    << ar->get_rec_file_name();
+  //        << " -b " << ch.get_analysis_location(); // TODO - change output location ?
+  
+  //perform FV element extraction
+  system(extractCmd.str().c_str());
+
+  cout<<n<<mn<<" Finished addtional audio analysis ... "<<endl;
+
+
+
+  cout<<n<<mn<<" Moving interesting analysis to data deployment directory ... "<<endl;
+  
+  stringstream deployCmd;
+  deployCmd << "cp " << ar->get_rec_file_name_base()<<"* "
+	    << " " << ch->get_data_location(); 
+  
+  cout<<n<<mn<<" Copying analysis with: \""<<deployCmd.str().c_str()<<"\""<<endl;
+  system(deployCmd.str().c_str());
+  
+  cout<<n<<mn<<" Finished moving full feature(s) extracted."<<endl;
+
+
+
+  return res; 
+}
+
+
+bool create_meta_data_file( string timeStamp, config_handler *ch, audio_recorder *ar ) {
+
+  string mn = "create_meta_data_file:";
+  cout<<n<<mn<<" Creating meta data file ... "<<endl;
+  bool res = true;
+
+  
+  /*
+  string lat            = ch.get_latitude();
+  string lon            = ch.get_longitude();
+  string rpid           = ch.get_rpid();
+  string analysisPath   = ch.get_analysis_location();
+  string analysisPrefix = ch.get_rec_file_name_prefix(); 
+  string audioRecName   = ar.get_rec_file_name();
+  string macAddr        = utils::get_mac_address(); 
+  */
+
+  // create appropreate meta data file 
+  stringstream outRecMetaFileName;
+  outRecMetaFileName << ch->get_analysis_location()
+		     << ch->get_rec_file_name_prefix()
+		     << timeStamp
+		     << ".mdat";
+  string metaFileName = outRecMetaFileName.str();
+  
+  
+  // Fill with recording data
+  ofstream recMetaData;
+  recMetaData.open( metaFileName.c_str() );
+  if( !recMetaData ) {
+    res = false;
+  } else {
+    recMetaData << "REC:  " << ar->get_rec_file_name()  << "\n"
+		<< "TIME: " << timeStamp                << "\n"		
+		<< "RPid: " << ch->get_rpid()           << "\n"
+		<< "LAT:  " << ch->get_latitude()       << "\n"
+		<< "LON:  " << ch->get_longitude()      << "\n"
+		<< "MAC:  " << utils::get_mac_address() << endl;
+  }
+  
+  recMetaData.close();
+  
+  
+  cout<<n<<mn<<" Created meta data file \""<<metaFileName<<"\"."<<endl;
+  
+  return res;
+}
 
 
 int main(int argc, char **argv) {
@@ -119,98 +234,53 @@ int main(int argc, char **argv) {
   
   
   //******************ANALYSIS PHASE******************
-  
-  string lat            = ch.get_latitude();
-  string lon            = ch.get_longitude();
-  string rpid           = ch.get_rpid();
-  string analysisPath   = ch.get_analysis_location();
-  string analysisPrefix = ch.get_rec_file_name_prefix(); 
-  string audioRecName   = ar.get_rec_file_name();
-  string macAddr        = utils::get_mac_address(); 
-
 
   // Child takes care of feature extraction
   if(childpid == 0) {
     cout<<n<<mn<<" Generating meta data file (child pid \""<<(long)getpid()<<"\") ..."<<endl; 
     
-    // create appropreate meta data file 
-    stringstream outRecMetaFileName;
-    outRecMetaFileName << analysisPath
-		       << analysisPrefix
-		       << timeStamp
-		       << ".mdat";
-    string metaFileName = outRecMetaFileName.str();
 
+    //---------CREATE A METDA DATA FILE FOR A RECORDING----------
+    if( create_meta_data_file( timeStamp, &ch, &ar ) == false ) {
+      cerr<<n<<mn<<" ERROR: A problem occured creating a meta data file at \""<<timeStamp<<"\""<<endl;
+    }
 
-    // Fill with recording data
-    ofstream recMetaData;
-    recMetaData.open( metaFileName.c_str() );
-    recMetaData << "REC:  " << audioRecName << "\n"
-		<< "TIME: " << timeStamp    << "\n"		
-		<< "RPid: " << rpid         << "\n"
-		<< "LAT:  " << lat          << "\n"
-		<< "LON:  " << lon          << "\n"
-		<< "MAC:  " << macAddr      << endl;
+    // Alert user to creation of meta data file
+    cout<<n<<mn<<" Created meta data file (child pid \""<<(long)getpid()<<"\")."<<endl;
     
-    recMetaData.close();
-    
-
-    //Alert user to creation of meta data file
-    cout<<n<<mn<<" Created meta data file \""<<outRecMetaFileName.str().c_str()
-	<<" (child pid \""<<(long)getpid()<<"\")"<<endl;
-    
-
-    cout<<n<<mn<<" Performing audio filtering ... "<<endl;
   
         
-    //---------FILTER FEATUURE EXTRACTION----------
-    //sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c featureplan -r 44100 rec_D-13-2-114_T-20-55-6.wav -b $(pwd)/test -v -p MetaData=True
+    //---------FILTER FEATURE EXTRACTION----------
+    // Do minimal feature extractions for filtering requirments
+    cout<<n<<mn<<" Performing basic audio filtering ... "<<endl;
+    do_filter_feature_extraction( &ch, &ar );
     
-    
-    //BUG?: There is an issue where the output file is based on the ENTIRE input file. To avoid creating directories based on input file location
-    // we are cding to the correct directory and then doing the extraction from there...
-    
-    //TEMP WORKING COMMAND
-    //cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c ../../featureplan -r 44100 rec_D-29-2-114_T-43-21-0.wav -b ../fv_raw/
-
-    //old working
-    //stringstream extCmd;
-    //extCmd << "cd rec/audio_raw/ && sudo -E PYTHONPATH=$PYTHONPATH /usr/local/bin/yaafe.py -c"
-    //	   << " ../../featureplan -r 44100 "
-    //	   << makeAudioFileName("", timeStamp, ".wav")
-    //	   << " -b ../fv_raw/";
+    // Alert user to filter feature completion
+    cout<<n<<mn<<" Extracted filter features (child pid \""<<(long)getpid()<<"\")."<<endl;
 
 
-    //EXAMPLE: yaafe.py -r 44100 -c /home/pi/sounds/featureplan_fin /home/pi/data/rec_D-26-8-114_T-16-41-1.wav
-    stringstream extCmd;
-    extCmd << "yaafe.py "
-	   << " -r " << ch.get_samp_rate()    	   
-	   << " -c " << ch.get_fv_file()
-	   << " "    << audioRecName;
-      //<< " -b " << ch.get_analysis_location();
+    
+    //---------ANALYIZE FILTER FEATURES----------
+    // Analyize the features for a filter to look for interesting features
+    bool interesting = filters::perceptual_sharpness(ar.get_rec_file_name()+".ps.csv");    
 
-    //perform FV element extraction
-    system(extCmd.str().c_str());
-    
-    //alert user to cration of feature vector elements
-    cout<<n<<mn<<" Preliminary filter features here: "<<ch.get_analysis_location()<<endl;    
-    
-    
-    //---------ANALYIZE FILTER - MOVE TO DEPLOY IF RELEVANT----------
-    //check if FV contains information we are interested in sending to the server
-    
-    //open feature vector element 
-    
-    
-    //look for something other than just background noise
-    
-    
-    //If not just background noise, move audio and fv data w/ meta data to 'deploy/'
-    
+    // Alert user to filter analysis completion
+    cout<<n<<mn<<" Completed filter analysis (child pid \""<<(long)getpid()<<"\")."
+	<<" Interesting: "<<(interesting? "YES!":"NO!")<<endl; 
     
 
-    cout<<n<<mn<<" Audio filtering complete. "<<endl;
 
+    //---------EXTRACT MORE FEATURES MOVE TO DATA----------
+    // if a feature was interesting we need to extract more features and deploy them
+
+    if( interesting == true ) {
+      do_feature_extraction( &ch, &ar );    
+
+      // Alert user to full feature extraction completion
+      cout<<n<<mn<<" Completed full feature extraction (child pid \""<<(long)getpid()<<"\")."<<endl;
+    } 
+    
+    cout<<n<<mn<<" Audio Analysis complete (child pid \""<<(long)getpid()<<"\")."<<endl;
   }
   
   
@@ -218,11 +288,11 @@ int main(int argc, char **argv) {
   //Handle child processes based on their job
   if(childpid == 0) {
     cout<<n<<mn<<" Analyizer & filter ("<<(recRunCount+1)<<" of "<<ch.get_rec_number()<<")"
-	<<" complete (Child, pid \""<<(long)getpid()<<"\")."<<endl;
+	<<" complete (child pid \""<<(long)getpid()<<"\")."<<endl;
     return 0; //kill child now that task is complete
   } else {
     cout<<n<<mn<<" ("<<(recRunCount)<<" of "<<ch.get_rec_number()<<")"
-	<<" Recording(s) complete (Parent, pid \""<<(long)getpid()<<"\")."<<endl;
+	<<" Recording(s) complete (parent pid \""<<(long)getpid()<<"\")."<<endl;
     return 1;
   }
 
