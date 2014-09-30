@@ -28,6 +28,7 @@ class audio_recorder {
   string cn; //class name
   
   string rec_file_name;
+  string rec_file_name_base;
   string rec_file_name_prefix;
   string rec_location;
   string rec_extention;
@@ -35,6 +36,7 @@ class audio_recorder {
 
   void init();
   bool set_rec_file_name_prefix( string recfilenameprefix );
+  bool set_rec_file_name_base( string recfilenamebase );
   bool set_rec_file_name( string recfilename );
   bool set_rec_location( string loc );
   bool set_rec_extention( string ext );
@@ -49,11 +51,13 @@ class audio_recorder {
   void record( string ts="", int dur=-1 ); //default recording length is 1 second
   string make_rec_cmd( const string fileName, const int dur=-1 );
   string make_rec_cmd( const string fileName, const string dur="-1" );
+  string make_audio_file_name_base(string timeStamp, string recPrefix="", string dirPath="" );  
   string make_audio_file_name( string timeStamp, string recPrefix="", string dirPath="", string fExt="" );
 
   void print();
   string get_rec_file_name_prefix();
   string get_rec_file_name();
+  string get_rec_file_name_base();
   string get_rec_location();
   string get_rec_extention();
   int get_rec_duration();
