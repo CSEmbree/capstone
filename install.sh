@@ -131,6 +131,15 @@ echo "#!/bin/bash"                     > stop.sh
 echo "echo \" ... impliment me ... \"" >> stop.sh
 echo "Done."
 
+echo "Creating 'clean_workspace' script... "
+touch clean_workspace.sh
+echo "#!/bin/bash"       > clean_workspace.sh
+echo "cd `pwd`/analysis" >> clean_workspace.sh
+echo "rm rec*"           >> clean_workspace.sh
+echo "cd `pwd`/data"     >> clean_workspace.sh
+echo "rm rec*"           >> clean_workspace.sh
+echo "Done."
+
 echo "ensuring executables..."
 chmod u+x install.sh
 chmod u+x start.sh
