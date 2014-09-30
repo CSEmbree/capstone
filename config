@@ -4,9 +4,10 @@ LON 120.1084° W
 BACKGROUND OFF
 #
 REC_EXT .wav
-REC_DUR 4
-REC_NUM 2
+REC_DUR 2
+REC_NUM 1
 SAMP_RATE 44100
 REC_PREFIX rec_
-ANALYSIS_LOC /home/pi/data/
-REC_LOC /home/pi/data/
+ANALYSIS_LOC /home/pi/sounds/analysis/
+REC_LOC /home/pi/sounds/analysis/
+DATA_LOC /home/pi/data/
