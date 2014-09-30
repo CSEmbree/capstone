@@ -22,6 +22,10 @@ class config_handler {
   string config_file_path;
   string config_file_name;
   string config_file;
+  
+  string fv_filter_path;
+  string fv_filter_name;
+  string fv_filter;
 
   string fv_file_path;
   string fv_file_name;
@@ -31,6 +35,7 @@ class config_handler {
   string rec_location;
   string rec_extention;
   
+  string data_location;
   string analysis_location;
 
   int samp_rate;
@@ -60,6 +65,10 @@ class config_handler {
   bool set_config_file_name( string fname );
   bool set_config_file( string configfile );
 
+  bool set_fv_filter_path( string fvpath );
+  bool set_fv_filter_name( string fvname );
+  bool set_fv_filter( string fvfilter );
+
   bool set_fv_file_path( string fvpath );
   bool set_fv_file_name( string fvname );
   bool set_fv_file( string fvfile );
@@ -68,6 +77,7 @@ class config_handler {
   bool set_rec_location( string loc );
   bool set_rec_extention( string ext );
 
+  bool set_data_location( string loc );
   bool set_analysis_location( string loc );
 
   bool set_samp_rate( int samprate );
@@ -86,6 +96,10 @@ class config_handler {
   string get_config_file_name();
   string get_config_file();
 
+  string get_fv_filter_path();
+  string get_fv_filter_name();
+  string get_fv_filter();
+
   string get_fv_file_path();
   string get_fv_file_name();
   string get_fv_file();
@@ -94,6 +108,7 @@ class config_handler {
   string get_rec_location();
   string get_rec_extention();
 
+  string get_data_location();
   string get_analysis_location();
 
   int get_samp_rate();

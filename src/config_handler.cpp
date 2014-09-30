@@ -41,6 +41,10 @@ void config_handler::init() {
   set_config_file_name ( "config" ); // TODO - make hardcoded elsewhere 
   set_config_file      ( get_config_file_path() + get_config_file_name() ); 
 
+  set_fv_filter_path   ( utils::get_base_dir() ); 
+  set_fv_filter_name   ( "featureplan_filter" ); 
+  set_fv_filter        ( get_fv_filter_path() + get_fv_filter_name() ); 
+  
   set_fv_file_path     ( utils::get_base_dir() ); 
   set_fv_file_name     ( "featureplan" ); 
   set_fv_file          ( get_fv_file_path() + get_fv_file_name() ); 
@@ -49,7 +53,8 @@ void config_handler::init() {
   set_rec_location        ( utils::get_base_dir() + "rec/audio_raw" ); // TODO - make hardcoded elsewhere 
   set_rec_extention       ( ".wav" ); // TODO - make hardcoded elsewhere 
   
-  set_analysis_location   ( utils::get_base_dir() + "rec/fv_raw" ); // TODO - make hardcoded elsewhere 
+  set_data_location       ( utils::get_base_dir() + "data/" ); //TODO - make hardcoded elsewhere
+  set_analysis_location   ( utils::get_base_dir() + "analysis/" ); // TODO - make hardcoded elsewhere 
   
   set_samp_rate    ( 0 ); 
   set_rec_number   ( 0 ); 
@@ -150,6 +155,9 @@ void config_handler::read_config( string fname ) {
 	
       } else if ( optionName == "REC_LOC" ) {
 	set_rec_location( optionValue );
+
+      } else if ( optionName == "DATA_LOC" ) {
+	set_data_location( optionValue );
 	
       } else if ( optionName == "ANALYSIS_LOC" ) {
 	set_analysis_location( optionValue );
@@ -179,20 +187,24 @@ void config_handler::read_config( string fname ) {
   
   string file = "";
   
+  if( fv_filter_path != "" ) file =  get_fv_filter_path();
+  else                       file =  utils::get_base_dir();
+  if( fv_filter_name != "" ) file += get_fv_filter_name();
+  else                       file += "featureplan_filter";  
+  set_fv_filter( file );
+
+
   if( fv_file_path != "" ) file =  get_fv_file_path();
   else                     file =  utils::get_base_dir();
   if( fv_file_name != "" ) file += get_fv_file_name();
   else                     file += "featureplan";
-  
   set_fv_file( file );
-  
   
   
   if( config_file_path != "" ) file =  get_config_file_path();
   else                         file =  utils::get_base_dir();  
   if( config_file_name != "" ) file += get_config_file_name();
   else                         file += "rec/fv_raw";
-  
   set_config_file( file );
 
 
@@ -228,10 +240,14 @@ void config_handler::print() {
       <<"\n"<<setw(w1)<<"Config Path: "                 <<setw(w2)<<"\""<<get_config_file_path()<<"\""
       <<"\n"<<setw(w1)<<"Config Name: "                 <<setw(w2)<<"\""<<get_config_file_name()<<"\""
       <<"\n"<<setw(w1)<<"Config File: "                 <<setw(w2)<<"\""<<get_config_file()<<"\""
+      <<"\n"<<setw(w1)<<"Filter Vector Path: "          <<setw(w2)<<"\""<<get_fv_filter_path()<<"\""
+      <<"\n"<<setw(w1)<<"Filter Vector Name: "          <<setw(w2)<<"\""<<get_fv_filter_name()<<"\""
+      <<"\n"<<setw(w1)<<"Filter Vector File: "          <<setw(w2)<<"\""<<get_fv_filter()<<"\""
       <<"\n"<<setw(w1)<<"Feature Vector Path: "         <<setw(w2)<<"\""<<get_fv_file_path()<<"\""
       <<"\n"<<setw(w1)<<"Feature Vector Name: "         <<setw(w2)<<"\""<<get_fv_file_name()<<"\""
       <<"\n"<<setw(w1)<<"Feature Vector File: "         <<setw(w2)<<"\""<<get_fv_file()<<"\""
-      <<"\n"<<setw(w1)<<"Analysis FV File Path: "       <<setw(w2)<<"\""<<get_analysis_location()<<"\""
+      <<"\n"<<setw(w1)<<"Analysis File(s) Path: "       <<setw(w2)<<"\""<<get_analysis_location()<<"\""
+      <<"\n"<<setw(w1)<<"Data File(s) Path: "           <<setw(w2)<<"\""<<get_data_location()<<"\""
       <<"\n"<<setw(w1)<<"Recording Location File Path: "<<setw(w2)<<"\""<<get_rec_location()<<"\""
       <<"\n"<<setw(w1)<<"Recording Extention: "         <<setw(w2)<<"\""<<get_rec_extention()<<"\""
       <<"\n"<<setw(w1)<<"Recording File Name Prefix: "  <<setw(w2)<<"\""<<get_rec_file_name_prefix()<<"\""
@@ -318,6 +334,20 @@ string config_handler::get_config_file() {
   
   return config_file; 
 }
+string config_handler::get_fv_filter_path() { return utils::pathify(fv_filter_path); }
+string config_handler::get_fv_filter_name() { return fv_filter_name; }
+string config_handler::get_fv_filter() { 
+
+  if( fv_filter == "" ) {
+    if( get_fv_filter_path() != "" ) fv_filter += get_fv_filter_path();
+    else                             fv_filter += utils::get_base_dir();
+    
+    if( get_fv_filter_name() != "" ) fv_filter += get_fv_filter_name();
+    else                             fv_filter += "featureplan_filter"; // TODO - make default
+  }
+
+  return fv_filter; 
+}
 string config_handler::get_fv_file_path() { return utils::pathify(fv_file_path); }
 string config_handler::get_fv_file_name() { return fv_file_name; }
 string config_handler::get_fv_file() { 
@@ -335,6 +365,7 @@ string config_handler::get_fv_file() {
 string config_handler::get_rec_file_name_prefix() { return rec_file_name_prefix; }
 string config_handler::get_rec_location() { return rec_location; };
 string config_handler::get_rec_extention() { return rec_extention; };
+string config_handler::get_data_location() { return data_location; };
 string config_handler::get_analysis_location() { return analysis_location; };
 int config_handler::get_samp_rate() { return samp_rate; }
 int config_handler::get_rec_number() { return rec_num; }
@@ -362,6 +393,24 @@ bool config_handler::set_config_file_path( string fpath ) {
 
 bool config_handler::set_config_file( string configfile ) {
   config_file = configfile;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_fv_filter_path( string fvpath ) {
+  fv_filter_path = utils::pathify(fvpath);
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_fv_filter_name( string fvname ) {
+  fv_filter_name = fvname;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_fv_filter( string fvfilter ) {
+  fv_filter = fvfilter;
   return true; // TODO - impliment
 }
 
@@ -398,6 +447,12 @@ bool config_handler::set_rec_location( string loc ) {
 
 bool config_handler::set_rec_extention( string ext ) {
   rec_extention = ext;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_data_location( string loc ) {
+  data_location = utils::pathify(loc);
   return true; // TODO - impliment
 }
 
