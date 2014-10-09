@@ -5,4 +5,4 @@ export YAAFE_PATH=$YAAFE/yaafe_extensions
 export PATH=$PATH:$YAAFE/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$YAAFE/lib
 export PYTHONPATH=$PYTHONPATH:$YAAFE/python_packages
-./raraa
+(cd $SOUND_BASE_DIR && ./raraa)
