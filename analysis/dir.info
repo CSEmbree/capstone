@@ -1,0 +1,1 @@
+This directory is the DEFAULT home for audio files and filter FV contents before filter analysis has occured. If filtering passes then the meaningful audio file is further FV extratced from here and then copied to the $BASE_FOUND_DIR/data direcotry for deployment.
