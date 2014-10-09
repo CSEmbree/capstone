@@ -64,9 +64,11 @@ void config_handler::init() {
   set_longitude( "0.0000° W" ); // TODO - make hardcoded elsewhere 
   set_rpid( "-1" );
 
-  
-  set_background( false ); //run in forground by default
+  set_simulate( false ); //simulate a run (dont actually do one).
+  set_simulate_dir( utils::pathify( utils::get_base_dir() + "test/data/" ) ); //default sim data dir
 
+  set_background( false ); //run in forground by default
+  
   return;
 }
 
@@ -170,10 +172,17 @@ void config_handler::read_config( string fname ) {
 	
       } else if ( optionName == "RPID" ) {
 	set_rpid( optionValue );
+
+      } else if ( optionName == "SIM_DIR" ) {
+	set_simulate_dir( optionValue );
 	
+      } else if ( optionName == "SIMULATE" ) {
+	if( optionValue == "ON"  ) set_simulate( true  );
+	else                       set_simulate( false );
+
       } else if ( optionName == "BACKGROUND" ) {
 	if( optionValue == "ON"  ) set_background( true  );
-	if( optionValue == "OFF" ) set_background( false );
+	else                       set_background( false );
 	
       } else {
 	cerr<<cn<<mn<<" WARN: Invalid config option found '"<<curLine<<"'"<<endl;
@@ -237,6 +246,8 @@ void config_handler::print() {
       <<"\n"<<setw(w1)<<"RPi Longitude: "               <<setw(w2)<<"\""<<get_longitude()<<"\""
       <<"\n"<<setw(w1)<<"RPi ID: "                      <<setw(w2)<<"\""<<get_rpid()<<"\""
       <<"\n"<<setw(w1)<<"RUN IN BACKGROUND: "           <<setw(w2)<<(get_background()? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"SIMULATION: "                  <<setw(w2)<<(get_simulate()? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"Simulation Data Dir: "         <<setw(w2)<<"\""<<get_simulate_dir()<<"\""
       <<"\n"<<setw(w1)<<"Config Path: "                 <<setw(w2)<<"\""<<get_config_file_path()<<"\""
       <<"\n"<<setw(w1)<<"Config Name: "                 <<setw(w2)<<"\""<<get_config_file_name()<<"\""
       <<"\n"<<setw(w1)<<"Config File: "                 <<setw(w2)<<"\""<<get_config_file()<<"\""
@@ -371,6 +382,8 @@ int config_handler::get_samp_rate() { return samp_rate; }
 int config_handler::get_rec_number() { return rec_num; }
 int config_handler::get_rec_duration() { return rec_dur; }
 bool config_handler::get_background() { return background; };
+bool config_handler::get_simulate() { return simulate; };
+string config_handler::get_simulate_dir() { return utils::pathify(simulate_dir); };
 string config_handler::get_latitude() { return latitude; };
 string config_handler::get_longitude() { return longitude; };
 string config_handler::get_rpid() { return rpid; };
@@ -483,6 +496,18 @@ bool config_handler::set_rec_number( int recnum ) {
 
 bool config_handler::set_background( bool status ) {
   background = status;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_simulate( bool status ) {
+  simulate = status;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_simulate_dir( string dir ) {
+  simulate_dir = dir;
   return true; // TODO - impliment
 }
 

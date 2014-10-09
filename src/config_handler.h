@@ -43,6 +43,8 @@ class config_handler {
   int rec_num;
   
   bool background;
+  bool simulate;
+  string simulate_dir;
 
   string latitude;
   string longitude;
@@ -89,7 +91,8 @@ class config_handler {
   bool set_longitude( string lon );
   bool set_rpid( string id );
 
-
+  bool set_simulate( bool status );
+  bool set_simulate_dir( string dir );
 
   
   string get_config_file_path();
@@ -119,6 +122,9 @@ class config_handler {
   string get_latitude();
   string get_longitude();
   string get_rpid();
+
+  bool get_simulate();
+  string get_simulate_dir();
 
  };
 
