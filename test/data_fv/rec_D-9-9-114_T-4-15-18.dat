@@ -1,0 +1,27 @@
+{
+    "featurevector": {
+        "recdir": "/home/pi/sounds/analysis/rec_D-30-8-114_T-54-1-20.wav"
+        "time": "D-30-8-114_T-54-1-20"
+        "rpid": "14",
+        "lat": "33.9657 N",
+        "lon": "120.1084 W",
+        "macaddr": "93.184.216.119",
+		"featureList": {
+		        "loudness": {
+		            "normalize": "-1"
+		            "resample": "no"
+		            "samplerate": "44100"
+		            "version": "0.64"
+		            "values": [ 115, 114, 115, 114 ]
+		        }
+		        "PerceptualSpread": {
+		            "normalize": "-1"
+		            "resample": "no"
+		            "samplerate": "44100"
+		            "version": "0.64"
+		            "values": [ 6.976312e-01, 6.708050e-01, 7.019446e-01, 4.882720e-01, 5.130630e-01, 5.411390e-01 ]
+		        }
+		    }
+		}
+	}
+}
