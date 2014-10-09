@@ -136,6 +136,33 @@ bool create_meta_data_file( string timeStamp, config_handler *ch, audio_recorder
 }
 
 
+void simulate_run( config_handler *ch ) {
+
+  string mn = "simulate_run:";
+  cout<<n<<mn<<" Simulating a run ... "<<endl;
+
+
+  // Simulate an actual run byt copying the example data to the real data deployment directory
+  stringstream copyExampleCmd;
+  copyExampleCmd << "bash -c 'cp"
+		 << " "
+		 << utils::pathify(ch->get_simulate_dir())+"{*.wav,*.dat}"
+		 << " " 
+		 << ch->get_data_location()
+		 <<"' ";
+  string simulateRunCmd = copyExampleCmd.str();
+
+  cout<<n<<mn<<" simulated data copy command: \""<<simulateRunCmd<<"\""<<endl;
+
+  system(simulateRunCmd.c_str());
+  cout<<n<<mn<<" simulation finished."<<endl;
+
+
+  // exit after copying example data as if an actual run has occured.
+  exit(0);
+}
+
+
 int main(int argc, char **argv) {
 
   string mn = "main:";
@@ -153,6 +180,8 @@ int main(int argc, char **argv) {
   config_handler ch( configPath, configFname );
   cout<<n<<mn<<" Finished reading config file."<<endl;
 
+
+  if(ch.get_simulate() == true) simulate_run( &ch ); 
 
   if( ch.get_background() == true ) utils::daemonize();
 
