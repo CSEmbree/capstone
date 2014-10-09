@@ -117,12 +117,12 @@ echo "Creating 'start' script... "
 touch start.sh
 echo "#!/bin/bash"                                            > start.sh
 echo "export SOUND_BASE_DIR=`pwd`"                            >> start.sh
-echo "export YAAFE=\$SOUND_BASE_DIR/yaafe-v0.64"               >> start.sh
+echo "export YAAFE=\$SOUND_BASE_DIR/yaafe-v0.64"              >> start.sh
 echo "export YAAFE_PATH=\$YAAFE/yaafe_extensions"             >> start.sh
 echo "export PATH=\$PATH:\$YAAFE/bin"                         >> start.sh
 echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$YAAFE/lib"   >> start.sh
 echo "export PYTHONPATH=\$PYTHONPATH:\$YAAFE/python_packages" >> start.sh
-echo "./raraa"                                                >> start.sh
+echo "(cd \$SOUND_BASE_DIR && ./raraa)"                       >> start.sh
 echo "Done."
 
 echo "Creating 'stop' script... "
