@@ -6,12 +6,11 @@
  ** Method Implementations
  ******************************************************************/
 
-string cn = " config_handler::";
 
 config_handler::config_handler( string fpath = "", string fname = "" )
 {
   string mn = "config_handler:"; 
-  cout<<cn<<mn<<" Constructor started for file \""<<fname<<"\"."<<endl;
+  cout<<mn<<" Constructor started for file \""<<fname<<"\"."<<endl;
 
   debug = true;
   init();
