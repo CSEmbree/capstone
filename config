@@ -12,4 +12,4 @@ REC_PREFIX rec_
 #ANALYSIS_LOC /home/pi/sounds/analysis/
 REC_LOC /home/pi/sounds/analysis/
 DATA_LOC /home/pi/data/
-OUT_FORM YAAFE
+OUT_FORM FV
