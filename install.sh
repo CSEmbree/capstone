@@ -59,9 +59,15 @@ echo "Done."
 
 echo "Extracting Yaafe ... "
 
-export YAAFE=$SOUND_BASE_DIR/yaafe-v0.64
+export YAAFE_NAME="yaafe-v0.64"
+export YAAFE=$SOUND_BASE_DIR/$YAAFE_NAME
 
 if [ ! -d "$YAAFE" ]; then
+    echo "Yaafe directory not found locally! Creating one ... "
+    if [ ! -f $YAAFE.tgz ]; then
+	echo "Yaafe tar ball not found locally! Downloading Yaafe ... "
+        wget -O $YAAFE_NAME.tgz https://sourceforge.net/projects/yaafe/files/$YAAFE_NAME.tgz/download
+    fi
     echo "Extracting yaafe files ... "
     tar -xf $YAAFE.tgz
     echo "Done."
