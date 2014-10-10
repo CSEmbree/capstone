@@ -64,6 +64,8 @@ void config_handler::init() {
   set_longitude( "0.0000° W" ); // TODO - make hardcoded elsewhere 
   set_rpid( "-1" );
 
+  set_final_feature_format( "YAAFE" ); //Foramts: YAAFE, FV
+
   set_simulate( false ); //simulate a run (dont actually do one).
   set_simulate_dir( utils::pathify( utils::get_base_dir() + "test/data/" ) ); //default sim data dir
 
@@ -175,6 +177,9 @@ void config_handler::read_config( string fname ) {
 
       } else if ( optionName == "SIM_DIR" ) {
 	set_simulate_dir( optionValue );
+
+      } else if ( optionName == "OUT_FORM" ) {
+	set_final_feature_format( optionValue );
 	
       } else if ( optionName == "SIMULATE" ) {
 	if( optionValue == "ON"  ) set_simulate( true  );
@@ -251,6 +256,7 @@ void config_handler::print() {
       <<"\n"<<setw(w1)<<"Config Path: "                 <<setw(w2)<<"\""<<get_config_file_path()<<"\""
       <<"\n"<<setw(w1)<<"Config Name: "                 <<setw(w2)<<"\""<<get_config_file_name()<<"\""
       <<"\n"<<setw(w1)<<"Config File: "                 <<setw(w2)<<"\""<<get_config_file()<<"\""
+      <<"\n"<<setw(w1)<<"Final Feature Format: "        <<setw(w2)<<"\""<<get_final_feature_format()<<"\""
       <<"\n"<<setw(w1)<<"Filter Vector Path: "          <<setw(w2)<<"\""<<get_fv_filter_path()<<"\""
       <<"\n"<<setw(w1)<<"Filter Vector Name: "          <<setw(w2)<<"\""<<get_fv_filter_name()<<"\""
       <<"\n"<<setw(w1)<<"Filter Vector File: "          <<setw(w2)<<"\""<<get_fv_filter()<<"\""
@@ -387,6 +393,8 @@ string config_handler::get_simulate_dir() { return utils::pathify(simulate_dir);
 string config_handler::get_latitude() { return latitude; };
 string config_handler::get_longitude() { return longitude; };
 string config_handler::get_rpid() { return rpid; };
+string config_handler::get_final_feature_format() { return final_feature_format; };
+
 
 
 //*****************
@@ -517,6 +525,7 @@ bool config_handler::set_latitude( string lat ) {
   return true; // TODO - impliment
 }
 
+
 bool config_handler::set_longitude( string lon ) {
   longitude = lon;
   return true; // TODO - impliment
@@ -525,6 +534,12 @@ bool config_handler::set_longitude( string lon ) {
 
 bool config_handler::set_rpid( string id ) {
   rpid = id;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_final_feature_format( string feature ) {
+  final_feature_format = feature;
   return true; // TODO - impliment
 }
 

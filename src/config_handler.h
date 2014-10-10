@@ -50,6 +50,8 @@ class config_handler {
   string longitude;
   string rpid;
 
+  string final_feature_format;
+
   void init();  
   
  
@@ -94,7 +96,10 @@ class config_handler {
   bool set_simulate( bool status );
   bool set_simulate_dir( string dir );
 
+  bool set_final_feature_format( string format );
   
+
+
   string get_config_file_path();
   string get_config_file_name();
   string get_config_file();
@@ -125,6 +130,8 @@ class config_handler {
 
   bool get_simulate();
   string get_simulate_dir();
+
+  string get_final_feature_format();
 
  };
 
