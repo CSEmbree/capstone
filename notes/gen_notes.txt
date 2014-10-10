@@ -1,9 +1,0 @@
-*Intersting noise discriminator:
-psp looks like an options - PerceptualSharpness
-
-
-*RUN PROGRAM
-See the run_program.txt file
-
-test changed filter featureplan
-make test suite
