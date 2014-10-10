@@ -160,7 +160,9 @@ class utils {
     string mn = "pathify:";
     string path = oldPath;
 
-    if( path.back() != '/' ) {
+    if( path.back() != '/' && 
+	path.empty() == false && 
+	path.find_first_not_of(' ') != std::string::npos ) {
       path += "/";
     }
 
