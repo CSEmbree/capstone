@@ -14,7 +14,7 @@
 
 #include "src/config_handler.h"
 #include "src/audio_recorder.h"
-
+#include "src/feature_vector.h"
 
 //using namespace std;
 
@@ -108,16 +108,6 @@ bool create_meta_data_file( string timeStamp, config_handler *ch, audio_recorder
   bool res = true;
 
   
-  /*
-  string lat            = ch.get_latitude();
-  string lon            = ch.get_longitude();
-  string rpid           = ch.get_rpid();
-  string analysisPath   = ch.get_analysis_location();
-  string analysisPrefix = ch.get_rec_file_name_prefix(); 
-  string audioRecName   = ar.get_rec_file_name();
-  string macAddr        = utils::get_mac_address(); 
-  */
-
   // create appropreate meta data file 
   stringstream outRecMetaFileName;
   outRecMetaFileName << ch->get_analysis_location()
@@ -352,7 +342,11 @@ int main(int argc, char **argv) {
       // create a feature vector as json foramtted file
       cout<<n<<mn<<" Creating a feature vector ... "<<endl;
 
+
       // TODO - create FV
+      feature_vector fv( timeStamp, &ch, &ar );
+      //fv.create_fv();
+
 
       cout<<n<<mn<<" Finished creating Feature Vector and moving to deployment. "
 	  <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
