@@ -3,7 +3,7 @@
  * Author:   C. Embree
  * Contact:  cse@cameronembree.com
  * Created:  4-SEP-2014
- * Edited:   30-SEP-2014
+ * Edited:   9-OCT-2014
  * Notes:    main recording and analysis program overseer. Here is 
  *             where worker classe are organised from. 
  */
@@ -28,6 +28,7 @@ bool do_filter_feature_extraction( config_handler *ch, audio_recorder *ar ) {
   bool res = true; // TODO - only true if succesful extraction
 
 
+
   stringstream filterCmd;
   filterCmd << "yaafe.py "
 	    << " -r " << ch->get_samp_rate()    	   
@@ -40,6 +41,7 @@ bool do_filter_feature_extraction( config_handler *ch, audio_recorder *ar ) {
   
   //alert user to cration of feature vector elements
   cout<<n<<mn<<" Preliminary filter features here: "<<ch->get_analysis_location()<<endl;    
+
 
 
   cout<<n<<mn<<" Finished filter feature extraction."<<endl;
@@ -66,25 +68,37 @@ bool do_feature_extraction( config_handler *ch, audio_recorder *ar ) {
   //perform FV element extraction
   system(extractCmd.str().c_str());
 
+
+
   cout<<n<<mn<<" Finished addtional audio analysis ... "<<endl;
-
-
-
-  cout<<n<<mn<<" Moving interesting analysis to data deployment directory ... "<<endl;
-  
-  stringstream deployCmd;
-  deployCmd << "cp " << ar->get_rec_file_name_base()<<"* "
-	    << " " << ch->get_data_location(); 
-  
-  cout<<n<<mn<<" Copying analysis with: \""<<deployCmd.str().c_str()<<"\""<<endl;
-  system(deployCmd.str().c_str());
-  
-  cout<<n<<mn<<" Finished moving full feature(s) extracted."<<endl;
-
-
 
   return res; 
 }
+
+
+bool move_features( config_handler *ch, audio_recorder *ar ) {
+
+  string mn = "move_features:";
+  cout<<n<<mn<<" Moving features to data deployment directory ... "<<endl;
+  
+
+
+  stringstream deployCmd;
+  deployCmd << "bash -c 'cp " << ar->get_rec_file_name_base()<<"* "
+	    << " " << ch->get_data_location()
+	    << "' "; 
+  
+  cout<<n<<mn<<" Copying analysis with: \""<<deployCmd.str().c_str()<<"\""<<endl;
+  system(deployCmd.str().c_str());
+
+
+  
+  cout<<n<<mn<<" Finished moving full feature(s) extracted."<<endl;
+
+  return true; //TODO - only be true if copy was succesful
+}
+
+
 
 
 bool create_meta_data_file( string timeStamp, config_handler *ch, audio_recorder *ar ) {
@@ -152,14 +166,48 @@ void simulate_run( config_handler *ch ) {
 		 <<"' ";
   string simulateRunCmd = copyExampleCmd.str();
 
-  cout<<n<<mn<<" simulated data copy command: \""<<simulateRunCmd<<"\""<<endl;
+  cout<<n<<mn<<" Simulated data copy command: \""<<simulateRunCmd<<"\""<<endl;
 
   system(simulateRunCmd.c_str());
-  cout<<n<<mn<<" simulation finished."<<endl;
+  cout<<n<<mn<<" Simulation finished."<<endl;
 
 
   // exit after copying example data as if an actual run has occured.
   exit(0);
+}
+
+
+bool clean_analysis_workspace( string timeStamp, config_handler *ch, audio_recorder *ar ) {
+
+  string mn = "clean_analysis_workspace:";
+  cout<<n<<mn<<" Cleaning up analysis workspace ... "<<endl;
+
+
+  // create workspace file names to remove
+  stringstream workspaceFileBase;
+  workspaceFileBase << ch->get_analysis_location()
+		    << ch->get_rec_file_name_prefix()
+		    << timeStamp;
+  string fileNameBase = workspaceFileBase.str();
+  cout<<n<<mn<<" Will remove workspace files with base: \""<<fileNameBase<<"\""<<endl;
+
+
+  // create clean cmd
+  stringstream cleanWorkspaceCmd;
+  cleanWorkspaceCmd << "bash -c '"
+		    << "rm "
+		    << fileNameBase
+		    << "*"
+		    << "' ";
+  string cleanCmd = cleanWorkspaceCmd.str();
+  cout<<n<<mn<<" Clean command is: \""<<cleanCmd<<"\""<<endl;
+
+
+  system(cleanCmd.c_str());
+
+
+  cout<<n<<mn<<" Analysis workspace clean. "<<endl;
+  return true; // TODO - true when clean is succesful?
 }
 
 
@@ -266,25 +314,12 @@ int main(int argc, char **argv) {
 
   // Child takes care of feature extraction
   if(childpid == 0) {
-    cout<<n<<mn<<" Generating meta data file (child pid \""<<(long)getpid()<<"\") ..."<<endl; 
-    
 
-    //---------CREATE A METDA DATA FILE FOR A RECORDING----------
-    if( create_meta_data_file( timeStamp, &ch, &ar ) == false ) {
-      cerr<<n<<mn<<" ERROR: A problem occured creating a meta data file at \""<<timeStamp<<"\""<<endl;
-    }
-
-    // Alert user to creation of meta data file
-    cout<<n<<mn<<" Created meta data file (child pid \""<<(long)getpid()<<"\")."<<endl;
-    
-  
         
     //---------FILTER FEATURE EXTRACTION----------
     // Do minimal feature extractions for filtering requirments
     cout<<n<<mn<<" Performing basic audio filtering ... "<<endl;
     do_filter_feature_extraction( &ch, &ar );
-    
-    // Alert user to filter feature completion
     cout<<n<<mn<<" Extracted filter features (child pid \""<<(long)getpid()<<"\")."<<endl;
 
 
@@ -292,23 +327,58 @@ int main(int argc, char **argv) {
     //---------ANALYIZE FILTER FEATURES----------
     // Analyize the features for a filter to look for interesting features
     bool interesting = filters::perceptual_sharpness(ar.get_rec_file_name()+".ps.csv");    
-
-    // Alert user to filter analysis completion
     cout<<n<<mn<<" Completed filter analysis (child pid \""<<(long)getpid()<<"\")."
 	<<" Interesting: "<<(interesting? "YES!":"NO!")<<endl; 
     
 
 
-    //---------EXTRACT MORE FEATURES MOVE TO DATA----------
+    //---------EXTRACT MORE FEATURES IF INTERSTING----------
     // if a feature was interesting we need to extract more features and deploy them
-
     if( interesting == true ) {
       do_feature_extraction( &ch, &ar );    
-
-      // Alert user to full feature extraction completion
       cout<<n<<mn<<" Completed full feature extraction (child pid \""<<(long)getpid()<<"\")."<<endl;
-    } 
-    
+    }
+
+
+
+    //---------MOVE EXTRACTED FEATURES TO DEPLOYMENT----------
+    // Move features extracted to deployment based on user's desired format
+    string dataFormat = ch.get_final_feature_format();
+    cout<<n<<mn<<" Desired format is: \""<<dataFormat<<"\""<<endl;
+
+
+    if( dataFormat == "FV" ) {
+      //---------CREATE A Feature Vector from extracted features----------
+      // create a feature vector as json foramtted file
+      cout<<n<<mn<<" Creating a feature vector ... "<<endl;
+
+      // TODO - create FV
+
+      cout<<n<<mn<<" Finished creating Feature Vector and moving to deployment. "
+	  <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
+
+    } else if( dataFormat == "YAAFE" ) {
+      //---------CREATE A METDA DATA FILE FOR A RECORDING FEATURES----------
+      // Move all features with a helpful meta data file if not creating a feature vector
+      cout<<n<<mn<<" Creating meta data file and moving features extracted to deployment ... "<<endl;
+
+
+      if( create_meta_data_file( timeStamp, &ch, &ar ) == false ) {
+	cerr<<n<<mn<<" ERROR: A problem occured creating a meta data file at \""<<timeStamp<<"\""<<endl;
+      } else {
+	cout<<n<<mn<<" Created meta data file (child pid \""<<(long)getpid()<<"\")."<<endl;
+      }
+      move_features( &ch, &ar ); //blindly move features to data
+
+
+      cout<<" Finished moving features and meta data to deployment. "
+	  <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
+    }    
+
+
+    clean_analysis_workspace( timeStamp, &ch, &ar );
+
+
     cout<<n<<mn<<" Audio Analysis complete (child pid \""<<(long)getpid()<<"\")."<<endl;
   }
   
