@@ -146,11 +146,17 @@ void simulate_run( config_handler *ch ) {
   cout<<n<<mn<<" Simulating a run ... "<<endl;
 
 
+  string extentions = "";
+  if ( ch->get_final_feature_format() == "FV" )         extentions = "{*.wav,*.dat}";
+  else if ( ch->get_final_feature_format() == "YAAFE" ) extentions = "{*.wav,*.csv}";
+  else if                                               extentions = "*";
+
+
   // Simulate an actual run byt copying the example data to the real data deployment directory
   stringstream copyExampleCmd;
   copyExampleCmd << "bash -c 'cp"
 		 << " "
-		 << utils::pathify(ch->get_simulate_dir())+"{*.wav,*.dat}"
+		 << utils::pathify(ch->get_simulate_dir()) + extentions
 		 << " " 
 		 << ch->get_data_location()
 		 <<"' ";
