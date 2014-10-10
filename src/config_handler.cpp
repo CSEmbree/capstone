@@ -66,7 +66,7 @@ void config_handler::init() {
   set_final_feature_format( "YAAFE" ); //Foramts: YAAFE, FV
 
   set_simulate( false ); //simulate a run (dont actually do one).
-  set_simulate_dir( utils::pathify( utils::get_base_dir() + "test/data/" ) ); //default sim data dir
+  set_simulate_dir( "" ); //default sim data dir
 
   set_background( false ); //run in forground by default
   
@@ -221,6 +221,26 @@ void config_handler::read_config( string fname ) {
   set_config_file( file );
 
 
+  // set default directoryies for simulations, if none were provided
+  string simDataDir = utils::pathify( utils::get_base_dir() + "test/" );
+  cout<<"TEST: sim data dir 0 : "<<get_simulate_dir()<<endl;
+
+  if( get_simulate() == true ) {
+
+    cout<<"TEST: is simulateion : "<<get_simulate_dir()<<endl;
+
+    if( get_simulate_dir() == "" ) {
+      cout<<"TEST: sim data dir 1 : "<<simDataDir<<endl;
+
+      if( get_final_feature_format() == "FV" )         simDataDir += "data_fv/";
+      else if( get_final_feature_format() == "YAAFE" ) simDataDir += "data_yaafe/";
+  
+      cout<<"TEST: sim data dir 2 : "<<simDataDir<<endl;
+
+      set_simulate_dir( simDataDir ); 
+    }
+  }
+  
 
   if(debug) { 
     cout<<cn<<mn<<" Finished reading config. REPORT:"<<endl;
