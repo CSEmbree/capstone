@@ -3,7 +3,7 @@
  * Author:   C. Embree
  * Contact:  cse@cameronembree.com
  * Created:  4-SEP-2014
- * Edited:   9-OCT-2014
+ * Edited:   10-OCT-2014
  * Notes:    main recording and analysis program overseer. Here is 
  *             where worker classe are organised from. 
  */
@@ -149,7 +149,7 @@ void simulate_run( config_handler *ch ) {
   string extentions = "";
   if ( ch->get_final_feature_format() == "FV" )         extentions = "{*.wav,*.dat}";
   else if ( ch->get_final_feature_format() == "YAAFE" ) extentions = "{*.wav,*.csv}";
-  else if                                               extentions = "*";
+  else                                                  extentions = "*";
 
 
   // Simulate an actual run byt copying the example data to the real data deployment directory
