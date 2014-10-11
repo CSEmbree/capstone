@@ -1,5 +1,12 @@
 # Created by https://www.gitignore.io
 
+### Personal ###
+raraa
+backups/
+notes/
+yaafe-v0.64/
+yaafe-v0.64.tgz
+
 ### C++ ###
 # Compiled Object files
 *.slo
