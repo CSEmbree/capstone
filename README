@@ -80,7 +80,7 @@ Edit config file with:
 
 Run code with:
 
-  ./start.sh
+  ./start_sound.sh
 
 
 
