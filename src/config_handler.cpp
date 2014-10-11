@@ -7,7 +7,7 @@
  ******************************************************************/
 
 
-config_handler::config_handler( string fpath = "", string fname = "" )
+config_handler::config_handler( string fpath, string fname = "" )
 {
   string mn = "config_handler:"; 
   cout<<mn<<" Constructor started for file \""<<fname<<"\"."<<endl;

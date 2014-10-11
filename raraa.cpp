@@ -217,8 +217,8 @@ int main(int argc, char **argv) {
   //******************CONFIG PHASE******************
 
   //read config file for settings
-  string configPath = "";//utils::get_home_dir();//"/home/pi/sounds";
-  string configFname = "";//cirainbow.conf";
+  string configPath = utils::get_home_dir();//"/home/pi/sounds";
+  string configFname = "cirainbow.conf";
 
   cout<<n<<mn<<" Started reading config file ... "<<endl;
   config_handler ch( configPath, configFname );
