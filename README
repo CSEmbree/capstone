@@ -5,56 +5,98 @@ Read the following to understand how the Remote Audio Recording and
 Analysis software 'raraa' works. Content is broken up as follows:
 
 1. PURPOSE
+   1.a EXECUTION FLOW
 
-2. INSTALL
-   2.a PHYSICAL
-   2.b SOFTWARE
-   2.c DEPENDANCIES
+2. BASIC USE
 
-3. RUN
-   3.a CONFIG FILES
-      3.a.I CONFIG EXAMPLE
-   3.b FEATURE PLAN (AUDIO ANALYSIS)
-      3.b.I FEATURE PLAN EXAMPLE
-   3.c START RECORDING
-   3.d STOP RECORDING
+3. INSTALL
+   3.a PHYSICAL
+   3.b SOFTWARE
+      3.c.I DEPENDANCIES
 
-4. CLEAN UP
+4. RUN
+   4.a CONFIG FILES
+      4.a.I CONFIG EXAMPLE
+   4.b FEATURE PLAN (AUDIO ANALYSIS - YAAFE)
+      4.b.I FEATURE PLAN EXAMPLE
+   4.c START RECORDING
+   4.d STOP RECORDING
 
-5. EXAMPLE
+5. CLEAN UP
 
-6. REFERENCES
+6. EXAMPLE
+
+7. REFERENCES
 ===================================================================
 
 
--------------------------------------------------------------------
+
+*******************************************************************
 1. PURPOSE
--------------------------------------------------------------------
+*******************************************************************
 The purpose of this software is to remotely record and analyize 
 audio. Is id designed to work on a Rasberry Pi with Rasbian.
 
  - The recording is done via the UNIX software called "arecord". 
- - The analysis is done via the UNIX software called "yaafe".
+ - The analysis is done via the UNIX software called "Yaafe".
 
 The following installation process is be needed to run.
 
-If there are questions, comments or bugs, report them to:
+Any questions, comments or bugs, should be reported to:
 cameron.embree748@myci.csuci.edu
 
 
 -------------------------------------------------------------------
-2. INSTALL
+1.a EXECUTION FLOW
 -------------------------------------------------------------------
+  1. Make a recording to 'analysis' directory
+
+  2. IF filtering is being performed: 
+
+     2.a Extract Filter Features in 'analysis'
+
+     2.a Analize Filter Features in 'analysis'
+
+  3. Perform fill feature extraction in 'analysis'
+
+  4. Move Features and Audio to 'data' directory
+
+     4.a IF 'YAAFE' format - move all files
+
+     4.b IF 'FV' format - combine all Yaafe files into 1 json file
+
+
+
+*******************************************************************
+2. BASIC USE
+*******************************************************************
+Install depednancies with:
+
+  ./install.sh
+
+Edit config file with:
+
+  nano sound_setting.conf
+
+Run code with:
+
+  ./start.sh
+
+
+
+*******************************************************************
+3. INSTALL
+*******************************************************************
 First, install the physical sound card (if your RPi does not have 
 one) by (2.a) and then install the software by (2.b)
 
 
 -------------------------------------------------------------------
-2.a PHYSICAL
+3.a PHYSICAL
 -------------------------------------------------------------------
 Two physical installations are needed by the software:
- 1. A sound card
- 2. A microphone that the sound card can talk to
+  1. A sound card
+  2. A microphone that the sound card can talk to
 
 Rasberry Pi's older than the B+ version have no on board sound card
 so you will need a USB sound card.
@@ -66,40 +108,54 @@ Second, install a microphone. If you have an external sound card
 then the microphone will be installed into that. If you have an
 on board sound card then install your microphone into the RPi.
 
-In either case, the microphone will be found immidetly by the sound
-card.
+In either case, the microphone will be recognized by the sound card
 
-Ensure your installation is correct by performing the following:
-  step1
-  2
-  3
+Ensure your installation is correct by performing the following in
+your terminal:
+  
+  $ lsusb
 
-You should see the name of your sound card and an audio file 
-"test.wav" in your home directory. Play the sound file someplace
-with speakers to ensure the recording was successful.
+You should see your sound card in the output. Example output:
+  pi@raspberrypi ~/sounds lsusb
+  Bus 001 Device 002: ID 0424:9512 Standard Microsystems Corp. 
+  Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  Bus 001 Device 003: ID 0424:ec00 Standard Microsystems Corp. 
+  Bus 001 Device 004: ID 0d8c:0008 C-Media Electronics, Inc. 
+  Bus 001 Device 005: ID 04ca:0027 Lite-On Technology Corp. 
+  pi@raspberrypi ~/sounds $ 
+
+My USB sound card is called 'C-Media Electronics, Inc.', so my
+sound card is recongized.
+
+Try making a recording using the arecord software with the
+following terminal command:
+
+  $ arecord -D plughw:1 --duration=2 -f cd -vv ~/test.wav 
+
+There should not be an audio file called "test.wav" in your home 
+directory. Play the sound file someplace with speakers to ensure 
+the recording was successful.
 
 
 -------------------------------------------------------------------
-2.b SOFTWARE
+3.b SOFTWARE
 -------------------------------------------------------------------
-raraa uses the following libraries
- - arecord
- - yaafe
-
 To install the raraa code perform the following:
 
-  ./install.sh |& tee install.log
+  $ ./install.sh |& tee log/install.log
 
 After the install script finishes, a log file "install.log" should
-be in the local directory for reference about the installation.
+be in the 'log/' directory for future reference about the install.
 
-If code ONLY needs to be recompiled, then perform:
+The installation script should have compiled raraa but you can
+always clean and re-make the raraa with:
 
-  make
+  $ make clean
+  $ make
 
 
 -------------------------------------------------------------------
-2.c DEPENDANCIES
+3.c DEPENDANCIES
 -------------------------------------------------------------------
 raraa uses "arecord" and "yaafe". More information about these 
 libraries can be found in the REFERENCES section.
@@ -107,58 +163,141 @@ libraries can be found in the REFERENCES section.
 All dependancies are installed/updated by the "install.sh" script.
 
 
--------------------------------------------------------------------
-3. RUN
--------------------------------------------------------------------
+
+*******************************************************************
+4. RUN
+*******************************************************************
 To run raraa after the previous INSTALL steps requires two steps:
-  1. Edit the "config" file (See 3.a).
-  2. Run the code with "start.sh" (See 3.b).
+  1. Edit the config file called "sound_settings.conf" (See 3.a).
+  
+    $ nano sound_settings.conf
+
+  2. Run the code with "start_sound.sh" script (See 3.b).
+ 
+    $ ./start_sound.sh
+
   3. (OPTIONALLY) Stop recording with "stop.sh" (See 3.c).
 
-
--------------------------------------------------------------------
-3.a CONFIG FILES
--------------------------------------------------------------------
-The configuration file, called config, is a file that determines
-how recordings are performed. Config files contain the following
-operating details:
-
-  FV_PATH    - Work space for audio analysis/filtering
-  REC_EXT    - recording extention
-  REC_LOC    - Directory path to where recordings are saved
-  REC_DUR    - The duration of each recoding in seconds
-  REC_NUM    - The number of recordings to make
-  SAMP_RATE  - The sample rate in Hz of each recording
-  REC_PREFIX - An optional prefix for each recoring
+    $ ./stop_sound.sh
 
 
 -------------------------------------------------------------------
-3.a.I CONFIG EXAMPLE
+4.a CONFIG FILES
 -------------------------------------------------------------------
-Suppose the following is the contents of the local config file:
+The configuration file, called "sound_settings.conf", is a file 
+that litsts how recordings are performed. Config files contain the 
+following operating details:
 
-  FV_PATH ~/sound_script/featureplan
-  REC_EXT .wav
-  REC_LOC ~/sounds/rec/audio_raw/
-  REC_DUR 3
-  REC_NUM 2
-  SAMP_RATE 44100
-  REC_PREFIX rec_
+
+recordingduration   - Duration of each recoding in seconds 
+
+recordingnumber     - Number of recordings to make 
+
+samplerate          - Sample rate in Hz of each recording 
+
+recordingextention  - recording extention. 
+                      DEFAULT is ".wav"
+
+outputform          - Either output is plan Yaafe using "YAAFE" or
+                      output is a json file using "FV".
+                      DEFAULT: string "YAAFE"
+
+background          - Turn raraa into a Daemon with "on"
+                      DEAFULT: string "off" - prints to terminal
+
+recordingprefix     - (OPTIONAL) Recording filename prefix. 
+                      DEFAULT: 'rec_' at start of each audio file
+
+featurevectorpath   - (OPTIONAL) Path to a feature plan
+                      DEFAULT: local sound directory
+
+featurevectorname   - (OPTIONAL) Name of a feature plan
+                      DEFAULT: string "featureplan"
+
+recordinglocation   - (OPTIONAL) Directory path where recordings 
+                      are saved. Analysis still in 'analysis' dir 
+                      DEFAULT: local 'analysis' dir
+
+datalocation        - (OPTIONAL) Directory where data finished
+                      being recorded and analized goes. 
+                      DEFAULT: local 'data' directory
+
+analysislocation    - (OPTIONAL) Work space for audio recording 
+                      analysis and filtering. 
+                      DEFAULT: local "analysis" directory
+
+latitude            - (OPTIONAL) Latitude loc, DEFAULT is zero
+                      DEAFULT: string "0.0000 W"
+
+longitude           - (OPTIONAL) Longitude location
+                      DEAFULT: string "0.0000 N"
+
+rasberrypiid        - (OPTIONAL) Custom string rasberry pi id
+                      DEFAULT: string "-1"
+
+simulate            - (OPTIONAL) flag to turn raraa into sim mode
+                      where it copies simulated output files from
+                      'simulateiondirectory' to 'data' directory
+                      DEFAULT = string "off"
+
+simulationdirectory - (OPTIONAL) Directory where sim output files
+                      are found. Copied to "data" directory if
+                      simulateion is "on".
+                      DEFAULT: durectory "/test/data_yaafe/"
+
+debug               - Turn on/off debut statements
+
+
+-------------------------------------------------------------------
+4.a.I CONFIG EXAMPLE
+-------------------------------------------------------------------
+EX 1: Consider the following config file:
+
+  latitude = 17.2343432
+  longitude = -119.23423423
+  raspberrypiid = 14
+  background = off
+  recordingextention = .wav
+  recordingduration = 3
+  recordingnumber = 2
+  recordingprefix = rec_
+  samplerate = 44100
+  datalocation = /home/pi/data/
+  outputform = YAAFE
 
 Two recordings of duration 3 seconds at a sample rate of 44100Hz
 will be made. Each recoring will be saved as a ".wav" file with the
 prefix "rec_" and extention ".wav". These recordings are saved to
-the directory called "~/sounds/rec/audio_raw/". Filtering/Audio
-analysis is saved in the directory "~/sound_script/featureplan".
+the directory called "/home/pi/data/". Output to the "home/pi/data/"
+directory is in the "YAAFE" form (an audio file and Yaafe features).
+
+
+EX 2: Consider the following config file:
+
+  background = on
+  recordingextention = .wav
+  recordingduration = 5
+  recordingnumber = 1
+  recordingprefix = rec_
+  samplerate = 44100
+  datalocation = /home/pi/data/
+  outputform = FV
+
+One recording of duration 5 seconds at a sample rate of 44100Hz
+will be made. The recoring will be saved as a ".wav" file with the
+prefix "rec_" and extention ".wav". These recordings are saved to
+the directory called "/home/pi/data/". Output to the "home/pi/data/"
+directory is in the "FV" form (an audio file and a single json file
+containing all the features extracted with Yaafe).
 
 
 -------------------------------------------------------------------
-3.b FEATURE PLAN (AUDIO ANALYSIS)
+4.b FEATURE PLAN (AUDIO ANALYSIS)
 -------------------------------------------------------------------
 The yaafe software used for audio analysis and filtering uses a
 "featureplan" file to determine what to extract from a recording.
 
-Details about the available feature's ina  feature plan are here:
+Details about the available feature's in a feature plan are here:
 
   http://yaafe.sourceforge.net/features.html
 
@@ -166,52 +305,64 @@ A deafult feature plan file is already in the working directory.
 
 
 -------------------------------------------------------------------
-3.b FEATURE PLAN EXAMPLE
+4.b.I FEATURE PLAN EXAMPLE
 -------------------------------------------------------------------
-The following default feature plan is supported:
+The following are featues that you might find in a  feature plan:
 
- blah
- blah 
- blah
+  lx: Loudness
+  psp: PerceptualSpread
+  psh: PerceptualSharpness
+  ss: SpectralSlope
 
+ 
 -------------------------------------------------------------------
-3.c START RECORDING
+4.c START RECORDING
 -------------------------------------------------------------------
 Recordings are started after a config file is available with:
 
-  ./start.sh
-
--------------------------------------------------------------------
-3.d STOP RECORDING
--------------------------------------------------------------------
-Recordings are halted with:
-
-  ./stop.sh
+  $ ./start_sound.sh
 
 
 -------------------------------------------------------------------
-4. CLEANING UP
+4.d STOP RECORDING
 -------------------------------------------------------------------
+Recordings currently running can be halted with:
+
+  $ ./stop_sound.sh
+
+This is only necessary when an infinite number of recordings are
+being made or you want to end recording early.
+
+
+
+
+*******************************************************************
+5. CLEANING UP
+*******************************************************************
 If the recording and analysis direcotrys needs to be cleaned up
-then perform the following:
+locally then perform the following:
 
-  ./cleanup.sh
-
-
--------------------------------------------------------------------
-5. EXAMPLE
--------------------------------------------------------------------
-Suppose a config file already exists
-
-  ./install.sh
-  ./start.sh
-  ./stop.sh
+  $ ./cleanup_workspace.sh
 
 
--------------------------------------------------------------------
-6. REFERENCES
--------------------------------------------------------------------
-Whole document can be found in the raraa "docs" directory.
 
-arecord - 
-yaafe   - 
+*******************************************************************
+6. EXAMPLE
+*******************************************************************
+Supposing a local config file "sound_setting.conf" already exists
+with your correct settings, then perform:
+
+  $ ./install.sh
+  $ ./start_sound.sh
+
+
+
+*******************************************************************
+7. REFERENCES
+*******************************************************************
+Whole documentation can be found in the raraa "docs" directory.
+
+Depedant libraries documention:
+  arecord - http://linux.die.net/man/1/arecord
+          - http://www.alsa-project.org/main/index.php/Main_Page
+  yaafe   - yaafe.sourceforge.net
