@@ -9,16 +9,31 @@ echo " === (1/3) START - Recording envrionment is being prepared  === "
 
 echo "Installing dependant libraries..."
 DEPENDANT_LIBS="cmake cmake-curses-gui libargtable2-0 libargtable2-dev libsndfile1 libsndfile1-dev libmpg123-0 libmpg123-dev libfftw3-3 libfftw3-dev liblapack-dev libhdf5-serial-dev libhdf5-7 python flac alsa-utils"
-sudo apt-get -y install $DEPENDANT_LIBS
-echo "Done."
 
 
-echo "Updating RPi software..."
-sudo apt-get -y update
-sudo apt-get -y upgrade
-sudo apt-get -y install rpi-update
-sudo rpi-update
-echo "Done."
+case "$OSTYPE" in
+    darwin*)  
+	echo "OS is OSX"
+	sudo port install $DEPENDANT_LIBS    
+	echo "Done."
+	sudo port update
+	echo "Done." ;;
+    linux*)   
+	echo "OS is LINUX"
+	sudo apt-get -y install $DEPENDANT_LIBS
+	echo "Done."
+	
+	echo "Updating RPi software..."
+	sudo apt-get -y update
+	sudo apt-get -y upgrade
+	sudo apt-get -y install rpi-update
+	sudo rpi-update
+	echo "Done." ;;	
+    *)        
+	echo "WARNING: OS '$OSTYPE' UNSUPPORTED. Continuing assuming the following dependant libraries are installed and updated: '"+$DEPENDANT_LIBS+"'." ;;
+esac
+
+
 
 echo "Adding user pi to the audio group..."
 sudo usermod -a -G audio pi
