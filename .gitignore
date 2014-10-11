@@ -6,6 +6,8 @@ backups/
 notes/
 yaafe-v0.64/
 yaafe-v0.64.tgz
+start_sound.sh
+stop_sound.sh
 
 ### C++ ###
 # Compiled Object files
