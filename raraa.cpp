@@ -217,8 +217,8 @@ int main(int argc, char **argv) {
   //******************CONFIG PHASE******************
 
   //read config file for settings
-  string configPath = utils::get_base_dir();//"/home/pi/sounds";
-  string configFname = "config";
+  string configPath = "";//utils::get_home_dir();//"/home/pi/sounds";
+  string configFname = "";//cirainbow.conf";
 
   cout<<n<<mn<<" Started reading config file ... "<<endl;
   config_handler ch( configPath, configFname );
@@ -268,7 +268,11 @@ int main(int argc, char **argv) {
   bool forever = false;
 
   if( ch.get_rec_number() == 0 ) forever = true;
-  //if( ch.get_rec_number() < 0 ) exit(0);
+  if( ch.get_rec_number() < 0 ) { 
+    cout<<n<<mn<<" WARNING: Invalid number of recordings requested. Check config file: \""
+	<<ch.get_config_file()<<"\"."<<endl;
+    exit( 0 ); //invalid
+  }
 
   //Make as many recordings as requested
   for( recRunCount=0; recRunCount < ch.get_rec_number() || forever ; recRunCount++ ) {
