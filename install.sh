@@ -8,7 +8,7 @@ export SOUND_BASE_DIR=`pwd`
 echo " === (1/3) START - Recording envrionment is being prepared  === "
 
 echo "Installing dependant libraries..."
-DEPENDANT_LIBS="cmake cmake-curses-gui libargtable2-0 libargtable2-dev libsndfile1 libsndfile1-dev libmpg123-0 libmpg123-dev libfftw3-3 libfftw3-dev liblapack-dev libhdf5-serial-dev libhdf5-7 python flac"
+DEPENDANT_LIBS="cmake cmake-curses-gui libargtable2-0 libargtable2-dev libsndfile1 libsndfile1-dev libmpg123-0 libmpg123-dev libfftw3-3 libfftw3-dev liblapack-dev libhdf5-serial-dev libhdf5-7 python flac alsa-utils"
 sudo apt-get -y install $DEPENDANT_LIBS
 echo "Done."
 
@@ -120,21 +120,21 @@ echo "Done."
 export SOUND_BASE_DIR=`pwd`
 
 echo "Creating 'start' script... "
-touch start.sh
-echo "#!/bin/bash"                                            > start.sh
-echo "export SOUND_BASE_DIR=`pwd`"                            >> start.sh
-echo "export YAAFE=\$SOUND_BASE_DIR/yaafe-v0.64"              >> start.sh
-echo "export YAAFE_PATH=\$YAAFE/yaafe_extensions"             >> start.sh
-echo "export PATH=\$PATH:\$YAAFE/bin"                         >> start.sh
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$YAAFE/lib"   >> start.sh
-echo "export PYTHONPATH=\$PYTHONPATH:\$YAAFE/python_packages" >> start.sh
-echo "(cd \$SOUND_BASE_DIR && ./raraa)"                       >> start.sh
+touch start_sound.sh
+echo "#!/bin/bash"                                            > start_sound.sh
+echo "export SOUND_BASE_DIR=`pwd`"                            >> start_sound.sh
+echo "export YAAFE=\$SOUND_BASE_DIR/yaafe-v0.64"              >> start_sound.sh
+echo "export YAAFE_PATH=\$YAAFE/yaafe_extensions"             >> start_sound.sh
+echo "export PATH=\$PATH:\$YAAFE/bin"                         >> start_sound.sh
+echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$YAAFE/lib"   >> start_sound.sh
+echo "export PYTHONPATH=\$PYTHONPATH:\$YAAFE/python_packages" >> start_sound.sh
+echo "(cd \$SOUND_BASE_DIR && ./raraa)"                       >> start_sound.sh
 echo "Done."
 
 echo "Creating 'stop' script... "
-touch stop.sh
-echo "#!/bin/bash"                     > stop.sh
-echo "echo \" ... impliment me ... \"" >> stop.sh
+touch stop_sound.sh
+echo "#!/bin/bash"                     > stop_sound.sh
+echo "echo \" ... impliment me ... \"" >> stop_sound.sh
 echo "Done."
 
 echo "Creating 'clean_workspace' script... "
@@ -148,8 +148,8 @@ echo "Done."
 
 echo "ensuring executables..."
 chmod u+x install.sh
-chmod u+x start.sh
-chmod u+x stop.sh
+chmod u+x start_sound.sh
+chmod u+x stop_sound.sh
 chmod u+x clean_workspace.sh
 echo "Done."
 
