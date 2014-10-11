@@ -16,15 +16,30 @@ config_handler::config_handler( string fpath = "", string fname = "" )
   init();
 
 
-  if( fpath == "" ) fpath = utils::get_base_dir();
-  if( fname == "" ) fname = "config";
+  if( fpath == "" ) fpath = utils::get_home_dir();
+  if( fname == "" ) fname = "cirainbow.conf";
+
+  // make sure default or custom config file is found
+  // User coice, home directory "cirainbow.conf", local directory "sound_settings.conf"
+  if( utils::is_file_readable( utils::pathify(fpath) + fname ) == false ) {
+
+    cout<<cn<<mn<<" Initial config file not accesable at: \""<<utils::pathify(fpath)+fname<<"\"."<<endl;
+    fpath = utils::get_base_dir();
+    fname = "sound_settings.conf";
+  }
+
+  //cout<<cn<<mn<<" Config file here: \""<<utils::pathify(fpath)+fname<<"\"."<<endl; //TEST
+  //exit( 0 ); //TEST
+
 
   set_config_file_path( fpath );
   set_config_file_name( fname );
 
-
   string configFile = get_config_file_path() + get_config_file_name();
   set_config_file( configFile );
+
+  cout<<cn<<mn<<" Config file here: \""<<get_config_file()<<"\"."<<endl;
+
 
   read_config( configFile );
 
@@ -36,8 +51,8 @@ config_handler::config_handler( string fpath = "", string fname = "" )
 void config_handler::init() {
 
   cn = " config_handler::";
-  set_config_file_path ( utils::get_base_dir() );
-  set_config_file_name ( "config" ); // TODO - make hardcoded elsewhere 
+  set_config_file_path ( utils::get_home_dir() );
+  set_config_file_name ( "cirainbow.conf" ); // TODO - make hardcoded elsewhere 
   set_config_file      ( get_config_file_path() + get_config_file_name() ); 
 
   set_fv_filter_path   ( utils::get_base_dir() ); 
@@ -49,15 +64,15 @@ void config_handler::init() {
   set_fv_file          ( get_fv_file_path() + get_fv_file_name() ); 
 
   set_rec_file_name_prefix( "rec_" ); // TODO - make hardcoded elsewhere 
-  set_rec_location        ( utils::get_base_dir() + "rec/audio_raw" ); // TODO - make hardcoded elsewhere 
+  set_rec_location        ( utils::get_base_dir() + "analysis/" ); // TODO - make hardcoded elsewhere 
   set_rec_extention       ( ".wav" ); // TODO - make hardcoded elsewhere 
   
   set_data_location       ( utils::get_base_dir() + "data/" ); //TODO - make hardcoded elsewhere
   set_analysis_location   ( utils::get_base_dir() + "analysis/" ); // TODO - make hardcoded elsewhere 
   
-  set_samp_rate    ( 0 ); 
-  set_rec_number   ( 0 ); 
-  set_rec_duration ( 0 ); 
+  set_samp_rate    ( -1 ); 
+  set_rec_number   ( -1 ); 
+  set_rec_duration ( -1 ); 
 
   set_latitude( "0.0000° N" ); // TODO - make hardcoded elsewhere 
   set_longitude( "0.0000° W" ); // TODO - make hardcoded elsewhere 
@@ -73,24 +88,32 @@ void config_handler::init() {
   return;
 }
 
-void config_handler::read_config( string fname ) {
+void config_handler::read_config( string fname="" ) {
   //
   // read steering from file fname
   //
   string mn = "read_config:"; //Method name, for printing
 
 
-  cout<<cn<<mn<<" Searching for config file \""<<fname<<"\"..."<<endl;
+  string confFileName = fname;
+  if( fname == "" ) confFileName = get_config_file(); 
+
+
+  cout<<cn<<mn<<" Searching for config file \""<<confFileName<<"\"..."<<endl;
   
   //ensure config provided is found and readable
-  ifstream infile(fname.c_str(), ios::in);
-  if(!infile){ // Check open
-    cerr<<cn<<mn<<" ERROR: Can't open \""<<fname<<"\""<<endl;
+  ifstream infile( confFileName.c_str(), ios::in );
+  if( !infile ){ // Check open
+    cerr<<cn<<mn<<" ERROR: Can't open \""<<confFileName<<"\""<<endl;
     infile.close();
     exit(1);
   } else {
-    this->set_config_file( fname );
-    if (debug) cout<<cn<<mn<<" Reading config file \""<<fname<<"\""<<endl;
+
+    if( confFileName != get_config_file() ) {
+      this->set_config_file( confFileName );
+    }
+    
+    if (debug) cout<<cn<<mn<<" Reading config file \""<<confFileName<<"\""<<endl;
   }
 
   
@@ -107,13 +130,12 @@ void config_handler::read_config( string fname ) {
 
     
     curLine = trim(curLine); //remove leading and trailing white space
-    int optionSep = curLine.find(' '); //optioname ends after first space
+    int optionSep = curLine.find('='); //optioname ends after first space
 
 
     // retrieve the option name and it's value seperatly for further parsing
-    optionName  = curLine.substr(0, optionSep);
+    optionName  = trim(curLine.substr(0, optionSep));
     optionValue = trim(curLine.substr(optionSep+1, curLine.size())); //'optionValue' could be broken up further if needed
-
 
     
     if (debug) {
@@ -135,57 +157,57 @@ void config_handler::read_config( string fname ) {
 	debug=true;
 	cout<<cn<<mn<<" Debug turned on!"<<endl;
 	
-      } else if ( optionName == "REC_DUR" ) {
+      } else if ( optionName == "recordingduration" ) {
 	set_rec_duration( utils::string_to_number<int>( optionValue ) );
       
-      } else if ( optionName == "REC_NUM" ) {
+      } else if ( optionName == "recordingnumber" ) {
 	set_rec_number( utils::string_to_number<int>( optionValue ) );
       
-      } else if ( optionName == "REC_PREFIX" ) {
+      } else if ( optionName == "recordingprefix" ) {
 	set_rec_file_name_prefix( optionValue );
 	
-      } else if ( optionName == "SAMP_RATE" ) {
+      } else if ( optionName == "samplerate" ) {
 	set_samp_rate( utils::string_to_number<int>( optionValue ) );
 	
-      } else if ( optionName == "FV_PATH" ) {
+      } else if ( optionName == "featurevectorpath" ) {
 	set_fv_file_path( optionValue );
 	
-      } else if ( optionName == "FV_NAME" ) {
+      } else if ( optionName == "featurevectorname" ) {
 	set_fv_file_name( optionValue );
 	
-      } else if ( optionName == "REC_EXT" ) {
+      } else if ( optionName == "recordingextention" ) {
 	set_rec_extention( optionValue );
 	
-      } else if ( optionName == "REC_LOC" ) {
+      } else if ( optionName == "recordinglocation" ) {
 	set_rec_location( optionValue );
 
-      } else if ( optionName == "DATA_LOC" ) {
+      } else if ( optionName == "datalocation" ) {
 	set_data_location( optionValue );
 	
-      } else if ( optionName == "ANALYSIS_LOC" ) {
+      } else if ( optionName == "analysislocation" ) {
 	set_analysis_location( optionValue );
 	
-      } else if ( optionName == "LAT" ) {
+      } else if ( optionName == "latitude" ) {
 	set_latitude( optionValue );
 	
-      } else if ( optionName == "LON" ) {
+      } else if ( optionName == "longitude" ) {
 	set_longitude( optionValue );
 	
-      } else if ( optionName == "RPID" ) {
+      } else if ( optionName == "rasberrypiid" ) {
 	set_rpid( optionValue );
 
-      } else if ( optionName == "SIM_DIR" ) {
+      } else if ( optionName == "simulationdirectory" ) {
 	set_simulate_dir( optionValue );
 
-      } else if ( optionName == "OUT_FORM" ) {
+      } else if ( optionName == "outputform" ) {
 	set_final_feature_format( optionValue );
 	
-      } else if ( optionName == "SIMULATE" ) {
-	if( optionValue == "ON"  ) set_simulate( true  );
+      } else if ( optionName == "simulate" ) {
+	if( optionValue == "on"  ) set_simulate( true  );
 	else                       set_simulate( false );
 
-      } else if ( optionName == "BACKGROUND" ) {
-	if( optionValue == "ON"  ) set_background( true  );
+      } else if ( optionName == "background" ) {
+	if( optionValue == "on"  ) set_background( true  );
 	else                       set_background( false );
 	
       } else {
@@ -197,7 +219,7 @@ void config_handler::read_config( string fname ) {
   }  
   
 
-  
+  // feature plans can be listed a few different ways, ensure they are appropratly formatted
   string file = "";
   
   if( fv_filter_path != "" ) file =  get_fv_filter_path();
@@ -214,13 +236,6 @@ void config_handler::read_config( string fname ) {
   set_fv_file( file );
   
   
-  if( config_file_path != "" ) file =  get_config_file_path();
-  else                         file =  utils::get_base_dir();  
-  if( config_file_name != "" ) file += get_config_file_name();
-  else                         file += "rec/fv_raw";
-  set_config_file( file );
-
-
   // set default directoryies for simulations, if none were provided
   string simDataDir = utils::pathify( utils::get_base_dir() + "test/" );
   cout<<"TEST: sim data dir 0 : "<<get_simulate_dir()<<endl;
