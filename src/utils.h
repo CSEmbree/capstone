@@ -154,6 +154,20 @@ class utils {
   };
 
 
+  static bool is_file_readable( string file ) {
+    
+    string mn = "is_file_readable:";
+    bool res = true; // file is readable
+
+    ifstream my_file( file );
+    if ( my_file.good() == false ) {
+      cout<<mn<<" WARNING: File \""<<file<<"\" could not be opened!"<<endl;
+      res = false; // file was not readable
+    }
+
+    return res;
+  }
+
 
   static string pathify( string oldPath ) {
     
@@ -262,6 +276,25 @@ class utils {
 
 
     return pathify(bd);
+  }
+
+  
+  static string get_home_dir() {
+    
+    string mn = "get_home_dir:";
+    string hd = "";
+    
+    char* hdChar;
+    hdChar = getenv( "HOME" );
+    if ( hdChar != NULL ) {
+      hd = string(hdChar);
+      //cout<<mn<<" Home env found: \""<<hd<<"\"."<<endl;
+    } else {
+      hd = get_cwd();
+      cerr<<mn<<" WARN: Home directory env var not found! Assuming cwd: \""<<hd<<"\"."<<endl;
+    }
+    
+    return pathify(hd);
   }
   
 
