@@ -3,6 +3,7 @@
 echo " === SETTING START === "
 
 export SOUND_BASE_DIR=`pwd`
+export HOME_BIN="$HOME/bin/"
 
 
 echo " === (1/3) START - Recording envrionment is being prepared  === "
@@ -92,12 +93,12 @@ echo "Done."
 echo "Building Yaafe ... "
 cd $YAAFE/
 if [ ! -f built ]; then
-        echo "Yaafe being built for the first time ... "
-        ccmake -DCMAKE_INSTALL_PREFIX=. . #install everything to local yaafe
-        #ccmake #configure and generate
-        sudo make
-        sudo make install
-        touch built
+    echo "Yaafe being built for the first time ... "
+    ccmake -DCMAKE_INSTALL_PREFIX=. . #install everything to local yaafe
+    #ccmake #configure and generate
+    sudo make
+    sudo make install
+    touch built
 fi
 cd -
 echo "Done."
@@ -135,37 +136,52 @@ echo "Done."
 export SOUND_BASE_DIR=`pwd`
 
 echo "Creating 'start' script... "
-touch start_sound.sh
-echo "#!/bin/bash"                                            > start_sound.sh
-echo "export SOUND_BASE_DIR=`pwd`"                            >> start_sound.sh
-echo "export YAAFE=\$SOUND_BASE_DIR/yaafe-v0.64"              >> start_sound.sh
-echo "export YAAFE_PATH=\$YAAFE/yaafe_extensions"             >> start_sound.sh
-echo "export PATH=\$PATH:\$YAAFE/bin"                         >> start_sound.sh
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$YAAFE/lib"   >> start_sound.sh
-echo "export PYTHONPATH=\$PYTHONPATH:\$YAAFE/python_packages" >> start_sound.sh
-echo "(cd \$SOUND_BASE_DIR && ./raraa)"                       >> start_sound.sh
+export START_SOUND="start_sound.sh" 
+touch $START_SOUND
+chmod u+x $START_SOUND
+
+echo "#!/bin/bash"                                            > $START_SOUND
+echo "export SOUND_BASE_DIR=`pwd`"                            >> $START_SOUND
+echo "export YAAFE=\$SOUND_BASE_DIR/yaafe-v0.64"              >> $START_SOUND
+echo "export YAAFE_PATH=\$YAAFE/yaafe_extensions"             >> $START_SOUND
+echo "export PATH=\$PATH:\$YAAFE/bin"                         >> $START_SOUND
+echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$YAAFE/lib"   >> $START_SOUND
+echo "export PYTHONPATH=\$PYTHONPATH:\$YAAFE/python_packages" >> $START_SOUND
+echo "(cd \$SOUND_BASE_DIR && ./raraa)"                       >> $START_SOUND
+
+if [ -d "$HOME_BIN" ]; then
+    cp $START_SOUND $HOME_BIN
+    echo "Copied '$START_SOUND' to '$HOME_BIN'."
+fi
 echo "Done."
+
+
 
 echo "Creating 'stop' script... "
-touch stop_sound.sh
-echo "#!/bin/bash"                     > stop_sound.sh
-echo "echo \" ... impliment me ... \"" >> stop_sound.sh
+export STOP_SOUND="stop_sound.sh"
+touch $STOP_SOUND
+chmod u+x $STOP_SOUND
+
+echo "#!/bin/bash"                     > $STOP_SOUND
+echo "echo \" ... impliment me ... \"" >> $STOP_SOUND
+
+if [ -d "$HOME_BIN" ]; then
+    cp $STOP_SOUND $HOME_BIN
+    echo "Copied '$STOP_SOUND' to '$HOME_BIN'."
+fi
 echo "Done."
+
 
 echo "Creating 'clean_workspace' script... "
-touch clean_workspace.sh
-echo "#!/bin/bash"       > clean_workspace.sh
-echo "cd `pwd`/analysis" >> clean_workspace.sh
-echo "rm rec*"           >> clean_workspace.sh
-echo "cd `pwd`/data"     >> clean_workspace.sh
-echo "rm rec*"           >> clean_workspace.sh
-echo "Done."
+export CLEAN_LOCAL="clean_workspace.sh"
+touch $CLEAN_LOCAL
+chmod u+x $CLEAN_LOCAL
 
-echo "ensuring executables..."
-chmod u+x install.sh
-chmod u+x start_sound.sh
-chmod u+x stop_sound.sh
-chmod u+x clean_workspace.sh
+echo "#!/bin/bash"       > $CLEAN_LOCAL
+echo "cd `pwd`/analysis" >> $CLEAN_LOCAL
+echo "rm rec*"           >> $CLEAN_LOCAL
+echo "cd `pwd`/data"     >> $CLEAN_LOCAL
+echo "rm rec*"           >> $CLEAN_LOCAL
 echo "Done."
 
 
