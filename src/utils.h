@@ -22,6 +22,7 @@
 #include <iomanip>  // std::setw
 #include <sstream>
 #include <fstream>
+#include <cmath>
 
 #include <netdb.h>
 #include <netinet/in.h>
