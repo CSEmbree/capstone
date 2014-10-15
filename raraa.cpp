@@ -3,7 +3,7 @@
  * Author:   C. Embree
  * Contact:  cse@cameronembree.com
  * Created:  4-SEP-2014
- * Edited:   10-OCT-2014
+ * Edited:   15-OCT-2014
  * Notes:    main recording and analysis program overseer. Here is 
  *             where worker classe are organised from. 
  */
@@ -315,23 +315,28 @@ int main(int argc, char **argv) {
   // Child takes care of feature extraction
   if(childpid == 0) {
 
-        
+    bool interesting = true; // assume all audio is interesting unless we find otherwise
+
+    
     //---------FILTER FEATURE EXTRACTION----------
     // Do minimal feature extractions for filtering requirments
-    cout<<n<<mn<<" Performing basic audio filtering ... "<<endl;
-    do_filter_feature_extraction( &ch, &ar );
-    cout<<n<<mn<<" Extracted filter features (child pid \""<<(long)getpid()<<"\")."<<endl;
-
+    if( ch.get_filter() == true ) {
+      cout<<n<<mn<<" Performing basic audio filtering ... "<<endl;
+      do_filter_feature_extraction( &ch, &ar );
+      cout<<n<<mn<<" Extracted filter features (child pid \""<<(long)getpid()<<"\")."<<endl;
+      
+           
+      //---------ANALYIZE FILTER FEATURES----------
+      // Analyize the features for a filter to look for interesting features
+      interesting = filters::perceptual_sharpness(ar.get_rec_file_name()+".ps.csv");    
+      cout<<n<<mn<<" Completed filter analysis (child pid \""<<(long)getpid()<<"\")."
+	  <<" Interesting: "<<(interesting? "YES!":"NO!")<<endl; 
+    } else {
+      cout<<n<<mn<<" No feature filtering is being performed. "<<endl;
+    }    
+    
 
     
-    //---------ANALYIZE FILTER FEATURES----------
-    // Analyize the features for a filter to look for interesting features
-    bool interesting = filters::perceptual_sharpness(ar.get_rec_file_name()+".ps.csv");    
-    cout<<n<<mn<<" Completed filter analysis (child pid \""<<(long)getpid()<<"\")."
-	<<" Interesting: "<<(interesting? "YES!":"NO!")<<endl; 
-    
-
-
     //---------EXTRACT MORE FEATURES IF INTERSTING----------
     // if a feature was interesting we need to extract more features and deploy them
     if( interesting == true ) {
