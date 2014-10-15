@@ -84,7 +84,8 @@ void config_handler::init() {
   set_simulate_dir( "" ); //default sim data dir
 
   set_background( false ); //run in forground by default
-  
+  set_filter( true ); //filtering is done before full extraction by default
+
   return;
 }
 
@@ -169,11 +170,17 @@ void config_handler::read_config( string fname="" ) {
       } else if ( optionName == "samplerate" ) {
 	set_samp_rate( utils::string_to_number<int>( optionValue ) );
 	
-      } else if ( optionName == "featurevectorpath" ) {
+      } else if ( optionName == "featureplanpath" ) {
 	set_fv_file_path( optionValue );
 	
-      } else if ( optionName == "featurevectorname" ) {
+      } else if ( optionName == "featureplanname" ) {
 	set_fv_file_name( optionValue );
+
+      } else if ( optionName == "filterplanpath" ) {
+	set_fv_filter_path( optionValue );
+	
+      } else if ( optionName == "filterplanname" ) {
+	set_fv_filter_name( optionValue );
 	
       } else if ( optionName == "recordingextention" ) {
 	set_rec_extention( optionValue );
@@ -209,6 +216,10 @@ void config_handler::read_config( string fname="" ) {
       } else if ( optionName == "background" ) {
 	if( optionValue == "on"  ) set_background( true  );
 	else                       set_background( false );
+
+      } else if ( optionName == "filter" ) {
+	if( optionValue == "on"  ) set_filter( true  );
+	else                       set_filter( false );
 	
       } else {
 	cerr<<cn<<mn<<" WARN: Invalid config option found '"<<curLine<<"'"<<endl;
@@ -281,11 +292,12 @@ void config_handler::print() {
   
   cout<<cn<<mn<<" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
       <<"\n"<<setw(w1)<<"DEBUG: "                       <<setw(w2)<<(debug? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"RUN IN BACKGROUND: "           <<setw(w2)<<(get_background()? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"SIMULATION: "                  <<setw(w2)<<(get_simulate()? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"FILTER FIRST: "                <<setw(w2)<<(get_filter()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"RPi Latitude: "                <<setw(w2)<<"\""<<get_latitude()<<"\""
       <<"\n"<<setw(w1)<<"RPi Longitude: "               <<setw(w2)<<"\""<<get_longitude()<<"\""
       <<"\n"<<setw(w1)<<"RPi ID: "                      <<setw(w2)<<"\""<<get_rpid()<<"\""
-      <<"\n"<<setw(w1)<<"RUN IN BACKGROUND: "           <<setw(w2)<<(get_background()? "ON":"OFF")
-      <<"\n"<<setw(w1)<<"SIMULATION: "                  <<setw(w2)<<(get_simulate()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"Simulation Data Dir: "         <<setw(w2)<<"\""<<get_simulate_dir()<<"\""
       <<"\n"<<setw(w1)<<"Config Path: "                 <<setw(w2)<<"\""<<get_config_file_path()<<"\""
       <<"\n"<<setw(w1)<<"Config Name: "                 <<setw(w2)<<"\""<<get_config_file_name()<<"\""
@@ -423,11 +435,13 @@ int config_handler::get_rec_number() { return rec_num; }
 int config_handler::get_rec_duration() { return rec_dur; }
 bool config_handler::get_background() { return background; };
 bool config_handler::get_simulate() { return simulate; };
+bool config_handler::get_filter() { return filter; };
 string config_handler::get_simulate_dir() { return utils::pathify(simulate_dir); };
 string config_handler::get_latitude() { return latitude; };
 string config_handler::get_longitude() { return longitude; };
 string config_handler::get_rpid() { return rpid; };
 string config_handler::get_final_feature_format() { return final_feature_format; };
+
 
 
 
@@ -544,6 +558,12 @@ bool config_handler::set_background( bool status ) {
 
 bool config_handler::set_simulate( bool status ) {
   simulate = status;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_filter( bool status ) {
+  filter = status;
   return true; // TODO - impliment
 }
 
