@@ -202,17 +202,26 @@ outputform          - Either output is plan Yaafe using "YAAFE" or
                       output is a json file using "FV".
                       DEFAULT: string "YAAFE"
 
-background          - Turn raraa into a Daemon with "on"
+background          - (OPTIONAL) Turn raraa into a Daemon with "on"
                       DEAFULT: string "off" - prints to terminal
+
+filter              - (OPTIONAL) Turn filtering on/off 
+                      DEAFULT: string "on" - filtering is performed
 
 recordingprefix     - (OPTIONAL) Recording filename prefix. 
                       DEFAULT: 'rec_' at start of each audio file
 
-featurevectorpath   - (OPTIONAL) Path to a feature plan
+featureplanpath     - (OPTIONAL) Path to a feature plan file
                       DEFAULT: local sound directory
 
-featurevectorname   - (OPTIONAL) Name of a feature plan
+featureplanname     - (OPTIONAL) Name of a feature plan
                       DEFAULT: string "featureplan"
+
+filterplanpath      - (OPTIONAL) Path to a filter plan file
+                      DEFAULT: local sound directory
+
+filterplanname      - (OPTIONAL) Name of a filter plan file
+                      DEFAULT: string "filterplan"
 
 recordinglocation   - (OPTIONAL) Directory path where recordings 
                       are saved. Analysis still in 'analysis' dir 
