@@ -3,7 +3,7 @@
  * Author:   C. Embree
  * Contact:  cse@cameronembree.com
  * Created:  4-SEP-2014
- * Edited:   15-OCT-2014
+ * Edited:   23-OCT-2014
  * Notes:    Handles storage for config file options
  */
 
@@ -44,6 +44,7 @@ class config_handler {
   
   bool background;
   bool filter;
+  bool analysis;
   bool simulate;
   string simulate_dir;
 
@@ -95,6 +96,7 @@ class config_handler {
   bool set_rpid( string id );
 
   bool set_filter( bool status );
+  bool set_analysis( bool status );
 
   bool set_simulate( bool status );
   bool set_simulate_dir( string dir );
@@ -132,8 +134,9 @@ class config_handler {
   string get_rpid();
 
   bool get_filter();
-
+  bool get_analysis();
   bool get_simulate();
+
   string get_simulate_dir();
 
   string get_final_feature_format();

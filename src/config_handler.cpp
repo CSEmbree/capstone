@@ -84,7 +84,8 @@ void config_handler::init() {
   set_simulate_dir( "" ); //default sim data dir
 
   set_background( false ); //run in forground by default
-  set_filter( true ); //filtering is done before full extraction by default
+  set_filter( false ); //filtering is ONLY done if requested
+  set_analysis( false ); //feature extraction only done if user wants it
 
   return;
 }
@@ -94,7 +95,7 @@ void config_handler::read_config( string fname="" ) {
   // read steering from file fname
   //
   string mn = "read_config:"; //Method name, for printing
-
+  bool sound_section = false; //flag for only parsing the sound related sections
 
   string confFileName = fname;
   if( fname == "" ) confFileName = get_config_file(); 
@@ -127,105 +128,128 @@ void config_handler::read_config( string fname="" ) {
 
   // read all options from text file
   while (infile.good()) {
-    getline(infile, curLine);
-
     
+    // get one whole line at a time
+    getline(infile, curLine);    
     curLine = trim(curLine); //remove leading and trailing white space
-    int optionSep = curLine.find('='); //optioname ends after first space
-
-
-    // retrieve the option name and it's value seperatly for further parsing
-    optionName  = trim(curLine.substr(0, optionSep));
-    optionValue = trim(curLine.substr(optionSep+1, curLine.size())); //'optionValue' could be broken up further if needed
-
     
-    if (debug) {
-      cout<<cn<<mn<<" Read in:>>>>>>>>>>>"
-	  <<"\n"<<setw(w)<<"currentLine: \""<<curLine<<"\""
-	  <<"\n"<<setw(w)<<" optionName: \""<<optionName<<"\""
-	  <<"\n"<<setw(w)<<"optionValue: \""<<optionValue<<"\""
-	  <<"\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"<<endl;
-    }
-    
-    
-    
-    if(curLine[0] != '#' && !curLine.empty() ) { //ignore lines beginning with comments - could be done better
 
-      if( optionName == optionValue && optionName != "debug" ) {
-	cerr<<cn<<mn<<" ERROR: config option \""<<optionName<<"\" found but no value set!"<<endl;
-	
-      } else if ( optionName == "debug" ) {
-	debug=true;
-	cout<<cn<<mn<<" Debug turned on!"<<endl;
-	
-      } else if ( optionName == "recordingduration" ) {
-	set_rec_duration( utils::string_to_number<int>( optionValue ) );
-      
-      } else if ( optionName == "recordingnumber" ) {
-	set_rec_number( utils::string_to_number<int>( optionValue ) );
-      
-      } else if ( optionName == "recordingprefix" ) {
-	set_rec_file_name_prefix( optionValue );
-	
-      } else if ( optionName == "samplerate" ) {
-	set_samp_rate( utils::string_to_number<int>( optionValue ) );
-	
-      } else if ( optionName == "featureplanpath" ) {
-	set_fv_file_path( optionValue );
-	
-      } else if ( optionName == "featureplanname" ) {
-	set_fv_file_name( optionValue );
+    // check for correct config file section as we go through all of the config file
+    if( curLine.front() == '[' && curLine.back() == ']' ) {
+      string section_name = curLine.substr( curLine.find_last_of("[")+1, curLine.find_last_of("]")-1 );
 
-      } else if ( optionName == "filterplanpath" ) {
-	set_fv_filter_path( optionValue );
-	
-      } else if ( optionName == "filterplanname" ) {
-	set_fv_filter_name( optionValue );
-	
-      } else if ( optionName == "recordingextention" ) {
-	set_rec_extention( optionValue );
-	
-      } else if ( optionName == "recordinglocation" ) {
-	set_rec_location( optionValue );
-
-      } else if ( optionName == "datalocation" ) {
-	set_data_location( optionValue );
-	
-      } else if ( optionName == "analysislocation" ) {
-	set_analysis_location( optionValue );
-	
-      } else if ( optionName == "latitude" ) {
-	set_latitude( optionValue );
-	
-      } else if ( optionName == "longitude" ) {
-	set_longitude( optionValue );
-	
-      } else if ( optionName == "rasberrypiid" ) {
-	set_rpid( optionValue );
-
-      } else if ( optionName == "simulationdirectory" ) {
-	set_simulate_dir( optionValue );
-
-      } else if ( optionName == "outputform" ) {
-	set_final_feature_format( optionValue );
-	
-      } else if ( optionName == "simulate" ) {
-	if( optionValue == "on"  ) set_simulate( true  );
-	else                       set_simulate( false );
-
-      } else if ( optionName == "background" ) {
-	if( optionValue == "on"  ) set_background( true  );
-	else                       set_background( false );
-
-      } else if ( optionName == "filter" ) {
-	if( optionValue == "on"  ) set_filter( true  );
-	else                       set_filter( false );
-	
+      if( section_name == "NODE_INFO" || section_name == "SOUND" ) {
+	sound_section = true;
       } else {
-	cerr<<cn<<mn<<" WARN: Invalid config option found '"<<curLine<<"'"<<endl;
-	//exit(0); //stop if an invalid option found, it's probably an error!
+	sound_section = false;
       }
 
+      cout<<cn<<mn<<" Section name: \""<<section_name<<"\". This is a sound section? "<<(sound_section? "YES":"NO")<<endl;
+    }
+
+     
+    
+    // Only parse the relevnt sound sections
+    if( sound_section == true ) {
+      
+      // retrieve the option name and it's value seperatly for further parsing
+      int optionSep = curLine.find('='); //optioname and value are seperated by aan equals sign
+      optionName  = trim(curLine.substr(0, optionSep));
+      optionValue = trim(curLine.substr(optionSep+1, curLine.size())); //'optionValue' could be broken up further if needed
+      
+      
+      if (debug) {
+	cout<<cn<<mn<<" Read in:>>>>>>>>>>>"
+	    <<"\n"<<setw(w)<<"currentLine: \""<<curLine<<"\""
+	    <<"\n"<<setw(w)<<" optionName: \""<<optionName<<"\""
+	    <<"\n"<<setw(w)<<"optionValue: \""<<optionValue<<"\""
+	    <<"\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"<<endl;
+      }
+      
+      
+      
+      if(curLine[0] != '#' && !curLine.empty() ) { //ignore lines beginning with comments - could be done better
+	
+	if( optionName == optionValue && optionName != "debug" ) {
+	  cerr<<cn<<mn<<" ERROR: config option \""<<optionName<<"\" found but no value set!"<<endl;
+	  
+	} else if ( optionName == "debug" ) {
+	  debug=true;
+	  cout<<cn<<mn<<" Debug turned on!"<<endl;
+	  
+	} else if ( optionName == "recordingduration" ) {
+	  set_rec_duration( utils::string_to_number<int>( optionValue ) );
+	  
+	} else if ( optionName == "recordingnumber" ) {
+	  set_rec_number( utils::string_to_number<int>( optionValue ) );
+	  
+	} else if ( optionName == "recordingprefix" ) {
+	  set_rec_file_name_prefix( optionValue );
+	  
+	} else if ( optionName == "samplerate" ) {
+	  set_samp_rate( utils::string_to_number<int>( optionValue ) );
+	  
+	} else if ( optionName == "featureplanpath" ) {
+	  set_fv_file_path( optionValue );
+	  
+	} else if ( optionName == "featureplanname" ) {
+	  set_fv_file_name( optionValue );
+	  
+	} else if ( optionName == "filterplanpath" ) {
+	  set_fv_filter_path( optionValue );
+	  
+	} else if ( optionName == "filterplanname" ) {
+	  set_fv_filter_name( optionValue );
+	  
+	} else if ( optionName == "recordingextention" ) {
+	  set_rec_extention( optionValue );
+	  
+	} else if ( optionName == "recordinglocation" ) {
+	  set_rec_location( optionValue );
+	  
+	} else if ( optionName == "datalocation" ) {
+	  set_data_location( optionValue );
+	  
+	} else if ( optionName == "analysislocation" ) {
+	  set_analysis_location( optionValue );
+	  
+	} else if ( optionName == "latitude" ) {
+	  set_latitude( optionValue );
+	  
+	} else if ( optionName == "longitude" ) {
+	  set_longitude( optionValue );
+	  
+	} else if ( optionName == "rasberrypiid" ) {
+	  set_rpid( optionValue );
+	  
+	} else if ( optionName == "simulationdirectory" ) {
+	  set_simulate_dir( optionValue );
+	  
+	} else if ( optionName == "outputform" ) {
+	  set_final_feature_format( optionValue );
+	  
+	} else if ( optionName == "simulate" ) {
+	  if( optionValue == "on"  ) set_simulate( true  );
+	  else                       set_simulate( false );
+	  
+	} else if ( optionName == "background" ) {
+	  if( optionValue == "on"  ) set_background( true  );
+	  else                       set_background( false );
+	  
+	} else if ( optionName == "filter" ) {
+	  if( optionValue == "on"  ) set_filter( true  );
+	  else                       set_filter( false );
+
+	} else if ( optionName == "analysis" ) {
+	  if( optionValue == "on"  ) set_analysis( true  );
+	  else                       set_analysis( false );
+
+	  
+	} else {
+	  cerr<<cn<<mn<<" WARN: Invalid config option found '"<<curLine<<"'"<<endl;
+	  //exit(0); //stop if an invalid option found, it's probably an error!
+	}	
+      }
     }
   }  
   
@@ -436,6 +460,7 @@ int config_handler::get_rec_duration() { return rec_dur; }
 bool config_handler::get_background() { return background; };
 bool config_handler::get_simulate() { return simulate; };
 bool config_handler::get_filter() { return filter; };
+bool config_handler::get_analysis() { return analysis; };
 string config_handler::get_simulate_dir() { return utils::pathify(simulate_dir); };
 string config_handler::get_latitude() { return latitude; };
 string config_handler::get_longitude() { return longitude; };
@@ -564,6 +589,12 @@ bool config_handler::set_simulate( bool status ) {
 
 bool config_handler::set_filter( bool status ) {
   filter = status;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_analysis( bool status ) {
+  analysis = status;
   return true; // TODO - impliment
 }
 
