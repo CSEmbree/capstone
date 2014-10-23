@@ -1,13 +1,16 @@
 This directory is the home for the test code of recoding with 'arecord' (implimented), feature extracting with 'yaafe' (implimented but not finalized), then sending those features as a "Feature Vector" to a remote server (not yet implimented).
 
-FILES	        :: DESCRIPTION
-backups/	:: directory for backups of various files at various stages - not in final product
-cleanup.sh 	:: script to cleanup all recordings and features extracted after running executable 'mr'
-featurevector 	:: steering file used by 'Yaafe' to know what features to extract from the audio
- - CHANGE THIS FILE TO CHANGE WHAT FEATURES ARE EXTRACTED
-makeRecord.cpp 	:: the test code for creating a recording and extracted features from it
-mr 		:: the executable creaded from running 'sh setup.sh' which compiled 'makeRecord.cpp'. Run with '/.mr <#runs> <#duration>'
-notes/ 		:: notes and documentation that I create as I am going along, for reference later
-rec/ 		:: direcotry that holds all recorded audio and extracted features
-setup.sh 	:: run this script to prep the executable
-test_scripts 	:: various testing of recording and extraction of audio. Just for my own references
+FILES	            :: DESCRIPTION
+README              :: Text file contining all information about Raraa.
+clean_workspace.sh  :: Script to clean out the local 'data/' and 'analysis/' directories.
+featureplan         :: Yaafe feature plan formatted file. These are the features extracted.
+featureplan_filter  :: Yaafe feature plan formatted file. These are the features used in filtering.
+install.sh          :: Install/setup script to prepare Raraa.
+makefile            :: Simple makefile used ran by the 'install.sh' script. Type 'make' to build Raraa.
+raraa.cp            :: The main Remote Audio Recording and Analysis (Raraa) application 
+sound_setting.conf  :: Local config file for Raraa. Is used if no others are found.
+analysis/           :: Directory where temporary work Raara needs to do (like filtering) is performed.
+data/               :: Directory where finished products from Raraa go. Audio files and features extracted end up here.
+logs/               :: Directory for various log files from installation, crashes, errors, regular output, etc.
+src/                :: Directory for all source code used by Raraa.
+test/               :: Direcotry for test scripts and holder for simulate directories 'data_fv/' and 'data_yaafe/'
