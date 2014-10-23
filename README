@@ -1,4 +1,4 @@
-README for raraa software
+README for raraa (Remote Audio Recording And Analysis) software
 
 ===================================================================
 Read the following to understand how the Remote Audio Recording and 
@@ -34,13 +34,16 @@ Analysis software 'raraa' works. Content is broken up as follows:
 *******************************************************************
 1. PURPOSE
 *******************************************************************
-The purpose of this software is to remotely record and analyize 
-audio. Is id designed to work on a Rasberry Pi with Rasbian.
+The purpose of the Raraa software is to remotely record and analyize 
+audio. Raraa designed to work on a Rasberry Pi with Rasbian.
 
  - The recording is done via the UNIX software called "arecord". 
  - The analysis is done via the UNIX software called "Yaafe".
 
-The following installation process is be needed to run.
+Raraa stands for "Remote Audio Recording and Analysis".
+
+
+The following installation process is needed to run Raraa.
 
 Any questions, comments or bugs, should be reported to:
 cameron.embree748@myci.csuci.edu
@@ -88,7 +91,7 @@ Run code with:
 3. INSTALL
 *******************************************************************
 First, install the physical sound card (if your RPi does not have 
-one) by (2.a) and then install the software by (2.b)
+one) by (3.a) and then install the software by (3.b)
 
 
 -------------------------------------------------------------------
@@ -147,8 +150,35 @@ To install the raraa code perform the following:
 After the install script finishes, a log file "install.log" should
 be in the 'log/' directory for future reference about the install.
 
-The installation script should have compiled raraa but you can
-always clean and re-make the raraa with:
+
+The installation script is defined as follows:
+
+./install [-l|--local]
+          [-nu|--noupdate]
+          [-nc|--nocompile]
+
+The installation script takes the following OPTIONAL arguments:
+ -l|--local) 
+    Only generate start and stop sound scripts locally. Does not 
+    attempt to move to to the $HOME/bin/
+ -nu|--noupdate)
+    Turns off DEFAULT installation job of checking for system 
+    updates and dependant libraray existance/updates 
+ -nc|--nocompile)
+    Turns off DEFAULT installation job of cleaning and remaking
+    the local Raara code.
+
+
+For example, to generate new start/stop scripts but not re-compile
+Raraa and not update the RPi, we can do the following:
+
+  $ ./install -nu -nc
+OR
+  $ ./install --noupdate --nocompile
+
+The installation script by default compiles raraa (unless told
+otherwise by argument, but you can always clean and re-make 
+Raraa with:
 
   $ make clean
   $ make
@@ -172,11 +202,11 @@ To run raraa after the previous INSTALL steps requires two steps:
   
     $ nano sound_settings.conf
 
-  2. Run the code with "start_sound.sh" script (See 3.b).
+  2. Run the code with "start_sound.sh" script (See 4.c).
  
     $ ./start_sound.sh
 
-  3. (OPTIONALLY) Stop recording with "stop.sh" (See 3.c).
+  3. (OPTIONALLY) Stop recording with "stop.sh" (See 4.d).
 
     $ ./stop_sound.sh
 
@@ -185,8 +215,24 @@ To run raraa after the previous INSTALL steps requires two steps:
 4.a CONFIG FILES
 -------------------------------------------------------------------
 The configuration file, called "sound_settings.conf", is a file 
-that litsts how recordings are performed. Config files contain the 
-following operating details:
+that litsts how recordings are performed. Config files should have
+at least two sections: NODE_INFO and SOUNDS of the form:
+
+------------------------------------
+sound_settings.conf
+------------------------------------
+[NODE_INFO]
+...
+Optional Node info line by line
+...
+
+[SOUNDS]
+...
+sound config details line by line
+...
+------------------------------------
+
+Config files contain the following operating details:
 
 
 recordingduration   - Duration of each recoding in seconds 
@@ -201,6 +247,10 @@ recordingextention  - recording extention.
 outputform          - Either output is plan Yaafe using "YAAFE" or
                       output is a json file using "FV".
                       DEFAULT: string "YAAFE"
+
+analysis            - (OPTIONAL) Turn audio analyis (audio feature 
+                      extraction via Yaafe) off. 
+                      DEAFULT: string "off" - filtering is performed
 
 background          - (OPTIONAL) Turn raraa into a Daemon with "on"
                       DEAFULT: string "off" - prints to terminal
@@ -254,18 +304,23 @@ simulationdirectory - (OPTIONAL) Directory where sim output files
                       simulateion is "on".
                       DEFAULT: durectory "/test/data_yaafe/"
 
-debug               - Turn on/off debut statements
+debug               - (OPTIONAL) Turn on/off debug statements
 
 
 -------------------------------------------------------------------
 4.a.I CONFIG EXAMPLE
 -------------------------------------------------------------------
-EX 1: Consider the following config file:
+EX 1: Consider the following config file (Generic example):
 
+  [NODE_INFO]
   latitude = 17.2343432
   longitude = -119.23423423
   raspberrypiid = 14
+
+  [SOUNDS]
   background = off
+  analysis = on
+  filter = off
   recordingextention = .wav
   recordingduration = 3
   recordingnumber = 2
@@ -275,15 +330,18 @@ EX 1: Consider the following config file:
   outputform = YAAFE
 
 Two recordings of duration 3 seconds at a sample rate of 44100Hz
-will be made. Each recoring will be saved as a ".wav" file with the
-prefix "rec_" and extention ".wav". These recordings are saved to
-the directory called "/home/pi/data/". Output to the "home/pi/data/"
-directory is in the "YAAFE" form (an audio file and Yaafe features).
+will be made. Each recording will be saved as a ".wav" file with the
+prefix "rec_" and extention ".wav". Filtering is off, so extracted
+audio data from Yaafe, directed by the local 'featureplan' file,
+and recordings are saved to the directory called "/home/pi/data/". 
+All output is sent to stdout because background is "off".
 
 
-EX 2: Consider the following config file:
+EX 2: Consider the following config file (Audio analysis, no Filtering):
 
+  [SOUNDS]
   background = on
+  analysis = on
   recordingextention = .wav
   recordingduration = 5
   recordingnumber = 1
@@ -293,11 +351,32 @@ EX 2: Consider the following config file:
   outputform = FV
 
 One recording of duration 5 seconds at a sample rate of 44100Hz
-will be made. The recoring will be saved as a ".wav" file with the
+will be made. The recording will be saved as a ".wav" file with the
 prefix "rec_" and extention ".wav". These recordings are saved to
-the directory called "/home/pi/data/". Output to the "home/pi/data/"
-directory is in the "FV" form (an audio file and a single json file
-containing all the features extracted with Yaafe).
+the directory called "/home/pi/data/". Filtering is NOT perfomered by
+deafult because it is not turned "on". Output from YAAFE and also
+goes to "home/pi/data/" directory but in the "FV" form (an audio 
+file and a single json file containing all the features extracted 
+with Yaafe). Everything is done in the background as a daemon.
+
+
+EX 3: Consider the following config file (No audio analysis):
+
+  [SOUNDS]
+  recordingextention = .wav
+  recordingduration = 10
+  recordingnumber = 2
+  recordingprefix = rec_
+  samplerate = 44100
+  datalocation = /home/pi/data/
+
+Two recordings of duration 10 seconds at a sample rate of 44100Hz
+will be made. The recording will be saved as a ".wav" file with the
+prefix "rec_" and extention ".wav". These recordings are saved to
+the directory called "/home/pi/data/". Audio analysis, sometimes
+called feature extraction, is NOT performed. Further, filtering is 
+NOT performed as well, as it is a subsetion of audio analysis.
+All output is sent to stdout because background is not specified.
 
 
 -------------------------------------------------------------------
