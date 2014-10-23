@@ -1,4 +1,5 @@
-This directory is the home for the test code of recoding with 'arecord' (implimented), feature extracting with 'yaafe' (implimented but not finalized), then sending those features as a "Feature Vector" to a remote server (not yet implimented).
+This directory is the main sound directory. It houses Raraa (Remote Audio Recording and Analysis) code and dependant files like a 'featureplan' used by Yaafe for feature extraction choices. Please read the README after reading the following directory structure:
+
 
 FILES	            :: DESCRIPTION
 README              :: Text file contining all information about Raraa.
