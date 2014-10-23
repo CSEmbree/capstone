@@ -3,7 +3,7 @@
  * Author:   C. Embree
  * Contact:  cse@cameronembree.com
  * Created:  4-SEP-2014
- * Edited:   15-OCT-2014
+ * Edited:   23-OCT-2014
  * Notes:    main recording and analysis program overseer. Here is 
  *             where worker classe are organised from. 
  */
@@ -207,6 +207,10 @@ bool clean_analysis_workspace( string timeStamp, config_handler *ch, audio_recor
 }
 
 
+//////////////////////////////////////////////////////////////////////////////
+// RARAA CORE
+//////////////////////////////////////////////////////////////////////////////
+
 int main(int argc, char **argv) {
 
   string mn = "main:";
@@ -289,21 +293,22 @@ int main(int argc, char **argv) {
 
 
     //spawn a child to extract features from audio for each recording
-    childpid = fork();
-
-    // ensure child exists to handle audio analysis
-    if( childpid == -1 ) {
-
-      string emsg = " ERROR: (fork) Failed to create a child for recoding analysis!";
-
-      cerr<<n<<mn<<emsg<<endl;
-      utils::error_msg( emsg );
-
-      return 1; //ERROR - fork failed - kill process?!
-    }
-    
-    if( childpid == 0 ) {
-      break; // Allow child to leave home and perform analysis
+    if( ch.get_analysis() == true ) {
+      childpid = fork();
+      
+      // ensure child exists to handle audio analysis
+      if( childpid == -1 ) {
+	
+	string emsg = " ERROR: (fork) Failed to create a child for recoding analysis!";
+	cerr<<n<<mn<<emsg<<endl;
+	utils::error_msg( emsg );
+	
+	return 1; //ERROR - fork failed - kill process?!
+      }
+      
+      if( childpid == 0 ) {
+	break; // Allow child to leave home and perform analysis
+      }
     }
 
   }
@@ -311,88 +316,91 @@ int main(int argc, char **argv) {
   
   
   //******************ANALYSIS PHASE******************
-
+  
   // Child takes care of feature extraction
-  if(childpid == 0) {
 
-    bool interesting = true; // assume all audio is interesting unless we find otherwise
-
+  if( ch.get_analysis() == true ) {    
     
-    //---------FILTER FEATURE EXTRACTION----------
-    // Do minimal feature extractions for filtering requirments
-    if( ch.get_filter() == true ) {
-      cout<<n<<mn<<" Performing basic audio filtering ... "<<endl;
-      do_filter_feature_extraction( &ch, &ar );
-      cout<<n<<mn<<" Extracted filter features (child pid \""<<(long)getpid()<<"\")."<<endl;
+    if( childpid == 0 ) {
       
-           
-      //---------ANALYIZE FILTER FEATURES----------
-      // Analyize the features for a filter to look for interesting features
-      interesting = filters::perceptual_sharpness(ar.get_rec_file_name()+".ps.csv");    
-      cout<<n<<mn<<" Completed filter analysis (child pid \""<<(long)getpid()<<"\")."
-	  <<" Interesting: "<<(interesting? "YES!":"NO!")<<endl; 
-    } else {
-      cout<<n<<mn<<" No feature filtering is being performed. "<<endl;
-    }    
-    
-
-    
-    //---------EXTRACT MORE FEATURES IF INTERSTING----------
-    // if a feature was interesting we need to extract more features and deploy them
-    if( interesting == true ) {
-      do_feature_extraction( &ch, &ar );    
-      cout<<n<<mn<<" Completed full feature extraction (child pid \""<<(long)getpid()<<"\")."<<endl;
-    }
-
-
-
-    //---------MOVE EXTRACTED FEATURES TO DEPLOYMENT----------
-    // Move features extracted to deployment based on user's desired format
-    string dataFormat = ch.get_final_feature_format();
-    cout<<n<<mn<<" Desired format is: \""<<dataFormat<<"\""<<endl;
-
-
-    if( dataFormat == "FV" ) {
-      //---------CREATE A Feature Vector from extracted features----------
-      // create a feature vector as json foramtted file
-      cout<<n<<mn<<" Creating a feature vector ... "<<endl;
-
-
-      // TODO - create FV
-      feature_vector fv( timeStamp, &ch, &ar );
-      //fv.create_fv();
-
-
-      cout<<n<<mn<<" Finished creating Feature Vector and moving to deployment. "
-	  <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
-
-    } else if( dataFormat == "YAAFE" ) {
-      //---------CREATE A METDA DATA FILE FOR A RECORDING FEATURES----------
-      // Move all features with a helpful meta data file if not creating a feature vector
-      cout<<n<<mn<<" Creating meta data file and moving features extracted to deployment ... "<<endl;
-
-
-      if( create_meta_data_file( timeStamp, &ch, &ar ) == false ) {
-	cerr<<n<<mn<<" ERROR: A problem occured creating a meta data file at \""<<timeStamp<<"\""<<endl;
+      bool interesting = true; // assume all audio is interesting unless we find otherwise
+      
+      
+      //---------FILTER FEATURE EXTRACTION----------
+      // Do minimal feature extractions for filtering requirments
+      if( ch.get_filter() == true ) {
+	cout<<n<<mn<<" Performing basic audio filtering ... "<<endl;
+	do_filter_feature_extraction( &ch, &ar );
+	cout<<n<<mn<<" Extracted filter features (child pid \""<<(long)getpid()<<"\")."<<endl;
+	
+        
+	//---------ANALYIZE FILTER FEATURES----------
+	// Analyize the features for a filter to look for interesting features
+	interesting = filters::perceptual_sharpness(ar.get_rec_file_name()+".ps.csv");    
+	cout<<n<<mn<<" Completed filter analysis (child pid \""<<(long)getpid()<<"\")."
+	    <<" Interesting: "<<(interesting? "YES!":"NO!")<<endl; 
       } else {
-	cout<<n<<mn<<" Created meta data file (child pid \""<<(long)getpid()<<"\")."<<endl;
+	cout<<n<<mn<<" No feature filtering is being performed. "<<endl;
+      }    
+      
+      
+      
+      //---------EXTRACT MORE FEATURES IF INTERSTING----------
+      // if a feature was interesting we need to extract more features and deploy them
+      if( interesting == true ) {
+	do_feature_extraction( &ch, &ar );    
+	cout<<n<<mn<<" Completed full feature extraction (child pid \""<<(long)getpid()<<"\")."<<endl;
       }
-      move_features( &ch, &ar ); //blindly move features to data
+      
+      
+      
+      //---------MOVE EXTRACTED FEATURES TO DEPLOYMENT----------
+      // Move features extracted to deployment based on user's desired format
+      string dataFormat = ch.get_final_feature_format();
+      cout<<n<<mn<<" Desired format is: \""<<dataFormat<<"\""<<endl;
+      
+      
+      if( dataFormat == "FV" ) {
+	//---------CREATE A Feature Vector from extracted features----------
+	// create a feature vector as json foramtted file
+	cout<<n<<mn<<" Creating a feature vector ... "<<endl;
+	
+	
+	// TODO - create FV
+	feature_vector fv( timeStamp, &ch, &ar );
+	//fv.create_fv();
+	
+	
+	cout<<n<<mn<<" Finished creating Feature Vector and moving to deployment. "
+	    <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
+	
+      } else if( dataFormat == "YAAFE" ) {
+	//---------CREATE A METDA DATA FILE FOR A RECORDING FEATURES----------
+	// Move all features with a helpful meta data file if not creating a feature vector
+	cout<<n<<mn<<" Creating meta data file and moving features extracted to deployment ... "<<endl;
+	
+	
+	if( create_meta_data_file( timeStamp, &ch, &ar ) == false ) {
+	  cerr<<n<<mn<<" ERROR: A problem occured creating a meta data file at \""<<timeStamp<<"\""<<endl;
+	} else {
+	  cout<<n<<mn<<" Created meta data file (child pid \""<<(long)getpid()<<"\")."<<endl;
+	}
+	move_features( &ch, &ar ); //blindly move features to data
+	
+	
+	cout<<" Finished moving features and meta data to deployment. "
+	    <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
+      }    
+      
+      
+      clean_analysis_workspace( timeStamp, &ch, &ar );
+      
+      
+      cout<<n<<mn<<" Audio Analysis complete (child pid \""<<(long)getpid()<<"\")."<<endl;
+    } //end child analysis process check
+  } //end config analysis check
 
-
-      cout<<" Finished moving features and meta data to deployment. "
-	  <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
-    }    
-
-
-    clean_analysis_workspace( timeStamp, &ch, &ar );
-
-
-    cout<<n<<mn<<" Audio Analysis complete (child pid \""<<(long)getpid()<<"\")."<<endl;
-  }
   
-  
-
   //Handle child processes based on their job
   if(childpid == 0) {
     cout<<n<<mn<<" Analyizer & filter ("<<(recRunCount+1)<<" of "<<ch.get_rec_number()<<")"
@@ -403,9 +411,9 @@ int main(int argc, char **argv) {
 	<<" Recording(s) complete (parent pid \""<<(long)getpid()<<"\")."<<endl;
     return 1;
   }
+  
 
-
-  cout<<n<<mn<<" ERROR: This should never be seen! "<<endl;
+  cout<<n<<mn<<" ERROR: Raraa core finished: This should never be seen! "<<endl;
 
 
   return 0;
