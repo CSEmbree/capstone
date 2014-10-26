@@ -41,7 +41,8 @@ class feature_vector {
 
   feature_vector( string timeStamp, config_handler *ch, audio_recorder *ar );
   
-  bool write( string fname );
+  bool write( config_handler *ch );
+  //bool write( string fname );
   void print();
 
 

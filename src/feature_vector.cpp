@@ -3,6 +3,8 @@
 #include "feature_vector.h"
 #include "config_handler.h"
 #include "audio_recorder.h"
+#include "json_generator.h"
+#include "utils.h"
 
 
 /******************************************************************
@@ -83,7 +85,7 @@ bool feature_vector::find_feature_vector_files( ) {
 }
 
 
-bool feature_vector::write( string fname="" ) {
+bool feature_vector::write( config_handler *ch ) {
   
   string mn = "write::";
   cout<<cn<<mn<<" Preparing to write feature vector ... "<<endl;
@@ -92,9 +94,71 @@ bool feature_vector::write( string fname="" ) {
 
   cout<<cn<<mn<<" IMPLIMENT ME! "<<endl;
   // open file
+
+  string filepath = ch->get_data_location();
+  string filename = get_time_stamp() + ".dat";
+  //  if( fpath != "" ) filepath = fpath;
+  //  if( fname != "" ) filename = fname;
+  
+  string file =  filepath + filename;
+
+
+
+  cout<<cn<<mn<<" Going to place json file to \""<<filename<<"\""<<endl;
+  json_generator jg( file );
   
   // write stuff
+  jg.open_object();
+
+  jg.add_key(   "sample_rate" );
+  jg.add_value( utils::number_to_string<int>(ch->get_samp_rate()) );
+
+  jg.add_key(   "recording_number" );
+  jg.add_value( utils::number_to_string<int>(ch->get_rec_number()) );
+
+  jg.add_key(   "recording_duration" );
+  jg.add_value( utils::number_to_string<int>(ch->get_rec_duration()) );
+
+  jg.add_key(   "latitude" );
+  jg.add_value( ch->get_latitude() );
+
+  jg.add_key(   "longitude" );
+  jg.add_value( ch->get_longitude() );
+
+  jg.add_key(   "rpid" );
+  jg.add_value( ch->get_longitude() );
+
+  jg.add_key(   "rpid" );
+  jg.add_value( ch->get_longitude() );
+
+  jg.add_key(   "simulation" );
+  jg.add_value( ch->get_simulate()? "yes":"no" );
+
+  jg.add_key(   "filter" );
+  jg.add_value( ch->get_filter()? "yes":"no" );
+
+  jg.add_key(   "analysis" );
+  jg.add_value( ch->get_analysis()? "yes":"no" );
+
+  jg.add_key(   "config_file" );
+  jg.add_value( ch->get_config_file() );
+
+  jg.add_key(   "features" );
+  std::vector<string > features;
+  features.clear();
+  features.push_back("Energy");
+  features.push_back("PerceptualResolution");
+  jg.add_array_value( features );
+
+
+  jg.close_object(); //TEST
   
+  cout<<cn<<mn<<" TEST: Sample JSON format:"<<endl;
+  cout<<jg.get_contents_string()<<endl;
+
+  //jg.write_to( file );
+
+
   // close file
   
   

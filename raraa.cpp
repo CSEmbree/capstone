@@ -368,6 +368,7 @@ int main(int argc, char **argv) {
 	
 	// TODO - create FV
 	feature_vector fv( timeStamp, &ch, &ar );
+	fv.write( &ch );
 	//fv.create_fv();
 	
 	
