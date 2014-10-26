@@ -6,7 +6,7 @@ CPPFLAGS = -pthread -Wall -O3 -fPIC -fpermissive -std=c++0x $(DEBUG)
 #LDFLAGS=-g $(shell root-config --ldflags)
 LDLIBS = -pthread
 
-SRCS=raraa.cpp src/audio_recorder.cpp src/config_handler.cpp src/feature_vector.cpp
+SRCS=raraa.cpp src/audio_recorder.cpp src/config_handler.cpp src/feature_vector.cpp src/json_generator.cpp
 OBJS=$(subst .cpp,.o,$(SRCS))
 
 all: raraa
