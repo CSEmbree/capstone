@@ -200,7 +200,7 @@ if [ ! -d "$YAAFE_PATH" ]; then
     # Build check by placing a 'built' empty file in yaafe after first compilation
     if [ ! -f built ]; then
 	echo "Yaafe being built for the first time ... "
-	ccmake -DCMAKE_INSTALL_PREFIX=. . #install everything to local yaafe
+	cmake -DCMAKE_INSTALL_PREFIX=. . #install everything to local yaafe
         #ccmake #configure and generate
 	sudo make
 	sudo make install
@@ -243,7 +243,7 @@ echo " === (4/4) START - Preparing raraa === "
 # Prepare to compile Raraa and create start and stop scripts for Raraa
 if [ "$DO_COMPILE" = true ]; then
     echo "cleaning up old workspace ... "
-    make clean
+    #make clean
     echo "Done."
     
     echo "Preparing Raraa ... "
