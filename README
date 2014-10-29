@@ -248,6 +248,9 @@ outputform          - Either output is plan Yaafe using "YAAFE" or
                       output is a json file using "FV".
                       DEFAULT: string "YAAFE"
 
+saverecording       - (OPTIONAL) Save audio that is recorded
+                      DEAFULT: string "on" - recordings are saved
+
 analysis            - (OPTIONAL) Turn audio analyis (audio feature 
                       extraction via Yaafe) off. 
                       DEAFULT: string "off" - filtering is performed
