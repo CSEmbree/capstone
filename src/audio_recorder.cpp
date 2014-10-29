@@ -16,6 +16,9 @@ audio_recorder::audio_recorder( config_handler ch ) {
   cout<<cn<<mn<<" Applying config settings ... "<<endl;
   apply_config_settings( ch );
 
+  cout<<cn<<mn<<" Current recording settings ... "<<endl;
+  this->print();
+
   cout<<cn<<mn<<" Constructor finished. "<<endl;
 }
 
@@ -29,6 +32,7 @@ void audio_recorder::init() {
 
   set_rec_file_name       ( "" );
   set_rec_file_name_base  ( "" );
+  set_rec_file_name_core  ( "" );
   set_rec_file_name_prefix( "" );
   set_rec_duration        ( 1 ); //each recording is 1 sec by default
 
@@ -121,6 +125,31 @@ std::string audio_recorder::make_rec_cmd( const string fileName, const int dur )
   return cmd;
 }
 
+std::string audio_recorder::make_audio_file_name_core(string timeStamp, string recPrefix ) {
+  
+  string mn = "make_audio_file_name_core:";
+  cout<<cn<<mn<<" Making record audio file name ... "<<endl;
+  
+
+  // Generate file name info if user does not provide
+  if(recPrefix == "") recPrefix = get_rec_file_name_prefix();
+  cout<<cn<<mn<<" Making audio file name core with: TIMESTAMP:"<<timeStamp<<", PREFIX:"<<recPrefix<<endl;
+  
+
+
+  // make a descriptive/unique recording file name
+  stringstream stream;
+  stream << recPrefix 
+	 << timeStamp;
+
+  string fileNameCore = stream.str();
+  set_rec_file_name_core( fileNameCore );
+
+
+  cout<<cn<<mn<<" Constructed recording name core titled \""<<get_rec_file_name_core()<<"\""<<endl;
+
+  return fileNameCore;
+}
 
 std::string audio_recorder::make_audio_file_name_base(string timeStamp, string recPrefix, string dirPath ) {
   
@@ -129,20 +158,21 @@ std::string audio_recorder::make_audio_file_name_base(string timeStamp, string r
   
 
   // Generate file name info if user does not provide
-  if(recPrefix == "") recPrefix = get_rec_file_name_prefix();
-  if(dirPath == "")   dirPath = utils::pathify(get_rec_location());
+  if(dirPath == "") dirPath = utils::pathify(get_rec_location());
+  string fname_core = make_audio_file_name_core( timeStamp, recPrefix );
+  cout<<cn<<mn<<" Making audio file name base with: CORE:"<<fname_core<<", DIR:"<<dirPath<<endl;
 
 
   // make a descriptive/unique recording file name
   stringstream stream;
   stream << dirPath 
-	 << recPrefix 
-	 << timeStamp;
+	 << fname_core;
+
 
   string fileNameBase = stream.str();
 
 
-  cout<<cn<<mn<<" Made recording name base titled \""<<fileNameBase<<"\""<<endl;
+  cout<<cn<<mn<<" Constructed recording name base titled \""<<fileNameBase<<"\""<<endl;
 
   return fileNameBase;
 }
@@ -156,7 +186,7 @@ std::string audio_recorder::make_audio_file_name(string timeStamp, string recPre
   if(fExt == "") fExt = get_rec_extention();
 
 
-  set_rec_file_name_base( make_audio_file_name_base( timeStamp, recPrefix, dirPath ) );
+  set_rec_file_name_base( make_audio_file_name_base( timeStamp, recPrefix, dirPath ) );  
   string fullFileName = get_rec_file_name_base() + fExt;
 
 
@@ -179,6 +209,7 @@ void audio_recorder::print() {
   
   cout<<cn<<mn<<" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
       <<"\n"<<setw(w1)<<"DEBUG: "                <<setw(w2)<<(debug? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"Rec File Name Core: "   <<setw(w2)<<"\""<<get_rec_file_name_core()<<"\""
       <<"\n"<<setw(w1)<<"Rec File Name: "        <<setw(w2)<<"\""<<get_rec_file_name()<<"\""
       <<"\n"<<setw(w1)<<"Rec File Name Base: "   <<setw(w2)<<"\""<<get_rec_file_name_base()<<"\""
       <<"\n"<<setw(w1)<<"Rec File Name Prefix: " <<setw(w2)<<"\""<<get_rec_file_name_prefix()<<"\""
@@ -210,7 +241,7 @@ bool audio_recorder::set_rec_file_name_prefix( string prefix ) {
 
 bool audio_recorder::set_rec_file_name_base( string fnamebase ) {
 
-  string mn = "set_rec_file_name:";
+  string mn = "set_rec_file_name_base:";
   bool res = false;
 
   if( fnamebase != "" ) {
@@ -218,8 +249,24 @@ bool audio_recorder::set_rec_file_name_base( string fnamebase ) {
     res = true;
   } else {
     string def = "audio";
-    cerr<<cn<<mn<<" WARN: A recording must havea file name! Using \""<<def<<"\"."<<endl;
+    cerr<<cn<<mn<<" WARN: A recording must have a file name! Using \""<<def<<"\"."<<endl;
     rec_file_name = def;
+  }
+
+  return res;
+}
+
+
+bool audio_recorder::set_rec_file_name_core( string fnamecore ) {
+
+  string mn = "set_rec_file_name_core:";
+  bool res = false;
+
+  if( fnamecore != "" ) {
+    rec_file_name_core = fnamecore;
+    res = true;
+  } else {
+    cerr<<cn<<mn<<" WARN: Audio file name core set is set to empty!"<<endl;
   }
 
   return res;
@@ -299,6 +346,11 @@ bool audio_recorder::set_rec_duration( int dur ) {
 
 string audio_recorder::get_rec_file_name_base() {
   return rec_file_name_base;
+}
+
+
+string audio_recorder::get_rec_file_name_core() {
+  return rec_file_name_core;
 }
 
 
