@@ -30,9 +30,13 @@ class feature_vector {
   string fv_extention;
   
 
-  vector<string > feature_file_names;
+  vector<string > feature_fnames;
+  vector<pair< vector<pair<string,string> >, vector<double > > > features;
+
   bool setup_feature_vector( string timeStamp, config_handler *ch, audio_recorder *ar );
-  bool find_feature_vector_files( );
+  bool find_feature_vector_files( string timeStamp, config_handler *ch, audio_recorder *ar );
+  bool read_features( std::vector<string > *fnames=NULL );
+  bool read_feature( string fname );
 
   void init();  
   
@@ -55,7 +59,7 @@ class feature_vector {
   bool set_fv_ext( string ext );  
 
 
-  vector<string > *get_feature_file_names();
+  std::vector<string > get_feature_fnames();
   string get_time_stamp();
   string get_id();
   string get_lat();
