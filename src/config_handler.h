@@ -46,6 +46,8 @@ class config_handler {
   bool filter;
   bool analysis;
   bool simulate;
+  bool save_rec;
+
   string simulate_dir;
 
   string latitude;
@@ -97,6 +99,7 @@ class config_handler {
 
   bool set_filter( bool status );
   bool set_analysis( bool status );
+  bool set_save_rec( bool status );
 
   bool set_simulate( bool status );
   bool set_simulate_dir( string dir );
@@ -136,6 +139,7 @@ class config_handler {
   bool get_filter();
   bool get_analysis();
   bool get_simulate();
+  bool get_save_rec();
 
   string get_simulate_dir();
 

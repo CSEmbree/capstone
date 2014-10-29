@@ -86,6 +86,8 @@ void config_handler::init() {
   set_background( false ); //run in forground by default
   set_filter( false ); //filtering is ONLY done if requested
   set_analysis( false ); //feature extraction only done if user wants it
+  set_save_rec( true ); //Always save recordings by default
+
 
   return;
 }
@@ -244,6 +246,9 @@ void config_handler::read_config( string fname="" ) {
 	  if( optionValue == "on"  ) set_analysis( true  );
 	  else                       set_analysis( false );
 
+	} else if ( optionName == "saverecording" ) {
+	  if( optionValue == "on"  ) set_save_rec( true  );
+	  else                       set_save_rec( false );
 	  
 	} else {
 	  cerr<<cn<<mn<<" WARN: Invalid config option found '"<<curLine<<"'"<<endl;
@@ -273,20 +278,14 @@ void config_handler::read_config( string fname="" ) {
   
   // set default directoryies for simulations, if none were provided
   string simDataDir = utils::pathify( utils::get_base_dir() + "test/" );
-  cout<<"TEST: sim data dir 0 : "<<get_simulate_dir()<<endl;
 
   if( get_simulate() == true ) {
 
-    cout<<"TEST: is simulateion : "<<get_simulate_dir()<<endl;
-
     if( get_simulate_dir() == "" ) {
-      cout<<"TEST: sim data dir 1 : "<<simDataDir<<endl;
 
       if( get_final_feature_format() == "FV" )         simDataDir += "data_fv/";
       else if( get_final_feature_format() == "YAAFE" ) simDataDir += "data_yaafe/";
   
-      cout<<"TEST: sim data dir 2 : "<<simDataDir<<endl;
-
       set_simulate_dir( simDataDir ); 
     }
   }
@@ -319,6 +318,7 @@ void config_handler::print() {
       <<"\n"<<setw(w1)<<"RUN IN BACKGROUND: "           <<setw(w2)<<(get_background()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"SIMULATION: "                  <<setw(w2)<<(get_simulate()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"FILTER FIRST: "                <<setw(w2)<<(get_filter()? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"SAVE RECORDINGS: "             <<setw(w2)<<(get_save_rec()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"RPi Latitude: "                <<setw(w2)<<"\""<<get_latitude()<<"\""
       <<"\n"<<setw(w1)<<"RPi Longitude: "               <<setw(w2)<<"\""<<get_longitude()<<"\""
       <<"\n"<<setw(w1)<<"RPi ID: "                      <<setw(w2)<<"\""<<get_rpid()<<"\""
@@ -461,12 +461,12 @@ bool config_handler::get_background() { return background; };
 bool config_handler::get_simulate() { return simulate; };
 bool config_handler::get_filter() { return filter; };
 bool config_handler::get_analysis() { return analysis; };
+bool config_handler::get_save_rec() { return save_rec; };
 string config_handler::get_simulate_dir() { return utils::pathify(simulate_dir); };
 string config_handler::get_latitude() { return latitude; };
 string config_handler::get_longitude() { return longitude; };
 string config_handler::get_rpid() { return rpid; };
 string config_handler::get_final_feature_format() { return final_feature_format; };
-
 
 
 
@@ -589,6 +589,12 @@ bool config_handler::set_simulate( bool status ) {
 
 bool config_handler::set_filter( bool status ) {
   filter = status;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_save_rec( bool status ) {
+  save_rec = status;
   return true; // TODO - impliment
 }
 
