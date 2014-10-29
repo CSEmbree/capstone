@@ -99,6 +99,29 @@ bool move_features( config_handler *ch, audio_recorder *ar ) {
 }
 
 
+bool move_audio( config_handler *ch, audio_recorder *ar ) {
+
+  string mn = "move_audio:";
+  cout<<n<<mn<<" Moving audio to data deployment directory ... "<<endl;
+  
+
+
+  stringstream deployCmd;
+  deployCmd << "bash -c 'cp " << ar->get_rec_file_name_base()<<ch->get_rec_extention()
+	    << " " << ch->get_data_location()
+	    << "' "; 
+  
+  cout<<n<<mn<<" Copying audio with: \""<<deployCmd.str().c_str()<<"\""<<endl;
+  system(deployCmd.str().c_str());
+
+
+  
+  cout<<n<<mn<<" Finished moving audio extracted."<<endl;
+
+  return true; //TODO - only be true if copy was succesful
+}
+
+
 
 
 bool create_meta_data_file( string timeStamp, config_handler *ch, audio_recorder *ar ) {
@@ -359,7 +382,13 @@ int main(int argc, char **argv) {
       string dataFormat = ch.get_final_feature_format();
       cout<<n<<mn<<" Desired format is: \""<<dataFormat<<"\""<<endl;
       
-      
+
+      // Keeping or disgarding audio is not a function of the final data format
+      if( ch.get_save_rec() == true ) {
+	move_audio( &ch, &ar ); 
+      }      
+
+
       if( dataFormat == "FV" ) {
 	//---------CREATE A Feature Vector from extracted features----------
 	// create a feature vector as json foramtted file
