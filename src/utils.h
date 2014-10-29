@@ -23,6 +23,7 @@
 #include <sstream>
 #include <fstream>
 #include <cmath>
+#include <dirent.h>
 
 #include <netdb.h>
 #include <netinet/in.h>
@@ -184,6 +185,27 @@ class utils {
     return path;
   };
 
+
+  static string trim( string s , string pat="") {
+    // 
+    // Helper to remove leading and trailing white space from steering file reading
+    //  credit to: http://www.toptip.ca/2010/03/trim-leading-or-trailing-white-spaces.html
+    //
+    std::string reducedS = s;
+    std::string pattern = " \t"; //default are remove space and tab
+    if( pat != "" ) pattern = pat;
+    
+    //    size_t p = reducedS.find_first_not_of(" \t");
+    size_t p = reducedS.find_first_not_of( pattern );
+    reducedS.erase(0, p);
+    
+    //    p = reducedS.find_last_not_of(" \t");
+    p = reducedS.find_last_not_of( pattern );
+    if (string::npos != p) reducedS.erase(p+1);
+    
+    return reducedS;
+  }
+  
 
   // CITE: Daemon creation process code borrowed and edited from:
   // http://www.thegeekstuff.com/2012/02/c-daemon-process/
