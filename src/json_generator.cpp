@@ -363,27 +363,16 @@ bool json_generator::write_to( string fname, string fpath ) {
 
 
   string filename = "";
-  if( fpath != "" ) filename += fpath;
+  if( fpath != "" ) filename = fpath;
   if( fname != "" ) filename += fname;
 
   // if a filename is valid, then write formatted contents
   if( filename != "" ) {
 
     ofstream outfile;
-    outfile.open ("example.txt");
+    outfile.open( filename );
 
-
-    if( outfile.is_open() == true ) {
-      
-      //format contents
-      std::vector<string > data = contents;
-      format( &data );
-       
-      // write each line, line by line
-      for( unsigned int i = 0; i < data.size(); i++ ) {
-	outfile << data.at(i);
-      }
-    }
+    outfile << get_contents_string();
 
     outfile.close();
 
