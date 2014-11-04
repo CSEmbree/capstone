@@ -298,8 +298,8 @@ export STOP_SOUND="stop_sound.sh"
 touch $STOP_SOUND
 chmod u+x $STOP_SOUND
 
-echo "#!/bin/bash"                     > $STOP_SOUND
-echo "echo \" ... impliment me ... \"" >> $STOP_SOUND
+echo "#!/bin/bash" > $STOP_SOUND
+echo "pkill raraa" >> $STOP_SOUND
 
 if [ "$DO_LOCAL" = false ]; then
     cp $STOP_SOUND $HOME_BIN
