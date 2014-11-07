@@ -32,6 +32,7 @@ void feature_vector::init() {
   cn = " feature_vector::";
   
   feature_fnames.clear();
+  feature_fnames_base.clear();
   set_time_stamp( "" );
   set_id( "" );
   set_lat( "" );
@@ -62,6 +63,8 @@ bool feature_vector::setup_feature_vector( string timeStamp, config_handler *ch,
   // find all feature vector element file names
   find_feature_vector_files( timeStamp, ch, ar );
 
+  // parse for feature vector base file names
+  extract_feature_vector_file_names( );
 
   // read all of the feature files found
   read_features();
@@ -76,6 +79,28 @@ bool feature_vector::setup_feature_vector( string timeStamp, config_handler *ch,
 }
 
 
+bool feature_vector::extract_feature_vector_file_names( ) {
+
+  string mn = "extract_feature_vector_file_name:";
+  bool res = true;
+
+  
+  // read each feature
+  for( unsigned int i = 0; i < feature_fnames.size(); i++ ) {
+    string feature_fname = utils::get_base( feature_fnames.at(i) );
+
+    if( feature_fname != "" ) {
+      feature_fnames_base.push_back( feature_fname );
+    } else {
+      cerr<<cn<<mn<<" ERROR: Feature file name not found!"<<endl;
+      res = false; // ERROR
+    }
+  }
+
+
+  return res;
+}
+
 
 bool feature_vector::find_feature_vector_files( string timeStamp, config_handler *ch, audio_recorder *ar ) {
 
@@ -84,8 +109,6 @@ bool feature_vector::find_feature_vector_files( string timeStamp, config_handler
   bool res = true;
 
   
-  cout<<cn<<mn<<" IMPLIMENT ME! "<<endl;
-
   cout<<cn<<mn<<" Retreiving specific featrues from \""<<ch->get_analysis_location()<<"\" "<<endl;
   std::vector<string > found_feature_files;
   found_feature_files.clear();
@@ -150,7 +173,6 @@ bool feature_vector::read_features( std::vector<string > *fnames ) {
   // read each feature
   for( unsigned int i = 0; i < feature_files.size(); i++ ) {
     read_feature( feature_files.at(i) );
-    //    break; //TEST - TODO - REMOVE ME
   }
 
   
@@ -195,14 +217,44 @@ bool feature_vector::read_feature( string fname ) {
 	  int optionSep = trimmed_line.find('='); //optioname and value are seperated by aan equals sign
 	  key  = utils::trim( trimmed_line.substr(0, optionSep) );
 	  value = utils::trim( trimmed_line.substr(optionSep+1, trimmed_line.size()) );
+
+
+	  // special case accounting for yaafe's painful command line calls with details passed by string
+	  if( key == "yaafedefinition" ) {
+	    std::stringstream ls( value ); //each line
+	    std::string tok; //each element of a line
+	    int partCount=0;
+	    while( std::getline( ls, tok, ' ' ) ) {
+	      string tl = utils::trim( tok, " \t%" ); //clean up
+	      string k="", v="";
+
+	      if( partCount == 0 ) {
+		int optSep = tl.find(' '); //optioname and value are seperated by aan equals sign
+		k = "featurename";
+		v = utils::trim( tl.substr(0, optSep) ); //special case - the name is the key for the first element
+	      } else {
+		// retrieve the option name and it's value seperatly for further parsing
+		int optSep = tl.find('='); //optioname and value are seperated by aan equals sign
+		k  = utils::trim( tl.substr(0, optSep) );
+		v = utils::trim( tl.substr(optSep+1, tl.size()) );
+	      }
+	      
+	      pair<string, string> data_detail( k, v );
+	      feature_details.push_back( data_detail );
+	      
+	      partCount++;
+	    }
+	  } //end of special case
 	  
+
+	  // add key and value pair to the set of details for each feature
 	  pair<string, string> data_detail( key, value );
-	  
 	  feature_details.push_back( data_detail );	
 	  
 	} else {
+	  //yaafe data numbers (not the extraction state details)
+
 	  double val = (double) utils::string_to_number<double>( cell );
-	  
 	  feature_data.push_back( val );
 	}
       }
@@ -260,14 +312,17 @@ bool feature_vector::write( config_handler *ch ) {
   // write stuff
   jg.open_object();
 
-  jg.add_key(   "sample_rate" );
+  jg.add_key(   "sampleRate" );
   jg.add_value( utils::number_to_string<int>(ch->get_samp_rate()) );
+  //jg.add_value( ch->get_samp_rate() );
 
-  jg.add_key(   "recording_number" );
+  jg.add_key(   "recordingNumber" );
   jg.add_value( utils::number_to_string<int>(ch->get_rec_number()) );
+  //jg.add_value( ch->get_rec_number() );
 
-  jg.add_key(   "recording_duration" );
+  jg.add_key(   "recordingDuration" );
   jg.add_value( utils::number_to_string<int>(ch->get_rec_duration()) );
+  //jg.add_value( ch->get_rec_duration() );
 
   jg.add_key(   "latitude" );
   jg.add_value( ch->get_latitude() );
@@ -276,10 +331,7 @@ bool feature_vector::write( config_handler *ch ) {
   jg.add_value( ch->get_longitude() );
 
   jg.add_key(   "rpid" );
-  jg.add_value( ch->get_longitude() );
-
-  jg.add_key(   "rpid" );
-  jg.add_value( ch->get_longitude() );
+  jg.add_value( ch->get_rpid() );
 
   jg.add_key(   "simulation" );
   jg.add_value( ch->get_simulate()? "yes":"no" );
@@ -290,68 +342,95 @@ bool feature_vector::write( config_handler *ch ) {
   jg.add_key(   "analysis" );
   jg.add_value( ch->get_analysis()? "yes":"no" );
 
-  jg.add_key(   "config_file" );
+  jg.add_key(   "configFile" );
   jg.add_value( ch->get_config_file() );
 
-  jg.add_key( "features" );
-  jg.open_object();
 
-
-  
-  // get all feature names
-  vector<string > feature_names;
-  feature_names.clear();
-  
-  for( unsigned int feat_i = 0; feat_i < features.size(); feat_i++ ) {
+  if( ch->get_analysis() == true ) {
     
-    //get the name of the feature
-    vector<pair<string, string> > details = features.at(feat_i).first;
-    string feature_name = "<missing>";
-    bool found = false;
+    // get all feature names
+    vector<string > feature_names;
+    feature_names.clear();
     
-    for( unsigned int det_i = 0; det_i < details.size() && found == false; det_i++ ) {
-      if( details.at(det_i).first == "yaafedefinition" ) {
-	feature_name = details.at(det_i).second;
-	found = true;
-      }	
+    for( unsigned int feat_i = 0; feat_i < features.size(); feat_i++ ) {
+      
+      //get the name of the feature
+      vector<pair<string, string> > details = features.at(feat_i).first;
+      string feature_name = "<missing>";
+      bool found = false;
+      
+      for( unsigned int det_i = 0; det_i < details.size() && found == false; det_i++ ) {
+	if( details.at(det_i).first == "featurename" ) {
+	  feature_name = details.at(det_i).second;
+	  found = true;
+	}	
+      }
+      
+      feature_names.push_back( feature_name );
     }
     
-    feature_names.push_back( feature_name );
-  }
-
-
-  // add feature names with details and data to json
-  for( unsigned int feat_i = 0; feat_i < features.size(); feat_i++ ) {
+    // provide a list of the features extracted before the feature values individually
+    jg.add_key( "featureNames" );
+    jg.add_array_value( feature_names );
     
-    vector<pair<string, string> > details = features.at(feat_i).first;
 
-    // open an individual feature with that name
-    jg.add_key( feature_names.at(feat_i) );
+
+    
+    // provide file names for each feature
+    jg.add_key( "featureFileNames" );
     jg.open_object();
-        
-    // add key,vals for each detail of the feature
-    for( unsigned int det_i = 0; det_i < details.size(); det_i++ ) {
-      jg.add_key( details.at(det_i).first );
-      jg.add_value( details.at(det_i).second );
-    }	
 
+    for( unsigned int feat_i = 0; feat_i < features.size(); feat_i++ ) {
+      jg.add_key( feature_names.at( feat_i ) );
+      jg.add_value( feature_fnames_base.at( feat_i ) );
+    }
 
-    
-    // add a key,val for the data extracted for our individual feature
-    jg.add_key( "data" );
-
-    // Add each value of the data extracted to the individual feature
-    jg.add_array_value( features.at(feat_i).second );
-    
-
-
-    //close individual feature
     jg.close_object();
     
+    
+
+    
+    // feature vector format means we need to provide the values of each YAAFE feature extracted
+    if( ch->get_final_feature_format() == "FV" ) {
+      
+      jg.add_key( "features" );
+      jg.open_object();
+      
+      // add feature names with details and data to json
+      for( unsigned int feat_i = 0; feat_i < features.size(); feat_i++ ) {
+	
+	vector<pair<string, string> > details = features.at(feat_i).first;
+	
+	// open an individual feature with that name
+	jg.add_key( feature_names.at(feat_i) );
+	jg.open_object();
+	
+	// add key,vals for each detail of the feature
+	for( unsigned int det_i = 0; det_i < details.size(); det_i++ ) {
+	  jg.add_key( details.at(det_i).first );
+	  jg.add_value( details.at(det_i).second );
+	}	
+	
+	
+	
+	// add a key,val for the data extracted for our individual feature
+	jg.add_key( "data" );
+	
+	// Add each value of the data extracted to the individual feature
+	jg.add_array_value( features.at(feat_i).second );
+	
+	
+	
+	//close individual feature
+	jg.close_object();
+	
+      }
+      
+      jg.close_object(); //close features
+    } // close feature analysis wrapped section
   }
-  
-  jg.close_object(); //close features
-  
+
+
   jg.close_object(); //close whole
   
 

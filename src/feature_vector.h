@@ -31,8 +31,10 @@ class feature_vector {
   
 
   vector<string > feature_fnames;
+  vector<string > feature_fnames_base;
   vector<pair< vector<pair<string,string> >, vector<double > > > features;
 
+  bool extract_feature_vector_file_names( );
   bool setup_feature_vector( string timeStamp, config_handler *ch, audio_recorder *ar );
   bool find_feature_vector_files( string timeStamp, config_handler *ch, audio_recorder *ar );
   bool read_features( std::vector<string > *fnames=NULL );
