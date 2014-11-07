@@ -39,6 +39,13 @@
 #define   NI_MAXHOST 1025
 #endif
 
+#define DEBUG
+#ifdef DEBUG
+#define msg(x) std::cout << x
+#else
+#define msg(x) 
+#endif 
+
 
 using namespace std; 
 
@@ -51,7 +58,7 @@ class utils {
   
  public:
 
-
+  
   //CITE: str->num from http://www.cplusplus.com/articles/D9j2Nwbp/
   template <typename T>
     static T string_to_number ( const std::string &Text ) {
@@ -71,6 +78,7 @@ class utils {
 
 
 
+  
   static void error_msg( const string err ) {
     ofstream myfile;
     string errorFileName = "logs/error.log";
@@ -319,6 +327,44 @@ class utils {
     
     return pathify(hd);
   }
+  
+
+  static string get_base( string str ) {
+
+    string mn = "get_base";
+    string res = "";
+
+    if( str.size() > 0 ) {
+      const size_t last_slash_index = str.rfind('/');
+      if( std::string::npos != last_slash_index ) {
+	
+	// get the last directory or file in path
+	if( last_slash_index+1 != str.size() ) {
+	  // FILE
+	  res = str.substr( last_slash_index+1, str.size() );
+	} else {
+	  // DIRECTORY
+	  string reducedS = str.substr( 0, last_slash_index );
+	  const size_t second_last_slash_index = reducedS.rfind('/');
+	  
+	  if( std::string::npos != second_last_slash_index ) {
+	    res = reducedS.substr( second_last_slash_index+1, last_slash_index);
+	  } else {
+	    res = reducedS.substr( 0, reducedS.size());
+	  }
+	  
+	}
+      } else {
+	res = str;
+      }
+    } else {
+      //cerr<<mn<<" WARNING: Problem getting base of '"<<str<<"'. It  may be malformed?"<<endl;
+    }
+    
+    
+    return res;
+  }
+  
   
 
   /*
