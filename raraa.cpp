@@ -171,7 +171,7 @@ void simulate_run( config_handler *ch ) {
 
   string extentions = "";
   if ( ch->get_final_feature_format() == "FV" )         extentions = "{*.wav,*.dat}";
-  else if ( ch->get_final_feature_format() == "YAAFE" ) extentions = "{*.wav,*.csv}";
+  else if ( ch->get_final_feature_format() == "YAAFE" ) extentions = "{*.wav,*.dat,*.csv}";
   else                                                  extentions = "*";
 
 
@@ -389,39 +389,27 @@ int main(int argc, char **argv) {
       }      
 
 
-      if( dataFormat == "FV" ) {
-	//---------CREATE A Feature Vector from extracted features----------
-	// create a feature vector as json foramtted file
-	cout<<n<<mn<<" Creating a feature vector ... "<<endl;
-	
-	
-	// TODO - create FV
-	feature_vector fv( timeStamp, &ch, &ar );
-	fv.write( &ch );
-	//fv.create_fv();
-	
-	
-	cout<<n<<mn<<" Finished creating Feature Vector and moving to deployment. "
-	    <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
-	
-      } else if( dataFormat == "YAAFE" ) {
-	//---------CREATE A METDA DATA FILE FOR A RECORDING FEATURES----------
+
+      //---------CREATE A Feature Vector & metadata from extracted features----------
+      // create a feature vector as json foramtted file
+      cout<<n<<mn<<" Creating a feature vector ... "<<endl;      
+      feature_vector fv( timeStamp, &ch, &ar ); //TEST
+      fv.write( &ch );
+      
+      
+      
+      if( dataFormat == "YAAFE" ) {
 	// Move all features with a helpful meta data file if not creating a feature vector
-	cout<<n<<mn<<" Creating meta data file and moving features extracted to deployment ... "<<endl;
+	cout<<n<<mn<<" Moving features extracted to deployment ... "<<endl;
 	
-	
-	if( create_meta_data_file( timeStamp, &ch, &ar ) == false ) {
-	  cerr<<n<<mn<<" ERROR: A problem occured creating a meta data file at \""<<timeStamp<<"\""<<endl;
-	} else {
-	  cout<<n<<mn<<" Created meta data file (child pid \""<<(long)getpid()<<"\")."<<endl;
-	}
-	move_features( &ch, &ar ); //blindly move features to data
-	
-	
-	cout<<" Finished moving features and meta data to deployment. "
-	    <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
+	move_features( &ch, &ar ); //blindly move features to data	
       }    
       
+
+      cout<<" Finished moving features and meta data to deployment. "
+	  <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
+      
+
       
       clean_analysis_workspace( timeStamp, &ch, &ar );
       
