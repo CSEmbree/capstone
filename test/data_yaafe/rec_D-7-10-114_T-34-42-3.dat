@@ -1,0 +1,29 @@
+{
+  "sampleRate": "44100",
+  "recordingNumber": "1",
+  "recordingDuration": "1",
+  "latitude": "17.2343432",
+  "longitude": "-119.23423423",
+  "rpid": "-1",
+  "simulation": "no",
+  "filter": "no",
+  "analysis": "yes",
+  "configFile": "/home/pi/sounds/sound_settings.conf",
+  "featureNames": [ "LPC", "AmplitudeModulation", "MFCC", "SpectralVariation", "OBSI", "PerceptualSharpness", "Loudness", "PerceptualSpread", "SpectralSlope", "SpectralShapeStatistics", "OBSIR", "SpectralFlatness", "SpectralDecrease" ],
+  "featureFileNames": 
+  {
+    "LPC": "rec_D-7-10-114_T-34-42-3.wav.lpc.csv",
+    "AmplitudeModulation": "rec_D-7-10-114_T-34-42-3.wav.am.csv",
+    "MFCC": "rec_D-7-10-114_T-34-42-3.wav.mfcc.csv",
+    "SpectralVariation": "rec_D-7-10-114_T-34-42-3.wav.sv.csv",
+    "OBSI": "rec_D-7-10-114_T-34-42-3.wav.obsi.csv",
+    "PerceptualSharpness": "rec_D-7-10-114_T-34-42-3.wav.psh.csv",
+    "Loudness": "rec_D-7-10-114_T-34-42-3.wav.lx.csv",
+    "PerceptualSpread": "rec_D-7-10-114_T-34-42-3.wav.psp.csv",
+    "SpectralSlope": "rec_D-7-10-114_T-34-42-3.wav.ss.csv",
+    "SpectralShapeStatistics": "rec_D-7-10-114_T-34-42-3.wav.sss.csv",
+    "OBSIR": "rec_D-7-10-114_T-34-42-3.wav.obsir.csv",
+    "SpectralFlatness": "rec_D-7-10-114_T-34-42-3.wav.sf.csv",
+    "SpectralDecrease": "rec_D-7-10-114_T-34-42-3.wav.sd.csv"
+  }
+}
