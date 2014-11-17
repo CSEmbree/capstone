@@ -47,6 +47,7 @@ class config_handler {
   bool analysis;
   bool simulate;
   bool save_rec;
+  bool output_formatted;
 
   string simulate_dir;
 
@@ -104,6 +105,8 @@ class config_handler {
   bool set_simulate( bool status );
   bool set_simulate_dir( string dir );
 
+  bool set_output_formatted( bool status );
+
   bool set_final_feature_format( string format );
   
 
@@ -139,6 +142,7 @@ class config_handler {
   bool get_filter();
   bool get_analysis();
   bool get_simulate();
+  bool get_output_formatted();
   bool get_save_rec();
 
   string get_simulate_dir();

@@ -87,7 +87,7 @@ void config_handler::init() {
   set_filter( false ); //filtering is ONLY done if requested
   set_analysis( false ); //feature extraction only done if user wants it
   set_save_rec( true ); //Always save recordings by default
-
+  set_output_formatted( true ); //Make sense to always format output
 
   return;
 }
@@ -230,6 +230,10 @@ void config_handler::read_config( string fname="" ) {
 	} else if ( optionName == "outputform" ) {
 	  set_final_feature_format( optionValue );
 	  
+	} else if ( optionName == "outputhumanreadable" ) {
+	  if( optionValue == "on"  ) set_output_formatted( true  );
+	  else                       set_output_formatted( false );
+
 	} else if ( optionName == "simulate" ) {
 	  if( optionValue == "on"  ) set_simulate( true  );
 	  else                       set_simulate( false );
@@ -319,6 +323,7 @@ void config_handler::print() {
       <<"\n"<<setw(w1)<<"SIMULATION: "                  <<setw(w2)<<(get_simulate()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"FILTER FIRST: "                <<setw(w2)<<(get_filter()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"SAVE RECORDINGS: "             <<setw(w2)<<(get_save_rec()? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"HUMAN READABLE OUTPUT: "       <<setw(w2)<<(get_output_formatted()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"RPi Latitude: "                <<setw(w2)<<"\""<<get_latitude()<<"\""
       <<"\n"<<setw(w1)<<"RPi Longitude: "               <<setw(w2)<<"\""<<get_longitude()<<"\""
       <<"\n"<<setw(w1)<<"RPi ID: "                      <<setw(w2)<<"\""<<get_rpid()<<"\""
@@ -459,6 +464,7 @@ int config_handler::get_rec_number() { return rec_num; }
 int config_handler::get_rec_duration() { return rec_dur; }
 bool config_handler::get_background() { return background; };
 bool config_handler::get_simulate() { return simulate; };
+bool config_handler::get_output_formatted() { return output_formatted; };
 bool config_handler::get_filter() { return filter; };
 bool config_handler::get_analysis() { return analysis; };
 bool config_handler::get_save_rec() { return save_rec; };
@@ -583,6 +589,12 @@ bool config_handler::set_background( bool status ) {
 
 bool config_handler::set_simulate( bool status ) {
   simulate = status;
+  return true; // TODO - impliment
+}
+
+
+bool config_handler::set_output_formatted( bool status ) {
+  output_formatted = status;
   return true; // TODO - impliment
 }
 
