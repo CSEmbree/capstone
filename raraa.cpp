@@ -394,7 +394,7 @@ int main(int argc, char **argv) {
       // create a feature vector as json foramtted file
       cout<<n<<mn<<" Creating a feature vector ... "<<endl;      
       feature_vector fv( timeStamp, &ch, &ar ); //TEST
-      fv.write( &ch );
+      fv.write( &ch, &ar );
       
       
       
