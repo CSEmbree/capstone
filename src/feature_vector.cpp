@@ -287,15 +287,15 @@ bool feature_vector::read_feature( string fname ) {
 }
 
 
-bool feature_vector::write( config_handler *ch ) {
+bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatOutput ) {
   
   string mn = "write::";
   cout<<cn<<mn<<" Preparing to write feature vector ... "<<endl;
   bool res = true;
   
+  bool format_output_flag = ch->get_output_formatted();
+  if( formatOutput != true ) format_output_flag = formatOutput;
 
-  cout<<cn<<mn<<" IMPLIMENT ME! "<<endl;
-  // open file
 
   string filepath = ch->get_data_location();
   string filename = get_time_stamp() + ".dat";
@@ -345,6 +345,10 @@ bool feature_vector::write( config_handler *ch ) {
   jg.add_key(   "configFile" );
   jg.add_value( ch->get_config_file() );
 
+  if( ch->get_save_rec() == true ) {
+    jg.add_key(   "mediaPath" );
+    jg.add_value( utils::pathify(ch->get_data_location()) + ar->get_rec_file_name_core() + ar->get_rec_extention() );
+  }
 
   if( ch->get_analysis() == true ) {
     
@@ -436,7 +440,7 @@ bool feature_vector::write( config_handler *ch ) {
 
   //TEST
   cout<<cn<<mn<<" TEST: Sample JSON format:"<<endl;
-  cout<<jg.get_contents_string()<<endl;
+  cout<<jg.get_contents_string( format_output_flag )<<endl;
 
 
   // write json file out
@@ -445,7 +449,7 @@ bool feature_vector::write( config_handler *ch ) {
 
   cout<<cn<<mn<<" writing to: \""<<out_fpath+out_fname<<"\"."<<endl;
 
-  jg.write_to( out_fname, out_fpath );
+  jg.write_to( out_fname, out_fpath, formatOutput );
 
   
   cout<<cn<<mn<<" JSON formatted feature vector written to: \""<<out_fpath+out_fname<<"\"."<<endl;
