@@ -356,7 +356,7 @@ bool json_generator::clear_contents() {
 }
 
 
-bool json_generator::write_to( string fname, string fpath ) {
+bool json_generator::write_to( string fname, string fpath, bool formatted ) {
  
   string mn = "write_to:";
   bool res = true;
@@ -372,7 +372,7 @@ bool json_generator::write_to( string fname, string fpath ) {
     ofstream outfile;
     outfile.open( filename );
 
-    outfile << get_contents_string();
+    outfile << get_contents_string( formatted );
 
     outfile.close();
 
@@ -481,14 +481,14 @@ string json_generator::pos( int pos ) {
 //*****************
 
 
-string json_generator::get_contents_string() {
+string json_generator::get_contents_string( bool formatted ) {
 
   string mn = "get_contents_string:";
 
 
   // construct one string with correctly formated contents
   std::vector<string > data = contents;
-  format( &data );
+  if( formatted == true ) format( &data );
 
   std::ostringstream oss;
   for( unsigned int i = 0; i < data.size(); i++ ) {

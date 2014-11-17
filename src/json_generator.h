@@ -54,7 +54,7 @@ class json_generator {
   void print();
 
   // business
-  bool write_to( string fname, string fpath );
+  bool write_to( string fname, string fpath, bool formatted );
   //template <typename T> bool add_key( T key );
   //template <typename T> bool add_value( T key );
   //template <typename T, typename Y> bool add( T key, Y value );
@@ -85,7 +85,7 @@ class json_generator {
 
   // accessors
   std::vector<string > get_contents();
-  string get_contents_string();
+  string get_contents_string( bool formatted );
   std::vector<string > get_organisation();
   string get_organisation_string();
   bool get_debug();
