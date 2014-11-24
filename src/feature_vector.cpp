@@ -60,18 +60,18 @@ bool feature_vector::setup_feature_vector( string timeStamp, config_handler *ch,
   
   set_fv_file_name( ar->get_rec_file_name_core() + get_fv_ext() );
 
-  // find all feature vector element file names
-  find_feature_vector_files( timeStamp, ch, ar );
+  if( ch->get_analysis() == true ) {
+    // find all feature vector element file names
+    find_feature_vector_files( timeStamp, ch, ar );
+    
+    // parse for feature vector base file names
+    extract_feature_vector_file_names( );
+    
+    // read all of the feature files found
+    read_features(); 
+  }
 
-  // parse for feature vector base file names
-  extract_feature_vector_file_names( );
 
-  // read all of the feature files found
-  read_features();
-
-
-  
-  
 
   cout<<cn<<mn<<" Finished basic setup."<<endl;
   
@@ -309,45 +309,35 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
   cout<<cn<<mn<<" Going to place json file to \""<<filename<<"\""<<endl;
   json_generator jg( file );
   
-  // write stuff
+
+  //write ci_rainbow administrative info
   jg.open_object();
 
-  jg.add_key(   "sampleRate" );
-  jg.add_value( utils::number_to_string<int>(ch->get_samp_rate()) );
-  //jg.add_value( ch->get_samp_rate() );
+  jg.add_pair( "date", utils::get_current_time() );
+  jg.add_pair( "type", ch->get_output_type_id() );
+  jg.add_key( "data" ); // Open data key for the ramining meta date info
 
-  jg.add_key(   "recordingNumber" );
-  jg.add_value( utils::number_to_string<int>(ch->get_rec_number()) );
-  //jg.add_value( ch->get_rec_number() );
 
-  jg.add_key(   "recordingDuration" );
-  jg.add_value( utils::number_to_string<int>(ch->get_rec_duration()) );
-  //jg.add_value( ch->get_rec_duration() );
 
-  jg.add_key(   "latitude" );
-  jg.add_value( ch->get_latitude() );
+  // write meta data info
+  jg.open_object(); // open object for 
 
-  jg.add_key(   "longitude" );
-  jg.add_value( ch->get_longitude() );
-
-  jg.add_key(   "rpid" );
-  jg.add_value( ch->get_rpid() );
-
-  jg.add_key(   "simulation" );
-  jg.add_value( ch->get_simulate()? "yes":"no" );
-
-  jg.add_key(   "filter" );
-  jg.add_value( ch->get_filter()? "yes":"no" );
-
-  jg.add_key(   "analysis" );
-  jg.add_value( ch->get_analysis()? "yes":"no" );
-
-  jg.add_key(   "configFile" );
-  jg.add_value( ch->get_config_file() );
+  jg.add_pair( "sampleRate",          ch->get_samp_rate() );
+  jg.add_pair( "recordingNumber",     ch->get_rec_number() );
+  jg.add_pair( "recordingDuration",   ch->get_rec_duration() );
+  jg.add_pair( "latitude",            ch->get_latitude() );
+  jg.add_pair( "longitude",           ch->get_longitude() );
+  jg.add_pair( "rpid",                ch->get_rpid() );
+  jg.add_pair( "datetimeOfRecording", ar->get_time_stamp() );
+  jg.add_pair( "simulation",          (ch->get_simulate()? "yes":"no") );
+  jg.add_pair( "filter",              (ch->get_filter()? "yes":"no") );
+  jg.add_pair( "analysis",            (ch->get_analysis()? "yes":"no") );
+  jg.add_pair( "dataPath",            ch->get_data_location() );
+  jg.add_pair( "configPath",          ch->get_config_file() );
 
   if( ch->get_save_rec() == true ) {
-    jg.add_key(   "mediaPath" );
-    jg.add_value( utils::pathify(ch->get_data_location()) + ar->get_rec_file_name_core() + ar->get_rec_extention() );
+    string media_path = utils::pathify(ch->get_data_location()) + ar->get_rec_file_name_core() + ar->get_rec_extention();
+    jg.add_pair( "mediaPath", media_path ); 
   }
 
   if( ch->get_analysis() == true ) {
@@ -373,29 +363,32 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
       feature_names.push_back( feature_name );
     }
     
+    
     // provide a list of the features extracted before the feature values individually
-    jg.add_key( "featureNames" );
-    jg.add_array_value( feature_names );
-    
-
+    jg.add_pair( "featureNames", feature_names );
 
     
-    // provide file names for each feature
-    jg.add_key( "featureFileNames" );
-    jg.open_object();
 
-    for( unsigned int feat_i = 0; feat_i < features.size(); feat_i++ ) {
-      jg.add_key( feature_names.at( feat_i ) );
-      jg.add_value( feature_fnames_base.at( feat_i ) );
+
+    // FILES format means we need to provide the names and paths of files from YAAFE we need to send
+    if( ch->get_final_feature_format() == "FILES" ) {
+      
+      // provide file names for each feature
+      jg.add_key( "featureFileNames" );
+      jg.open_object();
+      
+      for( unsigned int feat_i = 0; feat_i < features.size(); feat_i++ ) {
+	jg.add_pair( feature_names.at( feat_i ), feature_fnames_base.at( feat_i ) );
+      }
+      
+      jg.close_object();
     }
 
-    jg.close_object();
-    
     
 
     
-    // feature vector format means we need to provide the values of each YAAFE feature extracted
-    if( ch->get_final_feature_format() == "FV" ) {
+    // WRAPPED format means we need to provide the values of each YAAFE feature extracted in the meta data
+    if( ch->get_final_feature_format() == "WRAPPED" ) {    
       
       jg.add_key( "features" );
       jg.open_object();
@@ -411,8 +404,7 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
 	
 	// add key,vals for each detail of the feature
 	for( unsigned int det_i = 0; det_i < details.size(); det_i++ ) {
-	  jg.add_key( details.at(det_i).first );
-	  jg.add_value( details.at(det_i).second );
+	  jg.add_pair( details.at(det_i).first, details.at(det_i).second );
 	}	
 	
 	
@@ -435,8 +427,11 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
   }
 
 
-  jg.close_object(); //close whole
+  jg.close_object(); //close meta data part
   
+
+  jg.close_object(); //close whole object
+
 
   //TEST
   cout<<cn<<mn<<" TEST: Sample JSON format:"<<endl;
