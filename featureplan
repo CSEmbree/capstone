@@ -1,4 +1,6 @@
 lx: Loudness
-psp: PerceptualSpread
 psh: PerceptualSharpness
 ss: SpectralSlope
+sv: SpectralVariation
+mfcc: MFCC blockSize=512 stepSize=256 CepsNbCoeffs=11
+lpc: LPC LPCNbCoeffs=3
