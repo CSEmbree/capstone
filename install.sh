@@ -15,8 +15,14 @@ DO_UPDATE=true
 DO_COMPILE=true
 
 export SOUND_BASE_DIR=`pwd`
-export HOME_BIN="$HOME/bin/"
 
+
+# "HOME" directory is the default unless a CIRAINBOW specific path is found
+if [ -d "$CIRAINBOW" ]; then
+    export HOME_BIN="$CIRAINBOW/bin/"
+else
+    export HOME_BIN="$HOME/bin/"
+fi
 
 
 
@@ -118,6 +124,8 @@ if [ "$DO_UPDATE" = true ] ; then
 	*)        
 	    echo "WARNING: OS '$OSTYPE' UNSUPPORTED. Continuing assuming the following dependant libraries are installed and updated: '"+$DEPENDANT_LIBS+"'." ;;
     esac
+else
+    echo "Skipping update step ... "
 fi
 
 
@@ -249,6 +257,8 @@ if [ "$DO_COMPILE" = true ]; then
     echo "Preparing Raraa ... "
     make
     echo "Done."
+else
+    echo "Skipping compile step ... "
 fi
 
 
@@ -264,6 +274,8 @@ if [ "$DO_LOCAL" = false ]; then
     fi
     
     echo "Done."
+else
+    echo "Skipping script coping to global step ... "
 fi
 
 
@@ -283,7 +295,8 @@ if [ "$YAAFE_EXISTED" = false ]; then
     echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$YAAFE/lib"   >> $START_SOUND
     echo "export PYTHONPATH=\$PYTHONPATH:\$YAAFE/python_packages" >> $START_SOUND
 fi
-echo "(cd \$SOUND_BASE_DIR && ./raraa)"                           >> $START_SOUND
+echo "echo \$@"                                                   >> $START_SOUND
+echo "(cd \$SOUND_BASE_DIR && ./raraa \$@)"                   >> $START_SOUND
 
 if [ "$DO_LOCAL" = false ]; then
     cp $START_SOUND $HOME_BIN
