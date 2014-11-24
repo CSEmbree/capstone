@@ -17,6 +17,7 @@ config_handler::config_handler( string fpath, string fname = "" )
 
 
   if( fpath == "" ) fpath = utils::get_home_dir();
+  if( fname == "" ) utils::get_base( fpath );
   if( fname == "" ) fname = "cirainbow.conf";
 
   // make sure default or custom config file is found
@@ -78,7 +79,8 @@ void config_handler::init() {
   set_longitude( "0.0000° W" ); // TODO - make hardcoded elsewhere 
   set_rpid( "-1" );
 
-  set_final_feature_format( "YAAFE" ); //Foramts: YAAFE, FV
+  set_final_feature_format( "WRAPPED" ); //Foramts: WRAPPED, FILES
+  set_output_type_id( 0 ); //Numeric represetning the type of data this is. TODO - WHAT SHOULD THIS BE?
 
   set_simulate( false ); //simulate a run (dont actually do one).
   set_simulate_dir( "" ); //default sim data dir
@@ -229,6 +231,9 @@ void config_handler::read_config( string fname="" ) {
 	  
 	} else if ( optionName == "outputform" ) {
 	  set_final_feature_format( optionValue );
+
+	} else if ( optionName == "outputtypeid" ) {
+	  set_output_type_id( utils::string_to_number<int>( optionValue ) );
 	  
 	} else if ( optionName == "outputhumanreadable" ) {
 	  if( optionValue == "on"  ) set_output_formatted( true  );
@@ -287,8 +292,8 @@ void config_handler::read_config( string fname="" ) {
 
     if( get_simulate_dir() == "" ) {
 
-      if( get_final_feature_format() == "FV" )         simDataDir += "data_fv/";
-      else if( get_final_feature_format() == "YAAFE" ) simDataDir += "data_yaafe/";
+      if( get_final_feature_format() == "WRAPPED" )    simDataDir += "data_fv/";
+      else if( get_final_feature_format() == "FILES" ) simDataDir += "data_yaafe/";
   
       set_simulate_dir( simDataDir ); 
     }
@@ -324,6 +329,7 @@ void config_handler::print() {
       <<"\n"<<setw(w1)<<"FILTER FIRST: "                <<setw(w2)<<(get_filter()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"SAVE RECORDINGS: "             <<setw(w2)<<(get_save_rec()? "ON":"OFF")
       <<"\n"<<setw(w1)<<"HUMAN READABLE OUTPUT: "       <<setw(w2)<<(get_output_formatted()? "ON":"OFF")
+      <<"\n"<<setw(w1)<<"Output Type ID: "              <<setw(w2)<<"\""<<get_output_type_id()<<"\""
       <<"\n"<<setw(w1)<<"RPi Latitude: "                <<setw(w2)<<"\""<<get_latitude()<<"\""
       <<"\n"<<setw(w1)<<"RPi Longitude: "               <<setw(w2)<<"\""<<get_longitude()<<"\""
       <<"\n"<<setw(w1)<<"RPi ID: "                      <<setw(w2)<<"\""<<get_rpid()<<"\""
@@ -473,6 +479,7 @@ string config_handler::get_latitude() { return latitude; };
 string config_handler::get_longitude() { return longitude; };
 string config_handler::get_rpid() { return rpid; };
 string config_handler::get_final_feature_format() { return final_feature_format; };
+int config_handler::get_output_type_id() { return output_type_id; };
 
 
 
@@ -646,4 +653,9 @@ bool config_handler::set_final_feature_format( string feature ) {
   return true; // TODO - impliment
 }
 
+
+bool config_handler::set_output_type_id( int outputid ) {
+  output_type_id = outputid;
+  return true; // TODO - impliment
+}
 

@@ -56,6 +56,7 @@ class config_handler {
   string rpid;
 
   string final_feature_format;
+  int output_type_id;
 
   void init();  
   
@@ -108,6 +109,7 @@ class config_handler {
   bool set_output_formatted( bool status );
 
   bool set_final_feature_format( string format );
+  bool set_output_type_id( int outputid );
   
 
 
@@ -148,6 +150,7 @@ class config_handler {
   string get_simulate_dir();
 
   string get_final_feature_format();
+  int get_output_type_id();
 
  };
 
