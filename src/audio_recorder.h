@@ -34,6 +34,7 @@ class audio_recorder {
   string rec_location;
   string rec_extention;
   int rec_duration;
+  string time_stamp;
 
   void init();
   bool set_rec_file_name_prefix( string recfilenameprefix );
@@ -43,6 +44,7 @@ class audio_recorder {
   bool set_rec_location( string loc );
   bool set_rec_extention( string ext );
   bool set_rec_duration( int dur );
+  bool set_time_stamp( string timestamp );
 
   
  public:
@@ -65,6 +67,7 @@ class audio_recorder {
   string get_rec_location();
   string get_rec_extention();
   int get_rec_duration();
+  string get_time_stamp();
 
 
 };

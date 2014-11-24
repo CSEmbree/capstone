@@ -34,6 +34,7 @@ void audio_recorder::init() {
   set_rec_file_name_base  ( "" );
   set_rec_file_name_core  ( "" );
   set_rec_file_name_prefix( "" );
+  set_time_stamp          ( "" );
   set_rec_duration        ( 1 ); //each recording is 1 sec by default
 
   cout<<cn<<mn<<" init complete."<<endl;
@@ -67,6 +68,10 @@ void audio_recorder::record( string ts, int dur) {
   int duration = dur;
   if( timeStamp == "" )  timeStamp = utils::make_time_stamp();
   if( duration == -1 )   duration = get_rec_duration();
+
+
+  // remember the time stamp used for recording
+  set_time_stamp( timeStamp );
 
 
   // create recording file name from config and env details
@@ -206,7 +211,7 @@ void audio_recorder::print() {
   int w1=25; //arbitrary spacing size that makes formatting look pretty for data names
   int w2=50; //arbitrary spacing size that makes formatting look pretty for data options
 
-  
+
   cout<<cn<<mn<<" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
       <<"\n"<<setw(w1)<<"DEBUG: "                <<setw(w2)<<(debug? "ON":"OFF")
       <<"\n"<<setw(w1)<<"Rec File Name Core: "   <<setw(w2)<<"\""<<get_rec_file_name_core()<<"\""
@@ -215,10 +220,29 @@ void audio_recorder::print() {
       <<"\n"<<setw(w1)<<"Rec File Name Prefix: " <<setw(w2)<<"\""<<get_rec_file_name_prefix()<<"\""
       <<"\n"<<setw(w1)<<"Rec File Location: "    <<setw(w2)<<"\""<<get_rec_location()<<"\""
       <<"\n"<<setw(w1)<<"Rec File Extention: "   <<setw(w2)<<"\""<<get_rec_extention()<<"\""
-      <<"\n"<<setw(w1)<<"Rec File Duration: "    <<setw(w2)<<"\""<<get_rec_duration()<<"\""<<endl;
+      <<"\n"<<setw(w1)<<"Rec File Duration: "    <<setw(w2)<<"\""<<get_rec_duration()<<"\""
+      <<"\n"<<setw(w1)<<"Rec Time Stamp: "       <<setw(w2)<<"\""<<get_time_stamp()<<"\""<<endl;
   cout<<cn<<mn<<" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"<<endl;            
   
   return;
+}
+
+
+
+bool audio_recorder::set_time_stamp( string timestamp ) {
+
+  string mn = "set_time_stamp:";
+  bool res = false;
+
+  if ( timestamp != "" ) {
+    time_stamp = timestamp;
+    res = true;
+  } else {
+    cerr<<cn<<mn<<" WARN: Time stamp could not be set!"<<endl;
+    res = true;
+  }
+
+  return res;
 }
 
 
@@ -341,6 +365,11 @@ bool audio_recorder::set_rec_duration( int dur ) {
   }
 
   return res;
+}
+
+
+string audio_recorder::get_time_stamp() {
+  return time_stamp;
 }
 
 
