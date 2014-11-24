@@ -58,8 +58,21 @@ class json_generator {
   //template <typename T> bool add_key( T key );
   //template <typename T> bool add_value( T key );
   //template <typename T, typename Y> bool add( T key, Y value );
+  
+  void add_pair( string key, string value );
+  void add_pair( string key, long int value );
+  void add_pair( string key, int value );
+  void add_pair( string key, double value );
+  void add_pair( string key, std::vector<string> value );  
+  void add_pair( string key, std::vector<int> value );  
+  void add_pair( string key, std::vector<double> value );  
+
+
   bool add_key( string key );
   bool add_value( string key );
+  bool add_value( double key );
+  bool add_value( int key );
+  bool add_value( long int key );
   bool add_value( std::vector<string > values );
   bool add_value( std::vector<int > values );
   bool add_value( std::vector<double > values );

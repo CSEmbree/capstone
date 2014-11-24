@@ -45,6 +45,45 @@ void json_generator::init() {
 }
 
 
+
+
+void json_generator::add_pair( string key, string value ) {
+  add_key( key );
+  add_value( value );
+}
+
+void json_generator::add_pair( string key, long int value ) {
+  add_key( key );
+  add_value( value );
+}
+
+void json_generator::add_pair( string key, int value ) {
+  add_key( key );
+  add_value( value );
+}
+
+void json_generator::add_pair( string key, double value ) {
+  add_key( key );
+  add_value( value );
+}
+
+void json_generator::add_pair( string key, std::vector<string> value ) {
+  add_key( key );
+  add_array_value( value );
+}
+
+void json_generator::add_pair( string key, std::vector<int> value ) {
+  add_key( key );
+  add_array_value( value );
+}
+
+void json_generator::add_pair( string key, std::vector<double> value ) {
+  add_key( key );
+  add_array_value( value );
+}
+
+
+
 //template <typename T> bool json_generator::add_key( T key ) {
 bool json_generator::add_key( string key ) {
 
@@ -83,6 +122,46 @@ bool json_generator::add_value( string value ) {
 
   std::ostringstream oss;
   oss << els << value << els;
+
+  int last_index = contents.size() - 1;
+  contents.at(last_index) = contents.back() + oss.str();
+  organisation.push_back( pos(contents.size()-1) + mn );
+
+
+  if(db) cout<<cn<<mn<<" Added value: \""<<value<<"\""<<endl;
+
+  return res;
+}
+
+
+bool json_generator::add_value( int value ) {
+  bool res = true;
+
+  long int val = value;
+  add_value( val );
+
+  return res;
+}
+
+
+bool json_generator::add_value( long int value ) {
+  bool res = true;
+
+  double val = value;
+  add_value( val );
+
+  return res;
+}
+
+
+bool json_generator::add_value( double value ) {
+
+  string mn = "add_value:";
+  bool res = true;
+
+
+  std::ostringstream oss;
+  oss << value;
 
   int last_index = contents.size() - 1;
   contents.at(last_index) = contents.back() + oss.str();
