@@ -313,7 +313,7 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
   //write ci_rainbow administrative info
   jg.open_object();
 
-  jg.add_pair( "date", utils::get_current_time() );
+  jg.add_pair( "date", utils::get_current_date_time() );
   jg.add_pair( "type", ch->get_output_type_id() );
   jg.add_key( "data" ); // Open data key for the ramining meta date info
 
