@@ -30,6 +30,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/time.h>
 
 
 //#include "config_handler.h"
@@ -77,6 +78,18 @@ class utils {
     };
 
 
+  static bool is_pos_int( const string &line ) {
+    bool res = true;
+
+    if (line[0] == '0')  {
+      res = true;
+    } else  {
+      res = atoi( line.c_str() );
+    }
+
+    return res;
+  }
+
 
   
   static void error_msg( const string err ) {
@@ -91,6 +104,28 @@ class utils {
     cout<<" An error log \""<<errorFileName<<"\"has been generated"<<endl;
   };
 
+
+  static long int get_current_time() {
+    
+    struct timeval tp;
+    gettimeofday( &tp, NULL );
+    long int res = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+
+    return res;
+  }
+
+
+  // CITE: http://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
+  static const string get_current_date_time() {
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+
+    strftime(buf, sizeof(buf), "%Y-%m-%d_%X", &tstruct);
+
+    return buf;
+  }
 
 
   static string make_time_stamp() {
@@ -316,14 +351,23 @@ class utils {
     string hd = "";
     
     char* hdChar;
-    hdChar = getenv( "HOME" );
+
+    // Home directory order is CIRAINBOWPATH then HOME then cwd
+    hdChar = getenv( "CIRAINBOWPATH" );
     if ( hdChar != NULL ) {
       hd = string(hdChar);
-      //cout<<mn<<" Home env found: \""<<hd<<"\"."<<endl;
     } else {
-      hd = get_cwd();
-      cerr<<mn<<" WARN: Home directory env var not found! Assuming cwd: \""<<hd<<"\"."<<endl;
-    }
+      hdChar = getenv( "HOME" );
+
+      if ( hdChar != NULL ) {
+	hd = string(hdChar);
+      } else {
+	hd = get_cwd();
+	cerr<<mn<<" WARN: Home directory env var not found! Assuming cwd: \""<<hd<<"\"."<<endl;
+      }
+    }    
+
+    //cout<<mn<<" Home env found: \""<<hd<<"\"."<<endl;
     
     return pathify(hd);
   }
@@ -365,6 +409,18 @@ class utils {
     return res;
   }
   
+
+  static string get_directory_path( string str ) {
+    string dir = "";
+    const size_t last_slash_index = str.rfind('/');
+
+    if ( std::string::npos != last_slash_index ) {
+      dir = str.substr(0, last_slash_index);
+    }
+   
+
+    return dir;
+  }
   
 
   /*
