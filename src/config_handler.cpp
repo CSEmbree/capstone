@@ -89,7 +89,7 @@ void config_handler::init() {
   set_filter( false ); //filtering is ONLY done if requested
   set_analysis( false ); //feature extraction only done if user wants it
   set_save_rec( true ); //Always save recordings by default
-  set_output_formatted( true ); //Make sense to always format output
+  set_output_formatted( true ); //It makes sense to always format output
 
   return;
 }
