@@ -32,8 +32,9 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
+#include "json_generator.h"
 
-//#include "config_handler.h"
+#include "config_handler.h"
 //#include "audio_recorder.h"
 
 #ifndef   NI_MAXHOST
@@ -77,6 +78,46 @@ class utils {
       return ss.str();
     };
 
+  
+  static bool out_json( int type, string msg, bool format, string fname="", string path="" ) {
+    
+    bool res = true;
+    string DEFAULT_FNAME = "sound_script_msg";
+    string DEFAULT_FPATH = pathify( get_home_dir() );
+
+    int    msg_type   = type;
+    string msg_data   = msg;
+    bool   format_out = true;
+    string file_name  = fname;
+    string file_path  = pathify( path );
+
+    // ensure optional arguments are valid
+    if ( file_name == "" ) file_name = DEFAULT_FNAME;
+    if ( file_path == "" ) file_path = DEFAULT_FPATH;
+
+    string file = file_path + file_name;
+
+
+
+    // set up JSON formatted file with user's info
+    json_generator jg( file );
+    
+    jg.open_object();
+    
+    jg.add_pair( "date", utils::get_current_time() );
+    jg.add_pair( "type", msg_type );
+    jg.add_pair( "data", msg_data );
+    
+    jg.close_object();
+
+
+    
+    res = jg.write_to( file_name, file_path, format_out );
+
+    
+    return res;
+  }
+
 
   static bool is_pos_int( const string &line ) {
     bool res = true;
@@ -91,7 +132,14 @@ class utils {
   }
 
 
-  
+  static string gen_unique_id() {
+    std::srand( std::time( 0 ) ); // use current time as seed for random generator
+    int ran_num = std::rand() % 10000;
+    
+    return number_to_string( ran_num );
+  }
+
+  /*  
   static void error_msg( const string err ) {
     ofstream myfile;
     string errorFileName = "logs/error.log";
@@ -103,6 +151,7 @@ class utils {
 
     cout<<" An error log \""<<errorFileName<<"\"has been generated"<<endl;
   };
+  */
 
 
   static long int get_current_time() {
