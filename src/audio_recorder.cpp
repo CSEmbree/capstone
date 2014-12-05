@@ -34,7 +34,7 @@ void audio_recorder::init() {
   set_rec_file_name_base  ( "" );
   set_rec_file_name_core  ( "" );
   set_rec_file_name_prefix( "" );
-  set_time_stamp          ( "" );
+  set_time_stamp          ( utils::make_time_stamp() );
   set_rec_duration        ( 1 ); //each recording is 1 sec by default
 
   cout<<cn<<mn<<" init complete."<<endl;
@@ -57,9 +57,10 @@ void audio_recorder::apply_config_settings( config_handler ch ) {
 }
 
 
-void audio_recorder::record( string ts, int dur) {
+bool audio_recorder::record( string ts, int dur) {
 
   string mn = "record:";
+  bool res = true;
   cout<<cn<<mn<<" Making a recording ... "<<endl;
 
 
@@ -71,12 +72,12 @@ void audio_recorder::record( string ts, int dur) {
 
 
   // remember the time stamp used for recording
-  set_time_stamp( timeStamp );
+  res = set_time_stamp( timeStamp );
 
 
   // create recording file name from config and env details
   string audioRecName = make_audio_file_name( timeStamp );
-  set_rec_file_name( audioRecName );
+  res = set_rec_file_name( audioRecName );
 
 
   // create a system command to make the recording
@@ -86,8 +87,11 @@ void audio_recorder::record( string ts, int dur) {
   //make audio recording
   system(recCmd.c_str());
     
+  //TODO - make sure recording works, report error if there is one!
+
 
   cout<<cn<<mn<<" Finished a recording called \""<<audioRecName<<"\"."<<endl;
+  return res;
 }
 
 
@@ -241,7 +245,7 @@ bool audio_recorder::set_time_stamp( string timestamp ) {
     cerr<<cn<<mn<<" WARN: Time stamp could not be set!"<<endl;
     res = true;
   }
-
+  
   return res;
 }
 

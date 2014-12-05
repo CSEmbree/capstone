@@ -52,7 +52,7 @@ class audio_recorder {
   audio_recorder( config_handler ch );
 
   void apply_config_settings( config_handler ch );
-  void record( string ts="", int dur=-1 ); //default recording length is 1 second
+  bool record( string ts="", int dur=-1 ); //default recording length is 1 second
   string make_rec_cmd( const string fileName, const int dur=-1 );
   string make_rec_cmd( const string fileName, const string dur="-1" );
   string make_audio_file_name_core(string timeStamp, string recPrefix="" );
