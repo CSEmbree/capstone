@@ -364,14 +364,16 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
     }
     
     
-    // provide a list of the features extracted before the feature values individually
-    jg.add_pair( "featureNames", feature_names );
+
 
     
 
 
     // FILES format means we need to provide the names and paths of files from YAAFE we need to send
     if( ch->get_final_feature_format() == "FILES" ) {
+
+      // provide a list of the features extracted before the feature values individually
+      jg.add_pair( "featureNames", feature_names );
       
       // provide file names for each feature
       jg.add_key( "featureFileNames" );
@@ -390,6 +392,9 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
     // WRAPPED format means we need to provide the values of each YAAFE feature extracted in the meta data
     if( ch->get_final_feature_format() == "WRAPPED" ) {    
       
+      // provide a list of the features extracted before the feature values individually
+      jg.add_pair( "featureNames", feature_names );
+
       jg.add_key( "features" );
       jg.open_object();
       
