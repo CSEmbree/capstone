@@ -58,11 +58,50 @@ bool do_filter_feature_extraction( config_handler *ch, audio_recorder *ar ) {
 }
 
 
+bool rm_filter_features( config_handler *ch, audio_recorder *ar) {
+
+  string mn = "rm_filter_features:";
+  bool res = true;
+  cout<<n<<mn<<" removing filter features ... "<<endl;
+  
+
+  string analysis_dir = ch->get_analysis_location();
+  string audio_fname  = ar->get_rec_file_name_core() + ar->get_rec_extention(); 
+
+
+  
+  //CMD SYNTAX: find analysis_dir -type f -not -name audio_fname | xargs rm
+  stringstream rmFiltersCmd;
+  rmFiltersCmd << "find "
+	       << analysis_dir
+	       << " -type f -not -name "
+	       << "'" << "dir.info" << "'"
+	       << " -not -name "
+	       << "'" << audio_fname<< "'"
+	       << " | xargs rm";
+  
+
+  cout<<"TEST: "<<rmFiltersCmd.str()<<endl;
+
+  
+  int ret;
+  if( !(ret = system(rmFiltersCmd.str().c_str())) ) {
+    //SUCCESS - alert user to removal of filter features
+    cout<<n<<mn<<" Finished filter feature removal ... "<<endl;
+  } else {
+    res = false;
+  }
+
+    
+  return res;
+}
+
 bool do_feature_extraction( config_handler *ch, audio_recorder *ar ) {
 
   string mn = "do_feature_extraction:";
+  bool res = true;
   cout<<n<<mn<<" Performing full feature extraction ... "<<endl;
-  bool res = true; // TODO - only true if succesful extraction
+
 
 
 
@@ -102,8 +141,8 @@ bool move_features( config_handler *ch, audio_recorder *ar ) {
 
 
   stringstream deployCmd;
-  deployCmd << "bash -c 'cp " << ar->get_rec_file_name_base()<<"* "
-	    << " " << ch->get_data_location()
+  deployCmd << "bash -c 'cp " << ar->get_rec_file_name_base() << "* "
+	    << " " << utils::pathify( ch->get_media_location() )
 	    << "' "; 
   
   cout<<n<<mn<<" Copying analysis with: \""<<deployCmd.str().c_str()<<"\""<<endl;
@@ -134,8 +173,8 @@ bool move_audio( config_handler *ch, audio_recorder *ar ) {
 
 
   stringstream deployCmd;
-  deployCmd << "bash -c 'cp " << ar->get_rec_file_name_base()<<ch->get_rec_extention()
-	    << " " << ch->get_data_location()
+  deployCmd << "bash -c 'mv " << ar->get_rec_file_name_base() << ch->get_rec_extention()
+	    << " " << utils::pathify( ch->get_media_location() )
 	    << "' "; 
   
   cout<<n<<mn<<" Copying audio with: \""<<deployCmd.str().c_str()<<"\""<<endl;
@@ -154,6 +193,33 @@ bool move_audio( config_handler *ch, audio_recorder *ar ) {
 
 
   return res; //TODO - only be true if copy was succesful
+}
+
+
+
+bool rm_audio( config_handler *ch, audio_recorder *ar ) {
+
+  string mn = "rm_audio:";
+  bool res = true;
+  cout<<n<<mn<<" removing audio file  ... "<<endl;
+
+
+  string audio = ch->get_analysis_location() + ar->get_rec_file_name_core() + ar->get_rec_extention();
+
+  stringstream rmAudioCmd;
+  rmAudioCmd << "rm " << audio;
+
+
+  int ret;
+  if( !(ret = system(rmAudioCmd.str().c_str())) ) {
+    //SUCCESS - alert user to removal of audio                                                                  
+    cout<<n<<mn<<" Finished audio removal ... "<<endl;
+  } else {
+    res = false;
+  }
+
+
+  return res;
 }
 
 
@@ -511,24 +577,22 @@ int main(int argc, char **argv) {
       }
       
       
-      //spawn a child to extract features from audio for each recording
-      if( ch.get_analysis() == true ) {
-	childpid = fork();
+      //spawn a child to extract features from audio for each recording and wrap data up
+      childpid = fork();
+      
+      // ensure child exists to handle audio analysis
+      if( childpid == -1 ) {
+	string emsg = " ERROR: (fork) Failed to create a child for recoding analysis! (pid:"
+	  +utils::number_to_string((long)getpid())+"). ";	  
 	
-	// ensure child exists to handle audio analysis
-	if( childpid == -1 ) {
-	  string emsg = " ERROR: (fork) Failed to create a child for recoding analysis! (pid:"
-	    +utils::number_to_string((long)getpid())+"). ";	  
-	  
-	  err( emsg, &ch );
-	  
-	  return 1; //ERROR - fork failed - kill process?!
-	}
-	
-	if( childpid == 0 ) {
-	  break; // Allow child to leave home and perform analysis
-	}
+	err( emsg, &ch );
+	// return 1; //ERROR - fork failed - kill process?!
       }
+      
+      if( childpid == 0 ) {
+	break; // Allow child to leave home and perform analysis
+      }
+      
       
     }
     
@@ -564,17 +628,23 @@ int main(int argc, char **argv) {
 	//---------ANALYIZE FILTER FEATURES----------
 	// Analyize the features for a filter to look for interesting features
 	interesting = filters::perceptual_sharpness(ar.get_rec_file_name()+".ps.csv");    
+
+	// Remove any filter features extracted now that we have determined if audio was interesting (or not)
+	rm_filter_features( &ch, &ar );
+
 	cout<<n<<mn<<" Completed filter analysis (child pid \""<<(long)getpid()<<"\")."
 	    <<" Interesting: "<<(interesting? "YES!":"NO!")<<endl; 
       } else {
 	cout<<n<<mn<<" No feature filtering is being performed. "<<endl;
       }    
+
+
       
       
       
       //---------EXTRACT MORE FEATURES IF INTERSTING----------
       // if a feature was interesting we need to extract more features and deploy them
-      if( interesting == true ) {
+      if( interesting == true && ch.get_analysis() == true ) {
 	
 	evres = do_feature_extraction( &ch, &ar );    
 	
@@ -595,8 +665,9 @@ int main(int argc, char **argv) {
       // Move audio and features extracted to data deployment based on user's desired formats
       
       
-      // Keeping or disgarding audio is not a function of the final data format
-      if( ch.get_save_rec() == true ) {
+      // Keeping or disgarding audio if we are told to keep it or a filter says it is intersting
+      if( ch.get_save_rec() == true && interesting == true ) {
+	
 	evres = move_audio( &ch, &ar );
 
 	if( evres == false ) {
@@ -605,51 +676,67 @@ int main(int argc, char **argv) {
 
 	  err( emsg, &ch );
 	}
-      }      
-      
-      
-      
-      //---------CREATE A Feature Vector & metadata from extracted features----------
-      // Create a feature vector as json foramtted file
-      cout<<n<<mn<<" Creating a feature vector ... "<<endl;      
-      feature_vector fv( timeStamp, &ch, &ar ); //TEST
-      
-      
-      // Write feature vector and meta data inforamtion
-      evres = fv.write( &ch, &ar );
-      
-      if( evres == false ) {
-	string emsg = "ERROR: Failed to write feature vector meta data file! (pid:"
-	  + utils::number_to_string( (long)getpid()) + ")";
 
-	err( emsg, &ch );
+      } else {
+	
+	evres = rm_audio( &ch, &ar );
+
+	if( evres == false ) {
+	  string emsg = " ERROR: Failed to remove audio file! (child pid:"
+            +utils::number_to_string((long)getpid())+"). ";
+
+	  err( emsg, &ch );
+	}
       }
       
-      
 
-      // Save YAAFE files if user wants them
-      if( ch.get_final_feature_format() == "FILES" ) {
-	cout<<n<<mn<<" Moving features extracted to deployment ... "<<endl;
-	evres = move_features( &ch, &ar ); // Move YAAFE features extracted
 
+      //---------CREATE A Feature Vector & metadata from extracted features----------      
+      if( interesting == true ) {
+
+	// What we found was interesting (so worth saving)!
+
+
+	// Create a feature vector as json foramtted file
+	cout<<n<<mn<<" Creating a feature vector ... "<<endl;      
+	feature_vector fv( timeStamp, &ch, &ar ); 
 	
-	if( evres == true ) {
-	  cout<<" Finished moving features and meta data to data deployment. "
-	      <<"(child pid \""<<(long)getpid()<<"\")."<<endl;
-	} else {
-	  string emsg = "ERROR: Failed to move YAAFE features to data dir! (child pid:"
+	
+	// Write feature vector and meta data inforamtion
+	evres = fv.write( &ch, &ar );
+	
+	if( evres == false ) {
+	  string emsg = "ERROR: Failed to write feature vector meta data file! (pid:"
 	    + utils::number_to_string( (long)getpid()) + ")";
 	  
 	  err( emsg, &ch );
 	}
-      }    
+	
+	
+	
+	// Save YAAFE files if user wants them
+	if( ch.get_final_feature_format() == "FILES" ) {
+	  cout<<n<<mn<<" Moving features extracted to deployment ... "<<endl;
+	  evres = move_features( &ch, &ar ); // Move YAAFE features extracted
+	  
+	  
+	  if( evres == true ) {
+	    cout<<" Finished moving features and meta data to data deployment. "
+		<<"(child pid \""<<(long)getpid()<<"\")."<<endl;
+	  } else {
+	    string emsg = "ERROR: Failed to move YAAFE features to data dir! (child pid:"
+	      + utils::number_to_string( (long)getpid()) + ")";
+	    
+	    err( emsg, &ch );
+	  }
+	}    
+      }
       
       
-
       
       
-
-      // delete all tmp local files after user requested ones are moved to data deployment directory
+      
+      // always delete all tmp local files after user requested ones are moved to data deployment directory
       evres = clean_analysis_workspace( timeStamp, &ch, &ar );
       
       if(evres == true) {
