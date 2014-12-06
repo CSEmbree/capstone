@@ -1,0 +1,31 @@
+{
+  "date": "2014-12-06_18:45:39",
+  "type": 5,
+  "files": [ "rec_D-6-11-114_T-33-45-18.wav", "rec_D-6-11-114_T-33-45-18.wav.sv.csv", "rec_D-6-11-114_T-33-45-18.wav.psh.csv", "rec_D-6-11-114_T-33-45-18.wav.lpc.csv", "rec_D-6-11-114_T-33-45-18.wav.mfcc.csv", "rec_D-6-11-114_T-33-45-18.wav.lx.csv", "rec_D-6-11-114_T-33-45-18.wav.ss.csv" ],
+  "data": 
+  {
+    "sampleRate": 44100,
+    "recordingNumber": 1,
+    "recordingDuration": 1,
+    "latitude": "17.2343432",
+    "longitude": "-119.23423423",
+    "rpid": "-1",
+    "datetimeOfRecording": "D-6-11-114_T-33-45-18",
+    "simulation": "no",
+    "filter": "yes",
+    "analysis": "yes",
+    "dataPath": "/home/pi/sounds/data/",
+    "configPath": "/home/pi/sounds/sound_settings.conf",
+    "mediaPath": "/home/pi/sounds/data/media/rec_D-6-11-114_T-33-45-18.wav",
+    "featureNames": [ "SpectralVariation", "PerceptualSharpness", "LPC", "MFCC", "Loudness", "SpectralSlope" ],
+    "featureFileNames": 
+    {
+      "SpectralVariation": "rec_D-6-11-114_T-33-45-18.wav.sv.csv",
+      "PerceptualSharpness": "rec_D-6-11-114_T-33-45-18.wav.psh.csv",
+      "LPC": "rec_D-6-11-114_T-33-45-18.wav.lpc.csv",
+      "MFCC": "rec_D-6-11-114_T-33-45-18.wav.mfcc.csv",
+      "Loudness": "rec_D-6-11-114_T-33-45-18.wav.lx.csv",
+      "SpectralSlope": "rec_D-6-11-114_T-33-45-18.wav.ss.csv"
+    }
+  }
+}
