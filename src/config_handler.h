@@ -16,6 +16,21 @@
 class config_handler {
  private:
 
+  static const string DEF_CONFIG_NAME;
+  static const string DEF_FILTER_NAME;
+  static const string DEF_FEATURE_NAME;
+  static const string DEF_REC_PREFIX;
+  static const string DEF_REC_EXT;
+  static const string DEF_FINAL_FORMAT;
+  static const string DEF_LAT;
+  static const string DEF_LON;
+  static const string DEF_RPID;
+  static const int    DEF_SOUND_ID;
+  static const string DEF_DATA_DIR;
+  static const string DEF_ANALYSIS_DIR;
+  static const string DEF_MEDIA_DIR;
+
+
   bool debug;
   string cn; //class name
 
@@ -32,7 +47,7 @@ class config_handler {
   string fv_file;
 
   string rec_file_name_prefix;
-  string rec_location;
+  string media_location;
   string rec_extention;
   
   string data_location;
@@ -84,7 +99,7 @@ class config_handler {
   bool set_fv_file( string fvfile );
 
   bool set_rec_file_name_prefix( string prefix );
-  bool set_rec_location( string loc );
+  bool set_media_location( string loc );
   bool set_rec_extention( string ext );
 
   bool set_data_location( string loc );
@@ -126,7 +141,7 @@ class config_handler {
   string get_fv_file();
 
   string get_rec_file_name_prefix();  
-  string get_rec_location();
+  string get_media_location();
   string get_rec_extention();
 
   string get_data_location();

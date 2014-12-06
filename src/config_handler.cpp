@@ -51,36 +51,55 @@ config_handler::config_handler( string fpath, string fname = "" )
 
 void config_handler::init() {
 
+  //  const std::string MyClass::valid = "something else again";
+
+  const string DEF_CONFIG_NAME  = "cirainbow.conf";
+  const string DEF_FILTER_NAME  = "featureplan_filter";
+  const string DEF_FEATURE_NAME = "featureplan";
+  const string DEF_REC_PREFIX   = "rec_";
+  const string DEF_REC_EXT      = ".wav";
+  const string DEF_FINAL_FORMAT = "WRAPPED";
+  const string DEF_LAT          = "0.0000 N";
+  const string DEF_LON          = "0.0000 W";
+  const string DEF_RPID         = "-1";
+  const int    DEF_SOUND_ID     = 0; // TODO - What should this be by default?
+
+  const string DEF_DATA_DIR     = "data/";
+  const string DEF_ANALYSIS_DIR = "analysis/";
+  const string DEF_MEDIA_DIR    = "media/";
+
+
+
   cn = " config_handler::";
   set_config_file_path ( utils::get_home_dir() );
-  set_config_file_name ( "cirainbow.conf" ); // TODO - make hardcoded elsewhere 
+  set_config_file_name ( DEF_CONFIG_NAME ); // TODO - make hardcoded elsewhere 
   set_config_file      ( get_config_file_path() + get_config_file_name() ); 
 
   set_fv_filter_path   ( utils::get_base_dir() ); 
-  set_fv_filter_name   ( "featureplan_filter" ); 
+  set_fv_filter_name   ( DEF_FILTER_NAME ); 
   set_fv_filter        ( get_fv_filter_path() + get_fv_filter_name() ); 
   
   set_fv_file_path     ( utils::get_base_dir() ); 
-  set_fv_file_name     ( "featureplan" ); 
+  set_fv_file_name     ( DEF_FEATURE_NAME ); 
   set_fv_file          ( get_fv_file_path() + get_fv_file_name() ); 
-
-  set_rec_file_name_prefix( "rec_" ); // TODO - make hardcoded elsewhere 
-  set_rec_location        ( utils::get_base_dir() + "analysis/" ); // TODO - make hardcoded elsewhere 
-  set_rec_extention       ( ".wav" ); // TODO - make hardcoded elsewhere 
   
-  set_data_location       ( utils::get_base_dir() + "data/" ); //TODO - make hardcoded elsewhere
-  set_analysis_location   ( utils::get_base_dir() + "analysis/" ); // TODO - make hardcoded elsewhere 
+  set_data_location       ( utils::get_base_dir() + DEF_DATA_DIR ); //TODO - make hardcoded elsewhere
+  set_analysis_location   ( utils::get_base_dir() + DEF_ANALYSIS_DIR ); // TODO - make hardcoded elsewhere 
+
+  set_rec_file_name_prefix( DEF_REC_PREFIX ); // TODO - make hardcoded elsewhere 
+  set_media_location      ( get_data_location() + DEF_MEDIA_DIR ); // TODO - make hardcoded elsewhere 
+  set_rec_extention       ( DEF_REC_EXT ); // TODO - make hardcoded elsewhere 
   
   set_samp_rate    ( -1 ); 
   set_rec_number   ( -1 ); 
   set_rec_duration ( -1 ); 
 
-  set_latitude( "0.0000° N" ); // TODO - make hardcoded elsewhere 
-  set_longitude( "0.0000° W" ); // TODO - make hardcoded elsewhere 
-  set_rpid( "-1" );
+  set_latitude( DEF_LAT ); // TODO - make hardcoded elsewhere 
+  set_longitude( DEF_LON ); // TODO - make hardcoded elsewhere 
+  set_rpid( DEF_RPID );
 
-  set_final_feature_format( "WRAPPED" ); //Foramts: WRAPPED, FILES
-  set_output_type_id( 0 ); //Numeric represetning the type of data this is. TODO - WHAT SHOULD THIS BE?
+  set_final_feature_format( DEF_FINAL_FORMAT ); //Foramts: WRAPPED, FILES
+  set_output_type_id( DEF_SOUND_ID ); //Numeric represetning the type of data this is. TODO - WHAT SHOULD THIS BE?
 
   set_simulate( false ); //simulate a run (dont actually do one).
   set_simulate_dir( "" ); //default sim data dir
@@ -208,8 +227,8 @@ void config_handler::read_config( string fname="" ) {
 	} else if ( optionName == "recordingextention" ) {
 	  set_rec_extention( optionValue );
 	  
-	} else if ( optionName == "recordinglocation" ) {
-	  set_rec_location( optionValue );
+	} else if ( optionName == "medialocation" ) {
+	  set_media_location( optionValue );
 	  
 	} else if ( optionName == "datalocation" ) {
 	  set_data_location( optionValue );
@@ -346,7 +365,7 @@ void config_handler::print() {
       <<"\n"<<setw(w1)<<"Feature Vector File: "         <<setw(w2)<<"\""<<get_fv_file()<<"\""
       <<"\n"<<setw(w1)<<"Analysis File(s) Path: "       <<setw(w2)<<"\""<<get_analysis_location()<<"\""
       <<"\n"<<setw(w1)<<"Data File(s) Path: "           <<setw(w2)<<"\""<<get_data_location()<<"\""
-      <<"\n"<<setw(w1)<<"Recording Location File Path: "<<setw(w2)<<"\""<<get_rec_location()<<"\""
+      <<"\n"<<setw(w1)<<"Media Location File Path: "    <<setw(w2)<<"\""<<get_media_location()<<"\""
       <<"\n"<<setw(w1)<<"Recording Extention: "         <<setw(w2)<<"\""<<get_rec_extention()<<"\""
       <<"\n"<<setw(w1)<<"Recording File Name Prefix: "  <<setw(w2)<<"\""<<get_rec_file_name_prefix()<<"\""
       <<"\n"<<setw(w1)<<"Recording Rate: "              <<setw(w2)<<"\""<<get_samp_rate()<<"\""
@@ -461,7 +480,7 @@ string config_handler::get_fv_file() {
   return fv_file; 
 }
 string config_handler::get_rec_file_name_prefix() { return rec_file_name_prefix; }
-string config_handler::get_rec_location() { return rec_location; };
+string config_handler::get_media_location() { return media_location; };
 string config_handler::get_rec_extention() { return rec_extention; };
 string config_handler::get_data_location() { return data_location; };
 string config_handler::get_analysis_location() { return analysis_location; };
@@ -546,8 +565,8 @@ bool config_handler::set_rec_file_name_prefix( string prefix ) {
 }
 
 
-bool config_handler::set_rec_location( string loc ) {
-  rec_location = utils::pathify(loc);
+bool config_handler::set_media_location( string loc ) {
+  media_location = utils::pathify(loc);
   return true; // TODO - impliment
 }
 
