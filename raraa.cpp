@@ -72,16 +72,16 @@ bool rm_filter_features( config_handler *ch, audio_recorder *ar) {
   
   //CMD SYNTAX: find analysis_dir -type f -not -name audio_fname | xargs rm
   stringstream rmFiltersCmd;
-  rmFiltersCmd << "find "
+  rmFiltersCmd << "bash -c 'find "
 	       << analysis_dir
 	       << " -type f -not -name "
 	       << "'" << "dir.info" << "'"
 	       << " -not -name "
 	       << "'" << audio_fname<< "'"
-	       << " | xargs rm";
+	       << " | xargs rm'";
   
 
-  cout<<"TEST: "<<rmFiltersCmd.str()<<endl;
+  //cout<<"TEST: "<<rmFiltersCmd.str()<<endl;
 
   
   int ret;
@@ -207,7 +207,7 @@ bool rm_audio( config_handler *ch, audio_recorder *ar ) {
   string audio = ch->get_analysis_location() + ar->get_rec_file_name_core() + ar->get_rec_extention();
 
   stringstream rmAudioCmd;
-  rmAudioCmd << "rm " << audio;
+  rmAudioCmd << "bash -c 'rm " << audio << "'";
 
 
   int ret;
@@ -271,31 +271,62 @@ bool simulate_run( config_handler *ch ) {
   cout<<n<<mn<<" Simulating a run ... "<<endl;
 
 
-  string extentions = "";
-  if ( ch->get_final_feature_format() == "WRAPPED" )    extentions = "{*.wav,*.dat}";
-  else if ( ch->get_final_feature_format() == "FILES" ) extentions = "{*.wav,*.dat,*.csv}";
-  else                                                  extentions = "*";
+  string ext_media = "";
+  string ext_mdata = "";
+
+  // Choose which files get sent where by extention
+  if ( ch->get_final_feature_format() == "WRAPPED" ) {
+    ext_mdata = "*.dat";
+    ext_media = "*.wav";
+  } else if ( ch->get_final_feature_format() == "FILES" ) { 
+    ext_mdata = "*.dat";
+    ext_media = "{*.csv,*.wav}";
+  }  else {
+    ext_mdata = "*.dat";
+    ext_media = "{*.csv,*.wav}";
+  }
 
 
-  // Simulate an actual run byt copying the example data to the real data deployment directory
+  // Simulate an actual run by copying the example data to the real data deployment directory
   stringstream copyExampleCmd;
   copyExampleCmd << "bash -c 'cp"
 		 << " "
-		 << utils::pathify(ch->get_simulate_dir()) + extentions
+		 << utils::pathify(ch->get_simulate_dir()) + ext_mdata
 		 << " " 
 		 << ch->get_data_location()
 		 <<"' ";
+
   string simulateRunCmd = copyExampleCmd.str();
+  cout<<n<<mn<<" Simulated meta data copy command: \""<<simulateRunCmd<<"\""<<endl;
 
-  cout<<n<<mn<<" Simulated data copy command: \""<<simulateRunCmd<<"\""<<endl;
-  //system(simulateRunCmd.c_str());
-
-
-
+  // Warn if there is a problem
   int ret;
   if( !(ret = system(simulateRunCmd.c_str())) ) {
     //SUCCESS - alert user to cration of feature vector elements
-    cout<<n<<mn<<" Simulation finished."<<endl; 
+    cout<<n<<mn<<" Simulation of meta data finished."<<endl; 
+  } else {
+    res = false;
+  }
+
+
+  
+  copyExampleCmd.str(std::string()); // clear for next command
+
+
+  copyExampleCmd << "bash -c 'cp"
+		 << " "
+		 << utils::pathify(ch->get_simulate_dir()) + ext_media
+		 << " " 
+		 << ch->get_media_location()
+		 <<"' ";
+
+  simulateRunCmd = copyExampleCmd.str();
+  cout<<n<<mn<<" Simulated media data copy command: \""<<simulateRunCmd<<"\""<<endl;
+
+  // Warn if there is a problem
+  if( !(ret = system(simulateRunCmd.c_str())) ) {
+    //SUCCESS - alert user to cration of feature vector elements
+    cout<<n<<mn<<" Simulation of media data finished."<<endl; 
   } else {
     res = false;
   }
@@ -376,7 +407,7 @@ bool out_msg( string _data, string _fname, string _fpath, config_handler *ch ) {
   string fpath  = _fpath;
 
   
-  res = out_msg( type, data, format, fname, fpath ); //TEST
+  res = out_msg( type, data, format, fname, fpath );
 
 
   return res;
