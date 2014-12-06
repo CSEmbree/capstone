@@ -456,13 +456,14 @@ export CLEAN_LOCAL="clean_workspace.sh"
 touch $CLEAN_LOCAL
 chmod u+x $CLEAN_LOCAL
 
-echo "#!/bin/bash"       > $CLEAN_LOCAL
-echo "cd `pwd`/analysis" >> $CLEAN_LOCAL
-echo "rm sound*"         >> $CLEAN_LOCAL
-echo "rm rec*"           >> $CLEAN_LOCAL
-echo "cd `pwd`/data"     >> $CLEAN_LOCAL
-echo "rm sound*"         >> $CLEAN_LOCAL
-echo "rm rec*"           >> $CLEAN_LOCAL
+echo "#!/bin/bash"                      > $CLEAN_LOCAL
+echo "cd `pwd`/analysis"                >> $CLEAN_LOCAL
+echo "rm -r {sound*,rec*} 2> /dev/null" >> $CLEAN_LOCAL
+echo "cd `pwd`/data"                    >> $CLEAN_LOCAL
+echo "rm -r {sound*,rec*} 2> /dev/null" >> $CLEAN_LOCAL
+echo "cd `pwd`/data/media"              >> $CLEAN_LOCAL
+echo "rm -r {sound*,rec*} 2> /dev/null" >> $CLEAN_LOCAL
+
 
 out "Done."
 
