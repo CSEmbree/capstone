@@ -49,7 +49,7 @@ void audio_recorder::apply_config_settings( config_handler ch ) {
   cout<<cn<<mn<<" Applying configuration settings ..."<<endl;
 
   set_rec_file_name_prefix( ch.get_rec_file_name_prefix() );
-  set_rec_location( ch.get_rec_location() );
+  set_rec_location( ch.get_analysis_location() );
   set_rec_extention( ch.get_rec_extention() );
   set_rec_duration( ch.get_rec_duration() );
 
