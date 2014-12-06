@@ -310,13 +310,43 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
   json_generator jg( file );
   
 
-  //write ci_rainbow administrative info
+  // ***FIRST - write ci_rainbow administrative info
   jg.open_object();
 
   jg.add_pair( "date", utils::get_current_date_time() );
   jg.add_pair( "type", ch->get_output_type_id() );
-  jg.add_key( "data" ); // Open data key for the ramining meta date info
+  
 
+
+  // Gather any files if user wants them
+  vector< string > files;
+  files.clear();
+
+  // Gather media file name for transport 
+  if( ch->get_save_rec() == true ) {
+    string audio_fname = ar->get_rec_file_name_core() + ar->get_rec_extention();
+    files.push_back( audio_fname );  
+  }
+
+  
+  // Gather feature file names for transport (unless they are being wrapped in JSON later)
+  if( ch->get_analysis() == true && (ch->get_final_feature_format() == "FILES") ) {
+    for( unsigned int feat_i = 0; feat_i < features.size(); feat_i++ ) {
+      files.push_back( feature_fnames_base.at( feat_i ) );
+    }
+  }
+
+
+  // If we are saving audio and/or feature files, then save wrapped audio and/or feature files
+  if( !files.empty() ) {
+    jg.add_pair( "files", files);
+  }
+
+
+  
+  // **SECOND - all data is in the "data" section
+  // Open data key for the ramining meta date info
+  jg.add_key( "data" ); 
 
 
   // write meta data info
@@ -336,13 +366,16 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
   jg.add_pair( "configPath",          ch->get_config_file() );
 
   if( ch->get_save_rec() == true ) {
-    string media_path = utils::pathify(ch->get_data_location()) + ar->get_rec_file_name_core() + ar->get_rec_extention();
+    string media_path = utils::pathify(ch->get_media_location()) + ar->get_rec_file_name_core() + ar->get_rec_extention();
     jg.add_pair( "mediaPath", media_path ); 
   }
 
+
+
+  // Only save feature extraction info if user wants it
   if( ch->get_analysis() == true ) {
     
-    // get all feature names
+    // Save feature file names
     vector<string > feature_names;
     feature_names.clear();
     
@@ -360,17 +393,17 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
 	}	
       }
       
-      feature_names.push_back( feature_name );
+      feature_names.push_back( feature_name ); //save whole feature fname
     }
+
+
+
     
-    
-
-
-    
-
-
-    // FILES format means we need to provide the names and paths of files from YAAFE we need to send
+    // format saved feature informaton according to user's final format choice
     if( ch->get_final_feature_format() == "FILES" ) {
+
+      // FILES format means we need to provide the names and paths of files from YAAFE we need to send
+
 
       // provide a list of the features extracted before the feature values individually
       jg.add_pair( "featureNames", feature_names );
@@ -384,14 +417,12 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
       }
       
       jg.close_object();
-    }
-
     
+    } else if( ch->get_final_feature_format() == "WRAPPED" ) {    
 
-    
-    // WRAPPED format means we need to provide the values of each YAAFE feature extracted in the meta data
-    if( ch->get_final_feature_format() == "WRAPPED" ) {    
-      
+      // WRAPPED format means we need to provide the values of each YAAFE feature extracted in the meta data    
+
+  
       // provide a list of the features extracted before the feature values individually
       jg.add_pair( "featureNames", feature_names );
 
@@ -424,7 +455,6 @@ bool feature_vector::write( config_handler *ch, audio_recorder *ar, bool formatO
 	
 	//close individual feature
 	jg.close_object();
-	
       }
       
       jg.close_object(); //close features
