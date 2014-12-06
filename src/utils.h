@@ -60,7 +60,6 @@ class utils {
   
  public:
 
-  
   //CITE: str->num from http://www.cplusplus.com/articles/D9j2Nwbp/
   template <typename T>
     static T string_to_number ( const std::string &Text ) {
