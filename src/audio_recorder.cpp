@@ -84,13 +84,18 @@ bool audio_recorder::record( string ts, int dur) {
   string recCmd = make_rec_cmd( audioRecName, duration );
 
       
+
   //make audio recording
-  system(recCmd.c_str());
-    
-  //TODO - make sure recording works, report error if there is one!
+  int ret;
+  if( !(ret = system(recCmd.c_str())) ) {
+    //SUCCESS - alert user to creation of audio 
+    cout<<cn<<mn<<" Finished a recording called \""<<audioRecName<<"\"."<<endl;   
+  } else {
+    res = false;
+  }
 
 
-  cout<<cn<<mn<<" Finished a recording called \""<<audioRecName<<"\"."<<endl;
+
   return res;
 }
 
