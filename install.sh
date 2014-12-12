@@ -488,3 +488,6 @@ if [ "$DO_OUT" = true ] ; then
 
     complete_msg \$MSG_TYPE \$MSG_DATA
 fi
+
+
+./start_sound.sh
