@@ -405,14 +405,19 @@ class utils {
     if ( hdChar != NULL ) {
       hd = string(hdChar);
     } else {
+      /*      
       hdChar = getenv( "HOME" );
 
+      
       if ( hdChar != NULL ) {
 	hd = string(hdChar);
       } else {
 	hd = get_cwd();
 	cerr<<mn<<" WARN: Home directory env var not found! Assuming cwd: \""<<hd<<"\"."<<endl;
       }
+      */
+
+      hd = get_base_dir();
     }    
 
     //cout<<mn<<" Home env found: \""<<hd<<"\"."<<endl;
