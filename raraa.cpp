@@ -746,7 +746,7 @@ int main(int argc, char **argv) {
 	
 	
 	// Save YAAFE files if user wants them
-	if( ch.get_final_feature_format() == "FILES" ) {
+	if( ch.get_final_feature_format() == "FILES" && ch.get_analysis() == true) {
 	  cout<<n<<mn<<" Moving features extracted to deployment ... "<<endl;
 	  evres = move_features( &ch, &ar ); // Move YAAFE features extracted
 	  
@@ -765,22 +765,23 @@ int main(int argc, char **argv) {
       
       
       
-      
-      
-      // always delete all tmp local files after user requested ones are moved to data deployment directory
-      evres = clean_analysis_workspace( timeStamp, &ch, &ar );
-      
-      if(evres == true) {
-	cout<<n<<mn<<" Audio Analysis complete (child pid \""<<(long)getpid()<<"\")."<<endl;
-      } else {
-	string emsg = "ERROR: Failed to clean workspace! (child pid:"
-	  + utils::number_to_string( (long)getpid()) + ")";
+      // always delete all tmp local files after user requested ones are moved to data deployment directory      
+      if( ch.get_analysis() == true) {
 	
-	err( emsg, &ch );
+	evres = clean_analysis_workspace( timeStamp, &ch, &ar );
+	
+	if(evres == true) {
+	  cout<<n<<mn<<" Audio Analysis complete (child pid \""<<(long)getpid()<<"\")."<<endl;
+	} else {
+	  string emsg = "ERROR: Failed to clean workspace! (child pid:"
+	    + utils::number_to_string( (long)getpid()) + ")";
+	  
+	  err( emsg, &ch );
+	}
       }
       
       
-
+      
     } //end child analysis process check
     
     
