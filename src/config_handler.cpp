@@ -83,8 +83,10 @@ void config_handler::init() {
   set_fv_file_name     ( DEF_FEATURE_NAME ); 
   set_fv_file          ( get_fv_file_path() + get_fv_file_name() ); 
   
-  set_data_location       ( utils::get_base_dir() + DEF_DATA_DIR ); //TODO - make hardcoded elsewhere
-  set_analysis_location   ( utils::get_base_dir() + DEF_ANALYSIS_DIR ); // TODO - make hardcoded elsewhere 
+  //  set_data_location       ( utils::get_base_dir() + DEF_DATA_DIR ); //TODO - make hardcoded elsewhere
+  //  set_analysis_location   ( utils::get_base_dir() + DEF_ANALYSIS_DIR ); // TODO - make hardcoded elsewhere 
+  set_data_location       ( utils::get_home_dir() + DEF_DATA_DIR );
+  set_analysis_location   ( utils::get_base_dir() + DEF_ANALYSIS_DIR );
 
   set_rec_file_name_prefix( DEF_REC_PREFIX ); // TODO - make hardcoded elsewhere 
   set_media_location      ( get_data_location() + DEF_MEDIA_DIR ); // TODO - make hardcoded elsewhere 
